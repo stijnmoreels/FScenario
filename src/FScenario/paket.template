@@ -1,0 +1,24 @@
+type file
+id FScenario
+version 0.0.1
+title FScenario
+summary .NET project to write integration tests in a more safe and fun way
+description
+    .NET project to write integration tests in a more safe and fun way. 
+    The package consists of several functions to help write tests that clean up after themselves, 
+    making assertions more reliable by polling for required results, 
+    adds some standard building blocks for you to start creating your own disposable fixture, ...
+copyright Copyright 2019
+authors Stijn Moreels
+owners Stijn Moreels
+tags fsharp,integration-tests,integration,tests,disposable,polling,fixture,teardown
+projectUrl https://github.com/stijnmoreels/FScenario
+iconUrl https://github.com/stijnmoreels/FScenario/blob/master/docsrc/logo.png
+licenseUrl https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt
+releaseNotes Initial release
+files bin\*.dll ==> lib
+dependencies
+    FSharp.Core
+    Microsoft.AspNetCore.Hosting
+    Microsoft.AspNetCore.Server.Kestrel
+    Polly-Signed

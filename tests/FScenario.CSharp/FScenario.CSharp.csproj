@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/FScenario/FScenario.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xUnit" Version="2.*" />
+		<PackageReference Include="xUnit.runner.visualstudio" Version="2.*" />
+  </ItemGroup>
+
+</Project>

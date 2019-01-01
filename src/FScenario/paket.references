@@ -1,0 +1,6 @@
+FSharp.Core
+Polly-Signed
+Microsoft.AspNetCore.Hosting
+Microsoft.AspNetCore.Server.Kestrel
+
+File: VirtualStream.fs .
