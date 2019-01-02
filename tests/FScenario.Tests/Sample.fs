@@ -134,7 +134,7 @@ let http_tests =
       Expect.equal OK res.StatusCode "http status code should be OK"
     };
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
-      let endpoint = "http://localhost:222"
+      let endpoint = "http://localhost:8081"
       let expected = "this is a test!"
       use _ = Http.serverRoutes endpoint [ GET, Http.respond OK; POST, Http.respond expected ]
       do! Poll.untilHttpOkEvery1sFor10s endpoint
