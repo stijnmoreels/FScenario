@@ -129,8 +129,9 @@ let inline (<>?) e a = Expect.notEqual e a ""
 let app_tests =
   testList "application disposal" [
     yield! testFixture 
-      (fun f () -> App.using "notepad.exe" f) 
-      [ "has an process identifier", fun () -> Expect.isNonEmpty (Process.GetProcessesByName "notepad") "" ]
+      (fun f () -> 
+        App.using (".." </> "packages" </> "formatting" </> "FSharp.Formatting.CommandTool" </> "tools" </> "fsformatting.exe") f)
+      [ "has an process identifier", fun () -> Expect.isNonEmpty (Process.GetProcessesByName "fsformatting") "" ]
   ]
 
 [<Tests>]
@@ -146,7 +147,8 @@ let http_tests =
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
       let endpoint = "http://localhost:222"
       let expected = "this is a test!"
-      use _ = Http.serverRoutes endpoint [ POST, Http.respond expected; PUT, Http.respond expected ]
+      use _ = Http.serverRoutes endpoint [ GET, Http.respond OK; POST, Http.respond expected; PUT, Http.respond expected ]
+      do! Poll.untilHttpOkEvery1sFor5s endpoint
 
       use content = HttpContent.string expected
       use! res = Http.post endpoint content

@@ -9,4 +9,3 @@ open System.IO
 let main argv =
     use __ = Dir.setCurrentUndo "test-workspace"
     Tests.runTestsInAssembly { defaultConfig with parallel = false } argv
-    0 
