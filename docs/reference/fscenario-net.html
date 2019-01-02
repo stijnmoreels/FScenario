@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Net - FScenario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Stijn Moreels"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/FScenario/content/style.css" />
+    <script type="text/javascript" src="/FScenario/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/stijnmoreels/FScenario">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FScenario/index.html">FScenario</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Net</h1>
+<p>
+  <span>Namespace: FScenario</span><br />
+  </p>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Type extensions</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Type extension</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+            Http.Server(url)
+          </code>
+          <div class="tip" id="79">
+            <strong>Signature:</strong> url:string -&gt; (type)<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Interop.fs#L134-134" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Start HTTP server on the specified url, returning a successful 'OK' for received GET requests.</p>
+
+
+              <p>CompiledName: <code>Http.Server.Static</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
+            Http.Server(url, predicate, handler)
+          </code>
+          <div class="tip" id="80">
+            <strong>Signature:</strong> (url:string * predicate:(type) * handler:(type)) -&gt; (type)<br />
+                          <strong>Type parameters:</strong> '?8363, '?8364                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Interop.fs#L141-141" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.</p>
+
+
+              <p>CompiledName: <code>Http.Server.Static</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
+            Http.Server(url, route, count)
+          </code>
+          <div class="tip" id="81">
+            <strong>Signature:</strong> (url:string * route:(type) * count:int) -&gt; unit -&gt; Async&lt;HttpRequest list&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Interop.fs#L152-152" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.</p>
+
+
+              <p>CompiledName: <code>Http.Server.Static</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
+            Http.ServerCollect(...)
+          </code>
+          <div class="tip" id="82">
+            <strong>Signature:</strong> (url:string * route:(type) * resultsPredicate:(type)) -&gt; unit -&gt; Async&lt;HttpRequest list&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Interop.fs#L163-163" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a HTTP server on the specified url, receiving requests when the specified routing function holds,
+collecting a series of received requests until the specified results predicate succeeds.</p>
+
+
+              <p>CompiledName: <code>Http.ServerCollect.Static</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
+            Http.ServerCollect(...)
+          </code>
+          <div class="tip" id="83">
+            <strong>Signature:</strong> (url:string * route:(type) * handler:(type) * resultMapper:(type) * resultsPredicate:(type)) -&gt; unit -&gt; Async&lt;&#39;?8369 list&gt;<br />
+                          <strong>Type parameters:</strong> '?8368, '?8369                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Interop.fs#L177-177" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
+collecting a series of received requests all mapped to a type via the specified mapper function until the specified results predicate succeeds.</p>
+
+
+              <p>CompiledName: <code>Http.ServerCollect.Static</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/FScenario/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">FScenario</li>
+            <li><a href="/FScenario/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FScenario">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/stijnmoreels/FScenario">Source Code on GitHub</a></li>
+            <li><a href="/FScenario/license.html">License</a></li>
+            <li><a href="/FScenario/release-notes.html">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/FScenario/tutorial.html">Sample tutorial</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FScenario/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/stijnmoreels/FScenario"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  <footer>
+    <div>Icons made by <a href="https://www.flaticon.com/authors/vectors-market" title="Vectors Market">Vectors Market</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+  </footer>
+  </html>

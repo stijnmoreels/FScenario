@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Dir - FScenario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Stijn Moreels"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/FScenario/content/style.css" />
+    <script type="text/javascript" src="/FScenario/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/stijnmoreels/FScenario">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FScenario/index.html">FScenario</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Dir</h1>
+<p>
+  <span>Namespace: System.IO</span><br />
+  </p>
+<div class="xmldoc">
+<p>Exposes a series of directory functions simular to  and .</p>
+
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
+            at(dir)
+          </code>
+          <div class="tip" id="129">
+            <strong>Signature:</strong> dir:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;At&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L87-87" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a  instance from a specified directory path.</p>
+
+
+              <p>CompiledName: <code>At</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
+            clean(dir)
+          </code>
+          <div class="tip" id="130">
+            <strong>Signature:</strong> dir:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Clean&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L112-112" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes the files in the specified directory.</p>
+
+
+              <p>CompiledName: <code>Clean</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+            cleanEnsure(dir)
+          </code>
+          <div class="tip" id="131">
+            <strong>Signature:</strong> dir:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;CleanEnsure&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L141-141" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensure we have a clean (no files) directory at the specified directory path.</p>
+
+
+              <p>CompiledName: <code>CleanEnsure</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
+            cleanEnsures(dirs)
+          </code>
+          <div class="tip" id="132">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;CleanEnsures&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L147-147" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensure we have clean (no files) directories at the specified directory paths.</p>
+
+
+              <p>CompiledName: <code>CleanEnsures</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
+            cleans(dirs)
+          </code>
+          <div class="tip" id="133">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Cleans&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L121-121" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes the files in the specified directories.</p>
+
+
+              <p>CompiledName: <code>Cleans</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
+            cleansUndo(dirs)
+          </code>
+          <div class="tip" id="134">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;CleansUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L231-231" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes the files in the specified directories and revert the cleaning after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>CleansUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
+            cleanUndo(dir)
+          </code>
+          <div class="tip" id="135">
+            <strong>Signature:</strong> dir:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;CleanUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L217-217" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Delets the files in the specified directory and revert the cleaning after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>CleanUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
+            copy src dest
+          </code>
+          <div class="tip" id="136">
+            <strong>Signature:</strong> src:string -&gt; dest:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Copy&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L189-189" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Copies the files from the specified source directory to the specified destination directory,
+while ensuring that the destination directory is created.</p>
+
+
+              <p>CompiledName: <code>Copy</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
+            delete(dir)
+          </code>
+          <div class="tip" id="137">
+            <strong>Signature:</strong> dir:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Delete&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L153-153" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes the directory at the specified path.</p>
+
+
+              <p>CompiledName: <code>Delete</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
+            deletes(dirs)
+          </code>
+          <div class="tip" id="138">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Deletes&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L162-162" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes the directories at the specified paths.</p>
+
+
+              <p>CompiledName: <code>Deletes</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
+            deletesUndo(dirs)
+          </code>
+          <div class="tip" id="139">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;DeletesUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L304-304" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes the direcotories at the specified paths and revert the deletions after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>DeletesUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
+            deleteUndo(src)
+          </code>
+          <div class="tip" id="140">
+            <strong>Signature:</strong> src:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;DeleteUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L289-289" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Delete the directory at the specified path and revert the deletion after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>DeleteUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+            disposable(dir)
+          </code>
+          <div class="tip" id="141">
+            <strong>Signature:</strong> dir:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Disposable&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L169-169" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensures we have a clean (no files) directory at the specified directory path
+that gets deleted when the returned  is disposed.</p>
+
+
+              <p>CompiledName: <code>Disposable</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
+            ensure(dir)
+          </code>
+          <div class="tip" id="142">
+            <strong>Signature:</strong> dir:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Ensure&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L127-127" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensure we have a directory at the specified directory path.</p>
+
+
+              <p>CompiledName: <code>Ensure</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
+            ensures(dirs)
+          </code>
+          <div class="tip" id="143">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Ensures&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L135-135" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensure we have a directory at the specified directory paths.</p>
+
+
+              <p>CompiledName: <code>Ensures</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
+            ensuresUndo(dirs)
+          </code>
+          <div class="tip" id="144">
+            <strong>Signature:</strong> dirs:seq&lt;string&gt; -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;EnsuresUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L253-253" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensures we have a clean (no files) directories at the specified directory paths and revert the ensurance after the returned disposable gets disposed,
+taking into account whether the directory was already created by deleting the directory if it didn't existed.</p>
+
+
+              <p>CompiledName: <code>EnsuresUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
+            ensureUndo(dir)
+          </code>
+          <div class="tip" id="145">
+            <strong>Signature:</strong> dir:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;EnsureUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L238-238" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Ensures we have a clean (no files) directory at the specified directory path and revert the ensurance after the returned disposable gets disposed,
+taking into account whether the directory was already created by deleting the directory if it didn't existed.</p>
+
+
+              <p>CompiledName: <code>EnsureUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+            exists(dir)
+          </code>
+          <div class="tip" id="146">
+            <strong>Signature:</strong> dir:string -&gt; bool<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Exists&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L95-95" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Determines whether a specified directory path refers to a existing directory.
+</summary></p>
+
+
+              <p>CompiledName: <code>Exists</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+            files(dir)
+          </code>
+          <div class="tip" id="147">
+            <strong>Signature:</strong> dir:string -&gt; string []<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Files&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L103-103" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets the names of the files (including their paths) in the specified directory.</p>
+
+
+              <p>CompiledName: <code>Files</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
+            replace dest src
+          </code>
+          <div class="tip" id="148">
+            <strong>Signature:</strong> dest:string -&gt; src:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Replace&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L259-259" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Replacs the specified source directory with the specified destination directory.</p>
+
+
+              <p>CompiledName: <code>Replace</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+            replaceUndo dest src
+          </code>
+          <div class="tip" id="149">
+            <strong>Signature:</strong> dest:string -&gt; src:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;ReplaceUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L271-271" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>ReplaceUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
+            setCurrentUndo(dir)
+          </code>
+          <div class="tip" id="150">
+            <strong>Signature:</strong> dir:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;SetCurrentUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L177-177" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Sets the current environment directory at the specified path but revert this change after calling 'Dispose' on the returned disposable.</p>
+
+
+              <p>CompiledName: <code>SetCurrentUndo</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/FScenario/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">FScenario</li>
+            <li><a href="/FScenario/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FScenario">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/stijnmoreels/FScenario">Source Code on GitHub</a></li>
+            <li><a href="/FScenario/license.html">License</a></li>
+            <li><a href="/FScenario/release-notes.html">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/FScenario/tutorial.html">Sample tutorial</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FScenario/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/stijnmoreels/FScenario"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  <footer>
+    <div>Icons made by <a href="https://www.flaticon.com/authors/vectors-market" title="Vectors Market">Vectors Market</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+  </footer>
+  </html>
