@@ -455,6 +455,10 @@ module IO =
         /// Gets the hash value of a given file contents.
         /// </summary>
         static member hash (f : FileInfo) = Item.hash f.FullName
+        /// <summary>
+        /// Deletes a file at a specified file path.
+        /// </summary>
+        static member delete (f : FileInfo) = Item.delete f.FullName
 
     /// <summary>
     /// Determines if two files are equal by hashing (MD5) their contents.

@@ -93,8 +93,8 @@ let poll_tests =
 
       Dir.clean "."
       do! writeFile
-      do! Poll.untilFileExistsEvery1sFor5s "present.txt" |> Async.Ignore
-      File.delete "present.txt"
+      let! f = Poll.untilFileExistsEvery1sFor5s "present.txt"
+      FileInfo.delete f
      };
      testCaseAsync "should poll until file count matches" <| async {
        let writeGenFile1sDelayed () = 
@@ -123,17 +123,6 @@ let poll_tests =
      }
   ]
 
-let inline (<>?) e a = Expect.notEqual e a ""
-
-[<Tests>]
-let app_tests =
-  testList "application disposal" [
-    yield! testFixture 
-      (fun f () -> 
-        App.using (".." </> "packages" </> "formatting" </> "FSharp.Formatting.CommandTool" </> "tools" </> "fsformatting.exe") f)
-      [ "has an process identifier", fun () -> Expect.isNonEmpty (Process.GetProcessesByName "fsformatting") "" ]
-  ]
-
 [<Tests>]
 let http_tests =
   testList "http tests" [
@@ -151,8 +140,13 @@ let http_tests =
       do! Poll.untilHttpOkEvery1sFor10s endpoint
 
       use content = HttpContent.string expected
-      use! res = Http.post endpoint content
-      let! str = res.ReadAsString ()
+      use! res = 
+        Poll.target (fun () -> Http.post endpoint content)
+        |> Poll.until (fun r -> r.StatusCode = OK)
+        |> Poll.every _1s
+        |> Poll.timeout _10s
+        |> Poll.error "http server should respond with OK on POST"
+      let! str = (res : HttpResponse).ReadAsString ()
       Expect.equal res.StatusCode OK "POST: http status code should be OK"
       Expect.equal expected str (sprintf "POST: http response content should be: '%s'" expected)
     };
