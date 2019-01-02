@@ -147,20 +147,14 @@ let http_tests =
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
       let endpoint = "http://localhost:222"
       let expected = "this is a test!"
-      use _ = Http.serverRoutes endpoint [ GET, Http.respond OK; POST, Http.respond expected; PUT, Http.respond expected ]
-      do! Poll.untilHttpOkEvery1sFor5s endpoint
+      use _ = Http.serverRoutes endpoint [ GET, Http.respond OK; POST, Http.respond expected ]
+      do! Poll.untilHttpOkEvery1sFor10s endpoint
 
       use content = HttpContent.string expected
       use! res = Http.post endpoint content
       let! str = res.ReadAsString ()
       Expect.equal res.StatusCode OK "POST: http status code should be OK"
       Expect.equal expected str (sprintf "POST: http response content should be: '%s'" expected)
-
-      use content = HttpContent.string expected
-      use! res = Http.put endpoint content
-      let! str = res.ReadAsString ()
-      Expect.equal res.StatusCode OK "PUT: http status code should be OK"
-      Expect.equal str expected (sprintf "PUT: http response content should be: '%s'" expected)
     };
     testCaseAsync "collects 3 received requests for POST" <| async {
       let endpoint = "http://localhost:3456"
