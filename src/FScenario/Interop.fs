@@ -92,7 +92,7 @@ type DirectoryEx =
         DirectoryInfo.replace dest src
     /// <summary>
     /// Replaces the specified source directory with the specified destination directory and revert this replacement after the 'Dispose' is called of the returned disposable.
-    /// </summray>
+    /// </summary>
     [<Extension>]
     static member ReplaceWithUndo dest src =
         if dest = null then nullArg "dest"
@@ -213,7 +213,7 @@ type Poll =
         if pollFunc = null then nullArg "pollFunc"
         PollAsync<_>.Create(pollFunc.Invoke >> Async.AwaitTask)
 
-    // <summary>
+    /// <summary>
     /// Poll at a given target using a filtering function every second for 5 seconds.
     /// </summary>
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>

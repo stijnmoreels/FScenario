@@ -265,8 +265,8 @@ module Dir =
         copy src dest
 
     /// <summary>
-    /// Replaces the specified source directory with the specified destination directory and revert this replacement after the 'Dispose' is called of the returned disposable.
-    /// </summray>
+    /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
+    /// </summary>
     [<CompiledName("ReplaceUndo")>]
     let replaceUndo dest src =
         if src = null then nullArg "src"
@@ -350,8 +350,8 @@ module IO =
         /// </summary>
         static member replace dest src = Dir.replace dest src
         /// <summary>
-        /// Replaces the specified source directory with the specified destination directory and revert this replacement after the 'Dispose' is called of the returned disposable.
-        /// </summray>
+        /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
+        /// </summary>
         static member replaceUndo dest src = Dir.replaceUndo dest src
          /// <summary>
         /// Ensures we have a clean (no files) directory at the specified directory path
@@ -399,8 +399,8 @@ module IO =
         /// </summary>
         static member replace (dest : DirectoryInfo) (src : DirectoryInfo) = Dir.replace dest.FullName src.FullName
         /// <summary>
-        /// Replaces the specified source directory with the specified destination directory and revert this replacement after the 'Dispose' is called of the returned disposable.
-        /// </summray>
+        /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
+        /// </summary>
         static member replaceUndo (dest : DirectoryInfo) (src : DirectoryInfo) = Dir.replaceUndo dest.FullName src.FullName
          /// <summary>
         /// Ensures we have a clean (no files) directory at the specified directory path
