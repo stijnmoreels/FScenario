@@ -11,6 +11,7 @@ nuget Microsoft.AspNetCore.Server.Kestrel
 nuget Microsoft.Extensions.Logging.Console
 
 github stijnmoreels/System.IO.VirtualStream VirtualStream.fs
+    
 
 // [ FAKE GROUP ]
 group Build

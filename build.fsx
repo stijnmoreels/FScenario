@@ -6,6 +6,7 @@ open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
+open Fake.DotNet.PaketTemplate
 
 let dotnetExePath = "dotnet"
 let bin = "bin"
@@ -21,7 +22,7 @@ Target.create "Clean" <| fun _ ->
 Target.create "Build" <| fun _ ->
     AssemblyInfoFile.createFSharp "src/FScenario/Properties/AssemblyInfo.cs"
         [ AssemblyInfo.Title "FScenario"
-          AssemblyInfo.Description  ".NET project to write integration tests in a more safe and fun way"
+          AssemblyInfo.Description  "Reusable integration test building blocks to write integration tests in a more safe and fun way"
           AssemblyInfo.Guid "871111ca-f7e3-48c5-95b1-6eec4c289948"
           AssemblyInfo.Product "FScenario"
           AssemblyInfo.Version releaseNotes.NugetVersion
@@ -58,7 +59,7 @@ Target.create "Paket" <| fun _ ->
             Id = Some "FScenario"
             Version = Some releaseNotes.NugetVersion
             Description =
-                [ ".NET project to write integration tests in a more safe and fun way. "
+                [ "Reusable integration test building blocks to write integration tests in a more safe and fun way. "
                   "The package consists of several functions to help write tests that clean up after themselves, " 
                   "making assertions more reliable by polling for required results, "
                   "adds some standard building blocks for you to start creating your own disposable fixture, ..." ]
@@ -66,16 +67,16 @@ Target.create "Paket" <| fun _ ->
             Authors = [ "Stijn Moreels" ]
             Owners = [ "Stijn Moreels" ]
             ReleaseNotes = releaseNotes.Notes
-            Summary = [ ".NET project to write integration tests in a more safe and fun way" ]
+            Summary = [ "Reusable integration test building blocks to write integration tests in a more safe and fun way" ]
             ProjectUrl = Some "https://github.com/stijnmoreels/FScenario"
             LicenseUrl = Some "https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt"
-            IconUrl = Some "https://github.com/stijnmoreels/FScenario/blob/master/docsrc/logo.png"
+            IconUrl = Some "https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png"
             Copyright = Some "Copyright 2019"
             Tags = [ "fsharp"; "integration-tests"; "integration"; "tests"; "disposable"; "polling"; "fixture"; "teardown" ]
-            Files = [ PaketTemplate.PaketFileInfo.Include (bin @@ "*.dll", "lib") ]
+            Files = [ PaketFileInfo.Include (bin @@ "*.dll", "lib") ]
             Dependencies = 
                 Paket.getDependenciesForReferencesFile "src/FScenario/paket.references"
-                |> Array.map (fun (package, _) -> PaketTemplate.PaketDependency (package, PaketTemplate.PaketDependencyVersionInfo.AnyVersion) )
+                |> Array.map (fun (package, version) -> PaketDependency (package, GreaterOrEqual (Version version)))
                 |> List.ofArray })
 
     Paket.pack (fun defaults ->
@@ -96,7 +97,7 @@ Target.create "Docs" <| fun _ ->
     let info =
           [ "project-name", "FScenario"
             "project-author", "Stijn Moreels"
-            "project-summary", ".NET project to write integration tests in a more safe and fun way."
+            "project-summary", "Reusable integration test building blocks to write integration tests in a more safe and fun way."
             "project-github", "https://github.com/stijnmoreels/FScenario"
             "project-nuget", "http://nuget.org/packages/FScenario" ]
             

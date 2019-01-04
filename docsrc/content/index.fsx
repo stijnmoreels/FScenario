@@ -50,9 +50,14 @@ The library is available under Public Domain license, which allows modification 
 redistribution for both commercial and non-commercial purposes. For more information see the 
 [License file][license] in the GitHub repository. 
 
+Icons made by [Vectors Market][vectorsmarket] from [www.flaticon.com][flaticono] is licensed by [CC 3.0][cc].
+
   [content]: https://github.com/stijnmoreels/FScenario/tree/master/docs/content
   [gh]: https://github.com/stijnmoreels/FScenario
   [issues]: https://github.com/stijnmoreels/FScenario/issues
   [readme]: https://github.com/stijnmoreels/FScenario/blob/master/README.md
   [license]: https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt
+  [vectorsmarket]: https://www.flaticon.com/authors/vectors-market
+  [flaticon]: https://www.flaticon.com/
+  [cc]: http://creativecommons.org/licenses/by/3.0/
 *)
