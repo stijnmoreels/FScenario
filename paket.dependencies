@@ -1,17 +1,12 @@
 version 5.193.0
 source https://www.nuget.org/api/v2
 
-nuget Expecto >= 8.0
 nuget Expecto.TestResults
-nuget Expecto.VisualStudio.TestAdapter version_in_path: true
-nuget FSharp.Core
 nuget Polly-Signed
-nuget Microsoft.AspNetCore.Hosting
 nuget Microsoft.AspNetCore.Server.Kestrel
 nuget Microsoft.Extensions.Logging.Console
 
 github stijnmoreels/System.IO.VirtualStream VirtualStream.fs
-    
 
 // [ FAKE GROUP ]
 group Build
@@ -23,7 +18,6 @@ group Build
     nuget Fake.DotNet.Paket
     nuget Fake.DotNet.AssemblyInfoFile
     nuget Fake.DotNet.FSFormatting
-    nuget Fake.IO.FileSystem
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes
 

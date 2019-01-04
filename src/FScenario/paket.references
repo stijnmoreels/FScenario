@@ -1,7 +1,5 @@
 FSharp.Core
 Polly-Signed
-Microsoft.AspNetCore.Hosting
 Microsoft.AspNetCore.Server.Kestrel
 Microsoft.Extensions.Logging.Console
-
-File: VirtualStream.fs .
+File:VirtualStream.fs .

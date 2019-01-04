@@ -19,7 +19,6 @@ releaseNotes Initial release
 files bin\*.dll ==> lib
 dependencies
     FSharp.Core >= 4.5.4
-    Microsoft.AspNetCore.Hosting >= 2.2
     Microsoft.AspNetCore.Server.Kestrel >= 2.2
     Microsoft.Extensions.Logging.Console >= 2.2
     Polly-Signed >= 5.9
