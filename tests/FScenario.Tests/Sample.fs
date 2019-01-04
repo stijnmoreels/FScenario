@@ -72,13 +72,24 @@ let directory_tests =
 let file_tests =
   testList "file tests" [
     testCase "equalize on hashed content" <| fun _ ->
-      Dir.clean "."
+      Dir.cleanFiles "."
       let p1 = "test1.txt"
       File.WriteAllText (p1, "!!! This should be the same content !!!")
       let p2 = "test2.txt"
       File.WriteAllText (p2, "!!! This should be the same content !!!")
-      Expect.isTrue (p1 === p2) "file contents should be the same after hash"
+      Expect.isTrue (File.hashEqual p1 p2) "file contents should be the same after hash"
       File.deletes [ p1; p2 ]
+    testCase "replaces file but switch back to original after disposing" <| fun _ ->
+      use __ = Dir.ensureUndo "item-replace-undo"
+      let testEnvPath = "item-replace-undo" </> "test-env.txt"
+      let prodEnvPath = "item-replace-undo" </> "prod-env.txt"
+      File.WriteAllText (testEnvPath, "test environment")
+      File.WriteAllText (prodEnvPath, "prod environment")
+      
+      let d = Item.replaceUndo prodEnvPath testEnvPath
+      Expect.equal (File.ReadAllText prodEnvPath) "test environment" "Item.replaceUndo should replace the destination file with the source file"
+      d.Dispose ()
+      Expect.equal (File.ReadAllText prodEnvPath) "prod environment" "After disposing Item.replaceUndo the destination file should be put back"
   ]
 
 let writeFileDelayed n t =
@@ -91,7 +102,7 @@ let poll_tests =
     testCaseAsync "should poll for file presence" <| async {
       let! writeFile = writeFileDelayed "present.txt" TimeInt._1s |> Async.StartChild
 
-      Dir.clean "."
+      Dir.cleanFiles "."
       do! writeFile
       let! f = Poll.untilFileExistsEvery1sFor5s "present.txt"
       FileInfo.delete f
@@ -134,7 +145,7 @@ let http_tests =
       Expect.equal OK res.StatusCode "http status code should be OK"
     };
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
-      let endpoint = "http://localhost:8081"
+      let endpoint = "http://localhost:8082"
       let expected = "this is a test!"
       use _ = Http.serverRoutes endpoint [ GET, Http.respond OK; POST, Http.respond expected ]
       do! Poll.untilHttpOkEvery1sFor10s endpoint

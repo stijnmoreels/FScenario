@@ -3,14 +3,26 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
+using Microsoft.Extensions.Logging;
+using FScenario;
+using Divergic.Logging.Xunit;
 
 namespace FScenario.CSharp
 {
     public class Sample
     {
+        private readonly ILogger _logger;
+
         static Sample()
         {
-            Environment.CurrentDirectory = "test-workspace-csharp";
+            Dir.SetCurrentUndo("test-workspace-csharp");
+        }
+
+        public Sample(ITestOutputHelper outputWriter)
+        {
+            Log.Factory.AddProvider(new TestOutputLoggerProvider(outputWriter));
+            _logger = Log.Logger<Sample>();
         }
 
         [Fact]
@@ -19,8 +31,9 @@ namespace FScenario.CSharp
             Dir.Clean(".");
 
             string fileName = $"{Guid.NewGuid()}.txt";
+            _logger.LogDebug("Write delayed file: {file}", fileName);
             await WriteFileDelayed(fileName, TimeInt._1s);
-            
+
             await Poll.UntilFileExistsEvery1sFor5s(fileName);
         }
 
