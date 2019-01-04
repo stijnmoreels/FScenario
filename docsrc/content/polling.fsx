@@ -36,6 +36,7 @@ Because every developer has a own tast of using functions and composing software
 FScenario provides for you a F# [Computation Expression](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/computation-expressions) that can be used to create a polling function:
 
 *)
+open System
 open System.IO
 open FScenario
 
