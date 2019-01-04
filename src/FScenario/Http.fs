@@ -2,16 +2,16 @@ namespace FScenario
 
 open System
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 open System.IO
 open System.Net
 open System.Net.Http
-open System.Runtime.InteropServices
 open System.Threading
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
-open System.Runtime.CompilerServices
+open Microsoft.Extensions.Logging
 
 [<AutoOpen>]
 module HttpMethods =
@@ -251,28 +251,37 @@ module Stream =
         [<Extension>]
         static member ReadAsString (str : Stream) = asString str
 
-
+/// Provides functionality to test and host HTTP endpoints.
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Http =
+
+    let logger = Log.logger<Http> () 
+
     /// <summary>
     /// Sends a HTTP GET request to the specified uri.
     /// </summary>
-    let get uri = async {
+    let get (uri : string) = async {
+        logger.LogInformation(LogEvent.http, "GET -> {uri}", uri)
         let! res = Http.Get uri |> Async.AwaitTask
+        logger.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
         return HttpResponse.Create res }
 
     /// <summary>
     /// Sends a HTTP POST request with a content to the specified uri.
     /// </summary>
-    let post uri content = async {
+    let post (uri : string) content = async {
+        logger.LogInformation(LogEvent.http, "POST -> {uri}", uri)
         let! res = Http.Post uri content |> Async.AwaitTask
+        logger.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
         return HttpResponse.Create res }
 
     /// <summary>
     /// Sends a HTTP PUT request with a content to the specified uri.
     /// </summary>
-    let put uri content = async {
+    let put (uri : string) content = async {
+        logger.LogInformation(LogEvent.http, "PUT -> {uri}", uri)
         let! res = Http.Put uri content |> Async.AwaitTask
+        logger.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
         return HttpResponse.Create res }
 
     /// <summary>
@@ -307,7 +316,9 @@ module Http =
         serverCustom url <| fun (app : IApplicationBuilder) ct ->
             for (predicate, handler) in table do
                     app.MapWhen (Func<_, _> predicate, Action<_> (fun x -> 
-                        x.Run(RequestDelegate (fun ctx -> handler ctx ct |> Async.StartAsTask :> Task)))) |> ignore
+                        x.Run(RequestDelegate (fun ctx -> 
+                            logger.LogInformation(LogEvent.http, "Receive at '{uri}' <- {method}", url, ctx.Request.Method)
+                            handler ctx ct |> Async.StartAsTask :> Task)))) |> ignore
 
     /// <summary>
     /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
@@ -354,8 +365,9 @@ module Http =
             let rec loop messages = async {
                 let! message = agent.Receive ()
                 match message with
-                | Add (str, ct) -> 
+                | Add (str, ct) ->
                     let messages = str :: messages
+                    logger.LogInformation (LogEvent.http, "Collect received request, collected: {length}", messages.Length)
                     if resultsPredicate messages 
                     then ct.Cancel (); return ()
                     return! loop messages

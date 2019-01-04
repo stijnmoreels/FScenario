@@ -46,13 +46,21 @@ module Disposable =
     /// <summary>
     /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
     /// </summary>
-    let compose (d1 : IDisposable) (d2 : IDisposable) =
+    let compose2 (d1 : IDisposable) (d2 : IDisposable) =
         match d1, d2 with
         | :? CompositeDisposable as d, x -> d.Add x
         | d, (:? CompositeDisposable as x) -> x.Add d
         | d, x -> CompositeDisposable.Create [d; x]
         :> IDisposable
     /// <summary>
+    /// Creates a representation of a composite of <see cref="IDisposable" /> implementations that disposes all in the composite when disposed.
+    /// </summary>
+    let compose ds = CompositeDisposable.Create ds
+    /// <summary>
+    /// Creates a representation of a composite of <see cref="IDisposable" /> implementations that disposes all in the composite when disposed.
+    /// </summary>
+    let Compose ([<ParamArray>] ds) = CompositeDisposable.Create (Seq.ofArray ds)
+    /// <summary>
     /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
     /// </summary>
-    let inline (<+>) d1 d2 = compose d1 d2
+    let inline (<+>) d1 d2 = compose2 d1 d2

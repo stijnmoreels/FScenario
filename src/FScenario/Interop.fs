@@ -11,7 +11,7 @@ type DisposableExtensions =
     static member And (d1, d2) = 
         if d1 = null then nullArg "d1"
         if d2 = null then nullArg "d2"
-        Disposable.compose d1 d2
+        Disposable.compose2 d1 d2
 
 namespace FScenario
 
@@ -124,7 +124,20 @@ type FileEx =
         if f1 = null then nullArg "f1"
         if f2 = null then nullArg "f2"
         FileInfo.hashEqual f1 f2
+    [<Extension>]
+    static member Delete f = FileInfo.delete f
+    /// <summary>
+    /// Replaces a specified destination file with a source file.
+    /// </summary>
+    [<Extension>]
+    static member Replace (src, dest) = FileInfo.replace src dest
+    /// <summary>
+    /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
+    /// </summary>
+    [<Extension>]
+    static member ReplaceUndo (src, dest) = FileInfo.replaceUndo src dest
 
+/// Provides functionality to test and host HTTP endpoints.
 module Net =
     type Http with 
         /// <summary>

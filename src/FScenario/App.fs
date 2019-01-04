@@ -1,8 +1,12 @@
 namespace FScenario
 
+/// Expose application related functionality to start/stop/manage/... applications.
 module App =
     open System
     open System.Diagnostics
+     
+    let private logger = Log.logger<Process> ()
+     
      /// <summary>
     /// Stops the process resource.
     /// </summary>
@@ -10,22 +14,27 @@ module App =
     let stop (p : Process) = 
         if p = null then nullArg "p"
         if not p.HasExited then p.Kill ()
+    
     /// <summary>
     /// Starts a process resouce by specifying the name of a document or application file and associates the resouce with a <see cref="Process"/> component.
     /// </summary>
     [<CompiledName("Start")>]
-    let inline start file =
+    let start file =
         if file = null then nullArg "file"
+        logger |> Log.info (sprintf "Start application '%s'" file)
         let p = Process.Start (file : string)
         Disposable.create (fun () -> stop p)
+   
     /// <summary>
     /// Starts a process resouce by specifying the name of a document or application file and associates the resouce with a <see cref="Process"/> component.
     /// </summary>
     [<CompiledName("Start")>]
-    let inline startArgs args =
+    let startArgs (args : ProcessStartInfo) =
         if args = null then nullArg "args"
+        logger |> Log.info (sprintf "Start application '%s %s'" args.FileName args.Arguments)
         let p = Process.Start (args : ProcessStartInfo)
         Disposable.create (fun () -> stop p)
+    
     /// <summary>
     /// Starts a process resouce after a delay by specifying the name of a document or application file 
     /// and associates the resouce with a <see cref="Process"/> component.
@@ -36,6 +45,7 @@ module App =
         let p = start file
         async { do! a } |> Async.RunSynchronously
         p
+  
     /// <summary>
     /// Starts a process resouce after a delay by specifying the name of a document or application file 
     /// and associates the resouce with a <see cref="Process"/> component.
@@ -46,6 +56,7 @@ module App =
         let p = startArgs args
         async { do! a } |> Async.RunSynchronously
         p
+ 
     /// <summary>
     /// Starts a process resouce by specifying the name of a document or application file and associates the resouce with a <see cref="Process"/> component
     /// and return a disposable resource that stops the process when the resource gets disposed.
@@ -53,6 +64,7 @@ module App =
     let using file f =
         use __ = start file
         f ()
+ 
     /// <summary>
     /// Starts a process resouce by specifying the name of a document or application file and associates the resouce with a <see cref="Process"/> component
     /// and return a disposable resource that stops the process when the resource gets disposed.

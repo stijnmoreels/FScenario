@@ -5,6 +5,7 @@ open System.IO
 open System.Threading.Tasks
 open Polly
 open Polly.Timeout
+open Microsoft.Extensions.Logging
 
 /// <summary>
 /// Type representing the required values to run a polling execution.
@@ -14,7 +15,7 @@ type PollAsync<'a> =
       Filter : ('a -> bool)
       Interval : TimeSpan
       Timeout : TimeSpan
-      Message : string } with
+      ErrorMessage : string } with
       /// <summary>
       /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
       /// </summary>
@@ -23,7 +24,7 @@ type PollAsync<'a> =
           Filter = fun _ -> true
           Interval = _5s
           Timeout = _30s
-          Message = "Polling doesn't result in any values" }
+          ErrorMessage = "Polling doesn't result in any values" }
       /// <summary>
       /// Adds a filtering function to speicfy the required result of the polling.
       /// </summary>
@@ -39,7 +40,7 @@ type PollAsync<'a> =
       /// <summary>
       /// Adds a custom error message to show when the polling has been time out.
       /// </summary>
-      member x.Error (message : string) = { x with Message = message }
+      member x.Error (message : string) = { x with ErrorMessage = message }
 
 /// <summary>
 /// Exposing functions to write reliable polling functions for a testable target.
@@ -89,7 +90,9 @@ module Poll =
     /// <summary>
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
-    let error message poll = { poll with Message = message }
+    let error message poll = { poll with ErrorMessage = message }
+
+    let private logger = Log.logger<PollAsync<obj>> ()
 
     /// <summary>
     /// Poll at a given target using a filtering function for a period of time until either the predicate succeeds or the expression times out.
@@ -106,7 +109,8 @@ module Poll =
                   .WrapAsync(
                       Policy.HandleResult(resultPredicate=Func<_, _> (not << predicate))
                             .WaitAndRetryForeverAsync(Func<_, _> (fun _ -> interval)))
-                  .ExecuteAndCaptureAsync(Func<Task<_>> (pollFunc >> Async.StartAsTask))
+                  .ExecuteAndCaptureAsync(Func<Task<_>> (fun () -> 
+                      pollFunc () |> Async.StartAsTask))
                   |> Async.AwaitTask
 
         match result.Outcome with
@@ -114,6 +118,24 @@ module Poll =
             return result.Result
         | _ -> match result.FinalException with
                | :? TimeoutRejectedException -> raise (TimeoutException errorMessage)
+               | _ -> raise result.FinalException
+               return Unchecked.defaultof<_> }
+
+    let internal untilRecord (poll : PollAsync<_>) = async {
+        let! result = 
+            Policy.TimeoutAsync(poll.Timeout)
+                  .WrapAsync(
+                      Policy.HandleResult(resultPredicate=Func<_, _> (not << poll.Filter))
+                            .WaitAndRetryForeverAsync(Func<_, _> (fun _ -> poll.Interval)))
+                  .ExecuteAndCaptureAsync(Func<Task<_>> (fun () -> 
+                      poll.PollFunc () |> Async.StartAsTask))
+                  |> Async.AwaitTask
+
+        match result.Outcome with
+        | OutcomeType.Successful -> 
+            return result.Result
+        | _ -> match result.FinalException with
+               | :? TimeoutRejectedException -> raise (TimeoutException poll.ErrorMessage)
                | _ -> raise result.FinalException
                return Unchecked.defaultof<_> }
 
@@ -263,12 +285,10 @@ module Poll =
 
  type PollAsync<'a> with
     member x.GetAwaiter () = 
-        (Poll.untilCustom x.PollFunc x.Filter x.Interval x.Timeout x.Message 
-         |> Async.StartAsTask).GetAwaiter()
+        (Poll.untilRecord x |> Async.StartAsTask).GetAwaiter()
 
 [<AutoOpen>]
 module PollBuilder =
-    open Poll
     type PollBuilder () =
         /// <summary>
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
@@ -294,16 +314,15 @@ module PollBuilder =
         /// Adds a custom error message to show when the polling has been time out.
         /// </summary>
         [<CustomOperation("error")>]
-        member __.Error(state, message) = { state with Message = message }
+        member __.Error(state, message) = { state with ErrorMessage = message }
         member __.Yield (_) = 
             { PollFunc = (fun () -> async.Return Unchecked.defaultof<_>)
               Filter = (fun _ -> true)
               Interval = _5s
               Timeout = _30s
-              Message = "Polling doesn't result in in any values" }
+              ErrorMessage = "Polling doesn't result in in any values" }
 
-    let internal toAsync (a : PollAsync<_>) =
-        untilCustom a.PollFunc a.Filter a.Interval a.Timeout a.Message
+    let internal toAsync (a : PollAsync<_>) = Poll.untilRecord a
 
     type AsyncBuilder with
         member __.Bind (a : PollAsync<'a>, f : 'a -> Async<'b>) = async {

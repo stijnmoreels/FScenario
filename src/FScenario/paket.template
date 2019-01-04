@@ -21,4 +21,5 @@ dependencies
     FSharp.Core
     Microsoft.AspNetCore.Hosting
     Microsoft.AspNetCore.Server.Kestrel
+    Microsoft.Extensions.Logging.Console
     Polly-Signed

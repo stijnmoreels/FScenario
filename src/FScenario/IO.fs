@@ -1,6 +1,8 @@
 ﻿namespace System.IO
 
 open System
+open Microsoft.Extensions.Logging
+open FScenario
 
 [<AutoOpen>]
 module IOExtensions =
@@ -21,6 +23,8 @@ type Size =
 module Item =
     open System.Security.Cryptography
 
+    let private logger = Log.logger<File> ()
+
     /// <summary>
     /// Creates a <see cref="System.IO.FileInfo"/> instance from a file path.
     /// </summary>
@@ -29,7 +33,12 @@ module Item =
     /// <summary>
     /// Determines if two files are equal by hashing (MD5) their contents.
     /// </summary>
+    [<CompiledName("HashEqual")>]
     let hashEqual f1 f2 =
+        if f1 = null then nullArg "f1"
+        if f2 = null then nullArg "f2"
+        if not <| File.Exists f1 then invalidArg "f1" (sprintf "Cannot check for equal hashed file content because file: '%s' doesn't exists" f1)
+        if not <| File.Exists f2 then invalidArg "f2" (sprintf "Cannot check for equal hashed file content because file: '%s' doesn't exists" f2)
         use fs1 = File.OpenRead f1
         use fs2 = File.OpenRead f2
         use md5 = MD5.Create ()
@@ -40,7 +49,10 @@ module Item =
     /// <summary>
     /// Gets the hash value of a given file contents.
     /// </summary>
+    [<CompiledName("Hash")>]
     let hash f =
+        if f = null then nullArg "f"
+        if not <| File.Exists f then invalidArg "f" (sprintf "Cannot check for equal hashed file content because file: '%s' doesn't exists" f)
         use fs = File.OpenRead f
         use md5 = MD5.Create ()
         md5.ComputeHash fs
@@ -51,7 +63,9 @@ module Item =
     /// <param name="value">The amount of in the metric system to create as size of the file.</param>
     /// <param name="metric">The metric in which the value is represented (ex. MB, GB, ...)</param>
     /// <param name="path">The file path at which the file should be created.</param>
+    [<CompiledName("CreateSized")>]
     let createSized value (metric : Size) path =
+        if value < 0L then invalidArg "value" "File size value should be greater than zero"
         use fs = File.Create path
         fs.Seek (value * int64 metric, SeekOrigin.Begin) |> ignore
         fs.WriteByte 0uy
@@ -62,24 +76,80 @@ module Item =
     /// </summary>
     /// <param name="value">The amount of in the metric system to create as size of the file.</param>
     /// <param name="metric">The metric in which the value is represented (ex. MB, GB, ...)</param>
+    [<CompiledName("CreateSized")>]
     let createSizedTemp value metric =
        if value < 0L then invalidArg "value" "File size value should be greater than zero"
        Path.GetTempPath () </> Guid.NewGuid().ToString()
        |> createSized value metric
 
     /// <summary>
+    /// Determines if a specified file path points to an existing file.
+    /// </summary>
+    [<CompiledName("Exists")>]
+    let exists f = File.Exists f 
+
+    /// <summary>
+    /// Replaces a specified destination file with a source file.
+    /// </summary>
+    [<CompiledName("Replace")>]
+    let replace dest src =
+        if dest = null then nullArg "dest"
+        if src = null then nullArg "src"
+        if not <| exists dest then invalidArg "dest" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src dest)
+        if not <| exists dest then invalidArg "src" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src src)
+        logger.LogInformation (LogEvent.io, sprintf "Replace '%s' with '%s'" dest src)
+        File.Copy(src, dest, overwrite=true)
+
+    let private copyToTemp item =
+        let temp = Path.GetTempPath() </> (Path.GetFileName item + Guid.NewGuid().ToString())
+        File.Copy(item, temp, overwrite=true)
+        temp
+
+    /// <summary>
+    /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
+    /// </summary>
+    [<CompiledName("ReplaceUndo")>]
+    let replaceUndo dest src =
+        if dest = null then nullArg "dest"
+        if src = null then nullArg "src"
+        if not <| exists dest then invalidArg "dest" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src dest)
+        if not <| exists dest then invalidArg "src" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src src)
+        let temp = copyToTemp dest
+        logger.LogInformation (LogEvent.io, sprintf "Replace '%s' with '%s'" dest src)
+        File.Copy (src, dest, overwrite=true)
+        Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo file replace '%s' with '%s'" dest src)
+            File.Copy (temp, dest, overwrite=true)
+            File.Delete temp
+    
+    /// <summary>
+    /// Write a dummy test file at a specified file path. This is sometimes used to write a file to disk without caring what the content should be.
+    /// </summary>
+    [<CompiledName("WriteDummy")>]
+    let writeDummy path = File.WriteAllText (path, "Auto-generated  test file")
+
+    /// <summary>
     /// Deletes a file at a specified file path.
     /// </summary>
-    let delete f = File.Delete f
+    [<CompiledName("Delete")>]
+    let delete f =
+        if f = null then nullArg "f"
+        logger.LogInformation (LogEvent.io, sprintf "Delete file '%s'" f)
+        File.Delete f
+    
     /// <summary>
     /// Deletes files at the specified file paths.
     /// </summary>
-    let deletes fs = Seq.iter delete fs
+    [<CompiledName("Deletes")>]
+    let deletes fs = 
+        Seq.iter delete fs
 
 /// <summary>
 /// Exposes a series of directory functions simular to <see cref="System.IO.Directory"/> and <see cref="System.IO.DirectoryInfo"/>.
 /// </summary>
 module Dir =
+    let private logger = Log.logger<Directory> ()
+
     /// <summary>
     /// Creates a <see cref="System.IO.DirectoryInfo"/> instance from a specified directory path.
     /// </summary>
@@ -103,22 +173,57 @@ module Dir =
     let files dir = 
         if dir = null then nullArg "dir"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be queried for files because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
-        Directory.GetFiles (dir , "*", SearchOption.AllDirectories)
+        let fs = Directory.GetFiles (dir , "*", SearchOption.AllDirectories)
+        logger.LogInformation (LogEvent.io, sprintf "Found %i files at directory '%s'" fs.Length dir)
+        fs
 
     /// <summary>
     /// Deletes the files in the specified directory.
     /// </summary>
     [<CompiledName("Clean")>]
-    let clean dir = 
+    let cleanFiles dir = 
         if dir = null then nullArg "path"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
-        Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) |> Seq.iter File.Delete
+        let fs = Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) 
+        fs |> Seq.iter Item.delete
+        logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
+
+    /// <summary>
+    /// Deletes the directory at the specified path.
+    /// </summary>
+    [<CompiledName("Delete")>]
+    let delete dir = 
+        if dir = null then nullArg "dir"
+        if not <| exists dir then io (sprintf "Directory '%s' cannot be deleted because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
+        Directory.Delete (dir, recursive=true)
+        logger |> Log.trace (sprintf "Delete directory '%s'" dir)
+    
+    /// <summary>
+    /// Deletes the directories at the specified paths.
+    /// </summary>
+    [<CompiledName("Deletes")>]
+    let deletes dirs = Seq.iter delete dirs
+
+    /// <summary>
+    /// Deletes the files and folders in the specified directories
+    /// </summary>
+    [<CompiledName("CleanAndDirs")>]
+    let cleanFilesAndDirs dir =
+        if dir = null then nullArg "path"
+        if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
+        let fs = Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) 
+        fs |> Seq.iter Item.delete
+        logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
+
+        let ds = Directory.GetDirectories(dir, "*", SearchOption.AllDirectories)
+        ds |> Seq.iter delete
+        logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i sub-directories at '%s'" ds.Length dir)
 
     /// <summary>
     /// Deletes the files in the specified directories.
     /// </summary>
     [<CompiledName("Cleans")>]
-    let cleans dirs = Seq.iter clean dirs
+    let cleans dirs = Seq.iter cleanFiles dirs
 
     /// <summary>
     /// Ensure we have a directory at the specified directory path.
@@ -127,6 +232,7 @@ module Dir =
     let ensure dir = 
         if dir = null then nullArg "dir"
         Directory.CreateDirectory dir |> ignore
+        logger.LogInformation (LogEvent.io, sprintf "Ensure directory is created '%s'" dir)
     
     /// <summary>
     /// Ensure we have a directory at the specified directory paths.
@@ -138,28 +244,13 @@ module Dir =
     /// Ensure we have a clean (no files) directory at the specified directory path.
     /// </summary>
     [<CompiledName("CleanEnsure")>]
-    let cleanEnsure dir = ensure dir; clean dir
+    let cleanEnsure dir = ensure dir; cleanFiles dir
 
 /// <summary>
     /// Ensure we have clean (no files) directories at the specified directory paths.
     /// </summary>
     [<CompiledName("CleanEnsures")>]
     let cleanEnsures dirs = Seq.iter cleanEnsure dirs
-
-    /// <summary>
-    /// Deletes the directory at the specified path.
-    /// </summary>
-    [<CompiledName("Delete")>]
-    let delete dir = 
-        if dir = null then nullArg "dir"
-        if not <| exists dir then io (sprintf "Directory '%s' cannot be deleted because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
-        Directory.Delete (dir, true)
-    
-    /// <summary>
-    /// Deletes the directories at the specified paths.
-    /// </summary>
-    [<CompiledName("Deletes")>]
-    let deletes dirs = Seq.iter delete dirs
     
     /// <summary>
     /// Ensures we have a clean (no files) directory at the specified directory path
@@ -178,8 +269,11 @@ module Dir =
         if dir = null then nullArg "dir"
         ensure dir
         let original = Environment.CurrentDirectory
+        logger.LogInformation (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" original dir)
         Environment.CurrentDirectory <- dir
-        Disposable.create (fun () -> Environment.CurrentDirectory <- original)
+        Disposable.create (fun () -> 
+            logger.LogInformation (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" dir original)
+            Environment.CurrentDirectory <- original)
 
     /// <summary>
     /// Copies the files from the specified source directory to the specified destination directory, 
@@ -189,23 +283,16 @@ module Dir =
     let copy src dest =
         if not <| exists src then io (sprintf "Directory '%s' cannot be copied to '%s' because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest)
         if not <| exists dest then ensure dest
-        for f in files src do 
+        for f in files src do
+            logger.LogInformation (LogEvent.io, sprintf "Copy file '%s' -> '%s'" f dest)
             File.Copy (f, dest </> Path.GetFileName f)
+        logger.LogInformation (LogEvent.io, sprintf "Directory is copied '%s' -> '%s'" src dest)
 
     let private copyToTemp dir =
         let temp = Path.GetTempPath() </> Path.GetDirectoryName dir + "-" + Guid.NewGuid().ToString()
         ensure temp
         copy dir temp
         temp
-
-    let private undoCustom f g src =
-        let temp = Path.GetTempPath () </> (Path.GetDirectoryName src + Guid.NewGuid().ToString())
-        copy src temp
-        f src |> ignore
-        Disposable.create (fun () -> g temp; delete temp)
-
-    let private undo f src =
-        undoCustom f (fun temp -> if exists src then clean src; copy temp src) src
 
     let private reduceDisposables f srcs = 
         Seq.map f srcs |> CompositeDisposable.Create :> IDisposable
@@ -218,7 +305,7 @@ module Dir =
         if dir = null then nullArg "dir"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
         let temp = copyToTemp dir
-        clean dir
+        cleanFiles dir
         Disposable.create <| fun () ->
             ensure dir
             copy temp dir
@@ -241,6 +328,7 @@ module Dir =
         ensure dir
         let temp = copyToTemp dir
         Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo revert ensure directory '%s'" dir)
             if alreadyThere then copy temp dir
             else delete dir
             delete temp
@@ -261,7 +349,7 @@ module Dir =
         if src = null then nullArg "src"
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest src)
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest dest)
-        clean dest
+        cleanFiles dest
         copy src dest
 
     /// <summary>
@@ -274,11 +362,12 @@ module Dir =
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest src)
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest dest)
         let temp = copyToTemp dest
-        clean dest
+        cleanFiles dest
         copy src dest
         Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo revert replace directory '%s'" dest)
             ensure dest
-            clean dest
+            cleanFiles dest
             copy temp dest
             delete temp
 
@@ -292,8 +381,9 @@ module Dir =
         let temp = copyToTemp src
         delete src
         Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo revert delete directory '%s'" src)
             ensure src
-            clean src
+            cleanFiles src
             copy temp src
             delete temp
 
@@ -314,7 +404,7 @@ module IO =
         /// <summary>
         /// Deletes the files in the specified directory.
         /// </summary>
-        static member clean path = Dir.clean path
+        static member clean path = Dir.cleanFiles path
         /// <summary>
         /// Deletes the files in the specified directories.
         /// </summary>
@@ -363,7 +453,7 @@ module IO =
         /// <summary>
         /// Deletes the files in the specified directory.
         /// </summary>
-        static member clean (dir : DirectoryInfo) = Dir.clean dir.FullName
+        static member clean (dir : DirectoryInfo) = Dir.cleanFiles dir.FullName
         /// <summary>
         /// Deletes the files in the specified directories.
         /// </summary>
@@ -442,6 +532,14 @@ module IO =
         /// Deletes files at the specified file paths.
         /// </summary>
         static member deletes fs = Item.deletes fs
+        /// <summary>
+        /// Replaces the specified destination file with the specified source file.
+        /// </summary>
+        static member replace src dest = Item.replace src dest
+        /// <summary>
+        /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
+        /// </summary>
+        static member replaceUndo src dest = Item.replaceUndo src dest
 
     type FileInfo with
         /// <summary>
@@ -459,6 +557,14 @@ module IO =
         /// Deletes a file at a specified file path.
         /// </summary>
         static member delete (f : FileInfo) = Item.delete f.FullName
+        /// <summary>
+        /// Replaces the specified destination file with the specified source file.
+        /// </summary>
+        static member replace (dest : FileInfo) (src : FileInfo) = Item.replace dest.FullName src.FullName
+        /// <summary>
+        /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
+        /// </summary>
+        static member replaceUndo (dest : FileInfo) (src : FileInfo) = Item.replaceUndo dest.FullName src.FullName
 
     /// <summary>
     /// Determines if two files are equal by hashing (MD5) their contents.
@@ -467,4 +573,4 @@ module IO =
     /// <summary>
     /// Determines if two files are equal by hashing (MD5) their contents.
     /// </summary>
-    let (===) f1 f2 = Item.hashEqual f1 f2
+    let (===) f1 f2 = FileInfo.hashEqual f1 f2
