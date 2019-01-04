@@ -142,11 +142,23 @@ NUGET
       Microsoft.Extensions.Logging.Abstractions (>= 2.2) - restriction: >= netstandard2.0
       Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
     Microsoft.Extensions.Logging.Abstractions (2.2) - restriction: >= netstandard2.0
+    Microsoft.Extensions.Logging.Configuration (2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options.ConfigurationExtensions (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.Extensions.Logging.Console (2.2)
+      Microsoft.Extensions.Configuration.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging.Configuration (>= 2.2) - restriction: >= netstandard2.0
     Microsoft.Extensions.ObjectPool (2.2) - restriction: >= netstandard2.0
     Microsoft.Extensions.Options (2.2) - restriction: >= netstandard2.0
       Microsoft.Extensions.DependencyInjection.Abstractions (>= 2.2) - restriction: >= netstandard2.0
       Microsoft.Extensions.Primitives (>= 2.2) - restriction: >= netstandard2.0
       System.ComponentModel.Annotations (>= 4.5) - restriction: >= netstandard2.0
+    Microsoft.Extensions.Options.ConfigurationExtensions (2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.Binder (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.DependencyInjection.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
     Microsoft.Extensions.Primitives (2.2) - restriction: >= netstandard2.0
       System.Memory (>= 4.5.1) - restriction: >= netstandard2.0
       System.Runtime.CompilerServices.Unsafe (>= 4.5.1) - restriction: >= netstandard2.0
