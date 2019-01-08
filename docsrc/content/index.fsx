@@ -17,7 +17,7 @@ open System.IO
 open FScenario
 
 // Arrange
-Dir.ensure "temp"
+use __ = Dir.ensureUndo "temp"
 
 // Act
 File.WriteAllText ("temp" </> "file.txt", "This is a file!")
@@ -32,7 +32,9 @@ Poll.target (fun () -> async { return "temp" </> "file.txt" })
 (**
 The library comes with comprehensible documentation about the major parts of the project and the complete API reference of the project:
 
- * [Polling Tutorial](polling.html) contains a further explanation of the polling functionality included in the library.
+ * [Polling Targets](polling.html) contains a further explanation of the polling functionality to have _Open-Minded Assertions_
+
+ * [Undoable IO](IO.html) contains a further explanation of the IO operations and their undoable counterparts to have a _Zero-Waste Environment_
 
  * [API Reference](reference/index.html) contains automatically generated documentation for all types, modules
    and functions in the library. This includes additional brief samples on using most of the
@@ -43,8 +45,7 @@ Contributing and copyright
 
 The project is hosted on [GitHub][gh] where you can [report issues][issues], fork 
 the project and submit pull requests. If you're adding a new public API, please also 
-consider adding [samples][content] that can be turned into a documentation. You might
-also want to read the [library design notes][readme] to understand how it works.
+consider adding [samples][content] that can be turned into a documentation.
 
 The library is available under Public Domain license, which allows modification and 
 redistribution for both commercial and non-commercial purposes. For more information see the 
@@ -52,10 +53,9 @@ redistribution for both commercial and non-commercial purposes. For more informa
 
 Icons made by [Vectors Market][vectorsmarket] from [www.flaticon.com][flaticono] is licensed by [CC 3.0][cc].
 
-  [content]: https://github.com/stijnmoreels/FScenario/tree/master/docs/content
+  [content]: https://github.com/stijnmoreels/FScenario/tree/master/docsrc/content
   [gh]: https://github.com/stijnmoreels/FScenario
   [issues]: https://github.com/stijnmoreels/FScenario/issues
-  [readme]: https://github.com/stijnmoreels/FScenario/blob/master/README.md
   [license]: https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt
   [vectorsmarket]: https://www.flaticon.com/authors/vectors-market
   [flaticon]: https://www.flaticon.com/

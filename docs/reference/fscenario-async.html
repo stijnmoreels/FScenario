@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>TimeInt - FScenario</title>
+    <title>Async - FScenario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Stijn Moreels"/>
@@ -35,9 +35,9 @@
 
 
 
-<h1>TimeInt</h1>
+<h1>Async</h1>
 <p>
-  <span>Namespace: System</span><br />
+  <span>Namespace: FScenario</span><br />
   </p>
 <div class="xmldoc">
 </div>
@@ -53,15 +53,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
-            _10s
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
+            bind f a
           </code>
-          <div class="tip" id="67">
-            <strong>Signature:</strong> int<br />
-                                  </div>
+          <div class="tip" id="8">
+            <strong>Signature:</strong> f:(&#39;b -&gt; Async&lt;&#39;c&gt;) -&gt; a:Async&lt;&#39;b&gt; -&gt; Async&lt;&#39;c&gt;<br />
+                          <strong>Type parameters:</strong> 'b, 'c                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Time.fs#L7-7" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L15-15" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -71,15 +71,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
-            _1min
+          <code onmouseout="hideTip(event, '9', 9)" onmouseover="showTip(event, '9', 9)">
+            map f a
           </code>
-          <div class="tip" id="68">
-            <strong>Signature:</strong> int<br />
-                                  </div>
+          <div class="tip" id="9">
+            <strong>Signature:</strong> f:(&#39;e -&gt; &#39;f) -&gt; a:Async&lt;&#39;e&gt; -&gt; Async&lt;&#39;f&gt;<br />
+                          <strong>Type parameters:</strong> 'e, 'f                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Time.fs#L8-8" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L19-19" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -89,69 +89,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
-            _1s
+          <code onmouseout="hideTip(event, '10', 10)" onmouseover="showTip(event, '10', 10)">
+            retn
           </code>
-          <div class="tip" id="69">
-            <strong>Signature:</strong> int<br />
-                                  </div>
+          <div class="tip" id="10">
+            <strong>Signature:</strong> &#39;?8507 -&gt; Async&lt;&#39;?8507&gt;<br />
+                          <strong>Type parameters:</strong> '?8507                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Time.fs#L5-5" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
-            _500ms
-          </code>
-          <div class="tip" id="70">
-            <strong>Signature:</strong> int<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Time.fs#L4-4" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
-            _5min
-          </code>
-          <div class="tip" id="71">
-            <strong>Signature:</strong> int<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Time.fs#L9-9" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
-            _5s
-          </code>
-          <div class="tip" id="72">
-            <strong>Signature:</strong> int<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Time.fs#L6-6" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L13-13" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

@@ -6,11 +6,20 @@
 #r "../../packages/NETStandard.Library/build/netstandard2.0/ref/netstandard.dll"
 
 (**
-How to integrate FScenario into your project?
-========================
+How to reliable assert on a external value?
+============================================
 
-FScenario is not build for a specific test framework, which means it can be used with your persoanl favorite.
-> These examples will use the [xUnit](https://github.com/xunit/xunit) package but remember that you can use it everywhere you like.
+What I like to call _Open-Minded Assertions_ are assertions that take into account that you're asserting on a external network connection, or file system, or service, ... or any other external system that's out of your control.
+Because it is our of your control, asserting on it can be tricky. 
+
+That's when you have to be open-minded.
+
+- _"Let's try several times before actual let the test fail"_
+- _"I give you three times to pass"_
+- ...
+
+Because of this, you will have more reliable tests because you take into account that there might be a network failure; or a service that locks a file, ...
+FScenario provides several building blocks to create polling functions which could be part of your next test assertion.
 
 ## Multiple Ways of Polling
 
@@ -96,6 +105,7 @@ Going from predefined intervals and time-outs, as well as complete polling funct
 - `Poll.untilEvery1sFor5s : (unit -> Async<'a>) -> ('a -> bool) -> error:string -> Async<'a>` 
 - `Poll.untilFileExistsEvery1sFor10s : filePath:string -> Async<FileInfo>`
 - `Poll.untilFilesEvery5sFor30s : dirPath:string -> (FileInfo array -> bool) -> error:string -> Async<FileInfo array>`
+- `Poll.untilHttpOkEvery1sFor5s : url:string -> Async<unit>`
 - ...
 
 Finally, it also provides a custom function that you can use to directly pass in all the arguments at once: `Poll.untilCustom`.

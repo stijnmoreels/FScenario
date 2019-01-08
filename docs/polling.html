@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>How to integrate FScenario into your project?
+    <title>How to reliable assert on a external value?
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="Reusable integration test building blocks to write integration tests in a more safe and fun way."/>
@@ -33,11 +33,17 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1><a name="How-to-integrate-FScenario-into-your-project" class="anchor" href="#How-to-integrate-FScenario-into-your-project">How to integrate FScenario into your project?</a></h1>
-<p>FScenario is not build for a specific test framework, which means it can be used with your persoanl favorite.</p>
-<blockquote>
-<p>These examples will use the <a href="https://github.com/xunit/xunit">xUnit</a> package but remember that you can use it everywhere you like.</p>
-</blockquote>
+<h1><a name="How-to-reliable-assert-on-a-external-value" class="anchor" href="#How-to-reliable-assert-on-a-external-value">How to reliable assert on a external value?</a></h1>
+<p>What I like to call <em>Open-Minded Assertions</em> are assertions that take into account that you're asserting on a external network connection, or file system, or service, ... or any other external system that's out of your control.
+Because it is our of your control, asserting on it can be tricky.</p>
+<p>That's when you have to be open-minded.</p>
+<ul>
+<li><em>"Let's try several times before actual let the test fail"</em></li>
+<li><em>"I give you three times to pass"</em></li>
+<li>...</li>
+</ul>
+<p>Because of this, you will have more reliable tests because you take into account that there might be a network failure; or a service that locks a file, ...
+FScenario provides several building blocks to create polling functions which could be part of your next test assertion.</p>
 <h2><a name="Multiple-Ways-of-Polling" class="anchor" href="#Multiple-Ways-of-Polling">Multiple Ways of Polling</a></h2>
 <p>When we write integration tests, we normally don't directly control the code or results.
 We have to look for a file on the disk, or a record in the database, and external event that was triggered that your test subscribes to, ...</p>
@@ -150,6 +156,7 @@ Going from predefined intervals and time-outs, as well as complete polling funct
 <li><code>Poll.untilEvery1sFor5s : (unit -&gt; Async&lt;'a&gt;) -&gt; ('a -&gt; bool) -&gt; error:string -&gt; Async&lt;'a&gt;</code></li>
 <li><code>Poll.untilFileExistsEvery1sFor10s : filePath:string -&gt; Async&lt;FileInfo&gt;</code></li>
 <li><code>Poll.untilFilesEvery5sFor30s : dirPath:string -&gt; (FileInfo array -&gt; bool) -&gt; error:string -&gt; Async&lt;FileInfo array&gt;</code></li>
+<li><code>Poll.untilHttpOkEvery1sFor5s : url:string -&gt; Async&lt;unit&gt;</code></li>
 <li>...</li>
 </ul>
 <p>Finally, it also provides a custom function that you can use to directly pass in all the arguments at once: <code>Poll.untilCustom</code>.</p>
@@ -210,7 +217,8 @@ Task&lt;FileInfo&gt; _ <span class="o">=</span> Poll.UntilFileExistsEvery<span c
             <li><a href="/FScenario/release-notes.html">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="/FScenario/polling.html">Polling tutorial</a></li>
+            <li><a href="/FScenario/polling.html">Polling targets</a></li>
+            <li><a href="/FScenario/IO.html">Undoable IO</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FScenario/reference/index.html">API Reference</a></li>

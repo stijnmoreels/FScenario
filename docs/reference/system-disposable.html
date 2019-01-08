@@ -53,15 +53,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
             ( &lt;+&gt; ) d1 d2
           </code>
-          <div class="tip" id="103">
+          <div class="tip" id="60">
             <strong>Signature:</strong> d1:(type) -&gt; d2:(type) -&gt; (type)<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L66-66" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L71-71" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -74,15 +74,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
             compose(ds)
           </code>
-          <div class="tip" id="104">
+          <div class="tip" id="61">
             <strong>Signature:</strong> ds:seq&lt;(type)&gt; -&gt; CompositeDisposable<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L58-58" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L61-61" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -94,15 +94,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
+          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
             compose2 d1 d2
           </code>
-          <div class="tip" id="105">
+          <div class="tip" id="62">
             <strong>Signature:</strong> d1:(type) -&gt; d2:(type) -&gt; (type)<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L49-49" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L51-51" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -114,10 +114,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
+          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
             create(f)
           </code>
-          <div class="tip" id="106">
+          <div class="tip" id="63">
             <strong>Signature:</strong> f:(unit -&gt; unit) -&gt; (type)<br />
                                   </div>
         </td>
@@ -134,19 +134,61 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
+          <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
             Create(f)
           </code>
-          <div class="tip" id="107">
+          <div class="tip" id="64">
             <strong>Signature:</strong> f:(type) -&gt; (type)<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L43-43" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L44-44" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Creates a  implementation that runs the specified function when disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
+            undoable doFunc undoFunc
+          </code>
+          <div class="tip" id="65">
+            <strong>Signature:</strong> doFunc:(unit -&gt; unit) -&gt; undoFunc:(unit -&gt; unit) -&gt; (type)<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L75-75" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a undoable operation by first running the specified <paramref cref="doFunc"/>
+and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
+            Undoable doFunc undoFunc
+          </code>
+          <div class="tip" id="66">
+            <strong>Signature:</strong> doFunc:(type) -&gt; undoFunc:(type) -&gt; (type)<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Disposable.fs#L81-81" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a undoable operation by first running the specified <paramref cref="doFunc"/>
+and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.</p>
 
 
         </td>
@@ -167,7 +209,8 @@
             <li><a href="/FScenario/release-notes.html">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="/FScenario/polling.html">Polling tutorial</a></li>
+            <li><a href="/FScenario/polling.html">Polling targets</a></li>
+            <li><a href="/FScenario/IO.html">Undoable IO</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FScenario/reference/index.html">API Reference</a></li>
