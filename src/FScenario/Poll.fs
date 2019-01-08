@@ -2,10 +2,22 @@
 
 open System
 open System.IO
+open System.Net
 open System.Threading.Tasks
+open Microsoft.Extensions.Logging
 open Polly
 open Polly.Timeout
-open Microsoft.Extensions.Logging
+
+module Async =
+
+    let retn = async.Return
+
+    let bind f a = async {
+        let! x = a
+        return! f x }
+
+    let map f a = bind (f >> async.Return) a
+
 
 /// <summary>
 /// Type representing the required values to run a polling execution.
@@ -47,11 +59,18 @@ type PollAsync<'a> =
 /// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Poll =
+    let private logger = Log.logger<PollAsync<obj>> ()
+
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     let target f = PollAsync<_>.Create f
     
+    /// <summary>
+    /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    let targetSync f = PollAsync<_>.Create (f >> async.Return)
+
     /// <summary>
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
@@ -78,6 +97,26 @@ module Poll =
     let until predicate poll = { poll with Filter = predicate }
 
     /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
+    /// </summary>
+    let untilAny poll = { poll with Filter = fun (xs : #seq<'a>) -> not <| Seq.isEmpty xs}
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
+    /// </summary>
+    let untilLength length poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.length xs = length }
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option.
+    /// </summary>
+    let untilSome poll = { poll with Filter = Option.isSome }
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result.
+    /// </summary>
+    let untilOk poll = { poll with Filter = function Ok _ -> true | _ -> false }
+
+    /// <summary>
     /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
     /// </summary>
     let every interval poll = { poll  with Interval = interval }
@@ -91,8 +130,6 @@ module Poll =
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
     let error message poll = { poll with ErrorMessage = message }
-
-    let private logger = Log.logger<PollAsync<obj>> ()
 
     /// <summary>
     /// Poll at a given target using a filtering function for a period of time until either the predicate succeeds or the expression times out.
@@ -121,23 +158,7 @@ module Poll =
                | _ -> raise result.FinalException
                return Unchecked.defaultof<_> }
 
-    let internal untilRecord (poll : PollAsync<_>) = async {
-        let! result = 
-            Policy.TimeoutAsync(poll.Timeout)
-                  .WrapAsync(
-                      Policy.HandleResult(resultPredicate=Func<_, _> (not << poll.Filter))
-                            .WaitAndRetryForeverAsync(Func<_, _> (fun _ -> poll.Interval)))
-                  .ExecuteAndCaptureAsync(Func<Task<_>> (fun () -> 
-                      poll.PollFunc () |> Async.StartAsTask))
-                  |> Async.AwaitTask
-
-        match result.Outcome with
-        | OutcomeType.Successful -> 
-            return result.Result
-        | _ -> match result.FinalException with
-               | :? TimeoutRejectedException -> raise (TimeoutException poll.ErrorMessage)
-               | _ -> raise result.FinalException
-               return Unchecked.defaultof<_> }
+    let internal untilRecord (a : PollAsync<_>) = untilCustom a.PollFunc a.Filter a.Interval a.Timeout a.ErrorMessage
 
     /// <summary>
     /// Poll at a given target using a filtering function every second for 5 seconds.
@@ -174,8 +195,10 @@ module Poll =
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    let untilFile filePath predicate interval timeout errorMessage =
-        untilCustom (fun () -> async { return FileInfo filePath }) (fun f -> f.Exists && predicate f) interval timeout errorMessage
+    let untilFile (filePath : string) predicate interval timeout errorMessage =
+        untilCustom 
+            (fun () -> async { logger.LogInformation("Poll at file {path}", filePath); return FileInfo filePath }) 
+            (fun f -> f.Exists && predicate f) interval timeout errorMessage
 
     /// <summary>
     /// Poll at a given file path for a period of time until either the predicate succeeds or the expression times out.
@@ -183,8 +206,9 @@ module Poll =
     /// <param name="filePath">The file path at which the polling should run to look for the existence of the file.</param>
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
-    let untilFileExists filePath interval timeout =
-        untilCustom (fun () -> async { return FileInfo filePath }) 
+    let untilFileExists (filePath : string) interval timeout =
+        untilCustom 
+              (fun () -> async { logger.LogInformation("Poll at file {path}", filePath); return FileInfo filePath }) 
               (fun f -> f.Exists) 
               interval timeout 
               (sprintf "File '%s' is not present after polling (every %A, timeout %A)" filePath interval timeout)
@@ -214,8 +238,11 @@ module Poll =
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out.</param>
-    let untilFiles dirPath predicate interval timeout errorMessage =
-        untilCustom (fun () -> async { return (DirectoryInfo dirPath).GetFiles () }) predicate interval timeout errorMessage
+    let untilFiles (dirPath : string) predicate interval timeout errorMessage =
+        untilCustom (fun () -> async { 
+            let fs = (DirectoryInfo dirPath).GetFiles ()
+            logger.LogInformation ("Poll at directory {dirPath} for files, found {length}", dirPath, fs.Length)
+            return fs }) predicate interval timeout errorMessage
 
     /// <summary>
     /// Poll at a given directory path every second for 5 seconds.
@@ -253,7 +280,10 @@ module Poll =
     let untilHttpOk url interval timeout =
         untilCustom 
             (fun () -> Http.get url) 
-            (fun r -> r.StatusCode = OK) 
+            (fun r ->   
+                let ok = r.StatusCode = OK
+                logger.LogInformation("GET {url} {ok}", url, if ok then "= OK" else "<> OK, but " + string r.StatusCode)
+                ok) 
             interval 
             timeout 
             (sprintf "Target '%s' didn't return HTTP OK after polling (every %A, timeout %A)" url interval timeout)
@@ -322,19 +352,17 @@ module PollBuilder =
               Timeout = _30s
               ErrorMessage = "Polling doesn't result in in any values" }
 
-    let internal toAsync (a : PollAsync<_>) = Poll.untilRecord a
-
     type AsyncBuilder with
         member __.Bind (a : PollAsync<'a>, f : 'a -> Async<'b>) = async {
-            let! x = toAsync a
+            let! x = Poll.untilRecord a
             return! f x }
 
         member __.Bind (a : PollAsync<'a>, f : unit -> Async<unit>) = async {
-            let! _ = toAsync a
+            let! _ = Poll.untilRecord a
             return! f () }
 
         member __.ReturnFrom (a : PollAsync<'a>) = async {
-            let! x = toAsync a
-            return x }            
+            let! x = Poll.untilRecord a
+            return x }
 
     let poll = new PollBuilder ()

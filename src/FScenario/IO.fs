@@ -181,7 +181,7 @@ module Dir =
     /// Deletes the files in the specified directory.
     /// </summary>
     [<CompiledName("Clean")>]
-    let cleanFiles dir = 
+    let clean dir = 
         if dir = null then nullArg "path"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
         let fs = Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) 
@@ -205,10 +205,10 @@ module Dir =
     let deletes dirs = Seq.iter delete dirs
 
     /// <summary>
-    /// Deletes the files and folders in the specified directories
+    /// Deletes the files and folders in the specified directory.
     /// </summary>
-    [<CompiledName("CleanAndDirs")>]
-    let cleanFilesAndDirs dir =
+    [<CompiledName("CleanDelete")>]
+    let cleanDelete dir =
         if dir = null then nullArg "path"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
         let fs = Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) 
@@ -223,8 +223,13 @@ module Dir =
     /// Deletes the files in the specified directories.
     /// </summary>
     [<CompiledName("Cleans")>]
-    let cleans dirs = Seq.iter cleanFiles dirs
+    let cleans dirs = Seq.iter clean dirs
 
+    /// <summary>
+    /// Deletes the files and folders in the specified directories.
+    /// </summary>
+    [<CompiledName("CleanDeletes")>]
+    let cleanDeletes dirs = Seq.iter cleanDelete dirs
     /// <summary>
     /// Ensure we have a directory at the specified directory path.
     /// </summary>
@@ -244,7 +249,7 @@ module Dir =
     /// Ensure we have a clean (no files) directory at the specified directory path.
     /// </summary>
     [<CompiledName("CleanEnsure")>]
-    let cleanEnsure dir = ensure dir; cleanFiles dir
+    let cleanEnsure dir = ensure dir; clean dir
 
 /// <summary>
     /// Ensure we have clean (no files) directories at the specified directory paths.
@@ -305,7 +310,7 @@ module Dir =
         if dir = null then nullArg "dir"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
         let temp = copyToTemp dir
-        cleanFiles dir
+        clean dir
         Disposable.create <| fun () ->
             ensure dir
             copy temp dir
@@ -349,7 +354,7 @@ module Dir =
         if src = null then nullArg "src"
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest src)
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest dest)
-        cleanFiles dest
+        clean dest
         copy src dest
 
     /// <summary>
@@ -362,12 +367,12 @@ module Dir =
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest src)
         if not <| exists src then io (sprintf "Directory '%s' cannot be replaced by '%s' because '%s' does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest dest)
         let temp = copyToTemp dest
-        cleanFiles dest
+        clean dest
         copy src dest
         Disposable.create <| fun () ->
             logger.LogInformation (LogEvent.io, sprintf "Undo revert replace directory '%s'" dest)
             ensure dest
-            cleanFiles dest
+            clean dest
             copy temp dest
             delete temp
 
@@ -383,7 +388,7 @@ module Dir =
         Disposable.create <| fun () ->
             logger.LogInformation (LogEvent.io, sprintf "Undo revert delete directory '%s'" src)
             ensure src
-            cleanFiles src
+            clean src
             copy temp src
             delete temp
 
@@ -404,7 +409,7 @@ module IO =
         /// <summary>
         /// Deletes the files in the specified directory.
         /// </summary>
-        static member clean path = Dir.cleanFiles path
+        static member clean path = Dir.clean path
         /// <summary>
         /// Deletes the files in the specified directories.
         /// </summary>
@@ -453,7 +458,7 @@ module IO =
         /// <summary>
         /// Deletes the files in the specified directory.
         /// </summary>
-        static member clean (dir : DirectoryInfo) = Dir.cleanFiles dir.FullName
+        static member clean (dir : DirectoryInfo) = Dir.clean dir.FullName
         /// <summary>
         /// Deletes the files in the specified directories.
         /// </summary>

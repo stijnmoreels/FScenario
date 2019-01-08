@@ -37,12 +37,14 @@ module Disposable =
     /// Creates a <see cref="IDisposable" /> implementation that runs the specified function when disposed.
     /// </summary>
     let create f = { new IDisposable with member __.Dispose() = f () }
+    
     /// <summary>
     /// Creates a <see cref="IDisposable" /> implementation that runs the specified function when disposed.
     /// </summary>
     let Create (f : Action<_>) = 
         if f = null then nullArg "f"
         create f.Invoke
+    
     /// <summary>
     /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
     /// </summary>
@@ -52,15 +54,30 @@ module Disposable =
         | d, (:? CompositeDisposable as x) -> x.Add d
         | d, x -> CompositeDisposable.Create [d; x]
         :> IDisposable
+    
     /// <summary>
     /// Creates a representation of a composite of <see cref="IDisposable" /> implementations that disposes all in the composite when disposed.
     /// </summary>
     let compose ds = CompositeDisposable.Create ds
+    
     /// <summary>
     /// Creates a representation of a composite of <see cref="IDisposable" /> implementations that disposes all in the composite when disposed.
     /// </summary>
     let Compose ([<ParamArray>] ds) = CompositeDisposable.Create (Seq.ofArray ds)
+    
     /// <summary>
     /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
     /// </summary>
     let inline (<+>) d1 d2 = compose2 d1 d2
+
+    /// Creates a undoable operation by first running the specified <paramref cref="doFunc"/> 
+    /// and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.
+    let undoable doFunc undoFunc =
+        doFunc ()
+        create undoFunc
+
+    /// Creates a undoable operation by first running the specified <paramref cref="doFunc"/> 
+    /// and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.
+    let Undoable (doFunc : Action) (undoFunc : Action) =
+        doFunc.Invoke ()
+        create undoFunc.Invoke

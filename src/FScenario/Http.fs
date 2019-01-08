@@ -2,7 +2,6 @@ namespace FScenario
 
 open System
 open System.Collections.Generic
-open System.Runtime.CompilerServices
 open System.IO
 open System.Net
 open System.Net.Http
@@ -13,6 +12,9 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Logging
 
+/// <summary>
+/// HTTP methods that are defined as predicates.
+/// </summary>
 [<AutoOpen>]
 module HttpMethods =
     let internal onMethod (m : HttpMethod) (ctx : HttpContext) =
@@ -25,8 +27,279 @@ module HttpMethods =
     let OPTIONS ctx = onMethod HttpMethod.Options ctx
     let TRACE ctx = onMethod HttpMethod.Trace ctx
 
+/// <summary>
+/// Wrapper representation of the ASP.NET request to have still access to the otherwise disposed resources in a safe and reliable manner.
+/// </summary>
+type HttpRequest (req : Microsoft.AspNetCore.Http.HttpRequest) =
+    let vs = req.Body |> Stream.asAsyncVirtual
+    member x.Headers = req.GetTypedHeaders ()
+    member x.Body : Stream = vs
+    member x.ContentType = req.ContentType
+    static member Create req = new HttpRequest (req)
+    static member body (x : HttpRequest) = x.Body
+    static member contentType (x : HttpRequest) = x.ContentType
+    static member headers (x : HttpRequest) = x.Headers 
+
+/// <summary>
+/// Wrapper representataion of the System.Net.HttpResponseMessage for easier access in a F#-friendly manner to the HTTP response resources.
+/// </summary>
+type HttpResponse (res : HttpResponseMessage) =
+    member x.StatusCode = res.StatusCode
+    member x.Headers = res.Headers
+    member x.ReadAsStream () = res.Content.ReadAsStreamAsync () |> Async.AwaitTask
+    member x.ReadAsString () = res.Content.ReadAsStringAsync () |> Async.AwaitTask
+    member x.ReadAsByteArray () = res.Content.ReadAsByteArrayAsync () |> Async.AwaitTask
+    member x.ContentType = res.Content.Headers.ContentType.MediaType
+    static member Create res = new HttpResponse (res)
+    interface IDisposable with member x.Dispose () = res.Dispose ()
+
+type private AgentMessage<'a> =
+    | Add of message:'a * cancellation:CancellationTokenSource
+    | Get of sender:AsyncReplyChannel<'a list>
+
+
+/// <summary>
+/// Provides functionality to test and host HTTP endpoints.
+/// </summary>
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Http =
+    let private client = new HttpClient ()
+    let private loggerClient = Log.logger<HttpClient> () 
+    let private loggerServer = Log.logger<IWebHost> () 
+
+    /// <summary>
+    /// Sends a HTTP GET request to the specified uri.
+    /// </summary>
+    let get (uri : string) = async {
+        loggerClient.LogInformation(LogEvent.http, "GET -> {uri}", uri)
+        let! res = client.GetAsync (uri : string) |> Async.AwaitTask
+        loggerClient.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
+        return HttpResponse.Create res }
+
+    /// <summary>
+    /// Sends a HTTP POST request with a content to the specified uri.
+    /// </summary>
+    let post (uri : string) content = async {
+        loggerClient.LogInformation(LogEvent.http, "POST -> {uri}", uri)
+        let! (res : HttpResponseMessage) = client.PostAsync((uri : string), content) |> Async.AwaitTask
+        loggerClient.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
+        return HttpResponse.Create res }
+
+    /// <summary>
+    /// Sends a HTTP PUT request with a content to the specified uri.
+    /// </summary>
+    let put (uri : string) content = async {
+        loggerClient.LogInformation(LogEvent.http, "PUT -> {uri}", uri)
+        let! (res : HttpResponseMessage) = client.PutAsync((uri : string), content) |> Async.AwaitTask
+        loggerClient.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
+        return HttpResponse.Create res }
+
+    /// <summary>
+    /// Creates a handling function that adds a specified status code to the HTTP response.
+    /// </summary>
+    let respondStatusCode (status : int) = fun (ctx : HttpContext) -> async {
+        ctx.Response.StatusCode <- status
+        ctx.Response.Body.WriteByte 0uy
+        ctx.Response.Body.Dispose () }
+
+    /// <summary>
+    /// Creates a handling function that adds a specified status code to the HTTP response.
+    /// </summary>
+    let respondStatus (status : HttpStatusCode) = respondStatusCode (int status)
+
+    /// <summary>
+    /// Creates a handling function that adds a specified string content to the HTTP response.
+    /// </summary>
+    let respondContentString (content : string) = fun (ctx : HttpContext) -> async {
+        ctx.Response.StatusCode <- 200
+        ctx.Response.ContentType <- "text/plain"
+        ctx.Response.ContentLength <- Nullable <| int64 content.Length
+        use ms = new MemoryStream (System.Text.Encoding.UTF8.GetBytes content)
+        do! ms.CopyToAsync ctx.Response.Body |> Async.AwaitTask }
+
+    /// <summary>
+    /// Creates a handling function that adds a specified generic HTTP content to the HTTP response.
+    /// </summary>
+    let respondContent (content : HttpContent) = fun (ctx : HttpContext) -> async {
+        ctx.Response.StatusCode <- 200
+        use _ = content
+        ctx.Response.ContentType <- content.Headers.ContentType.MediaType
+        do! content.CopyToAsync ctx.Response.Body |> Async.AwaitTask }
+
+    /// <summary>
+    /// Creates a handling function that adds a specified stream content to the HTTP response.
+    /// </summary>
+    let respondStream (stream : Stream) = respondContent (new StreamContent (stream))
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted.</param>
+    /// <param name="predicate">The predicate function to filter out received requests.</param>
+    /// <param name="handler">The handling function to handle the received request.</param>
+    let serverCustom url custom =
+        let uri = Uri url
+        let (endpoint, path) =
+            if uri.AbsolutePath = "/"
+            then uri.AbsoluteUri, None
+            else uri.AbsoluteUri.Replace(uri.AbsolutePath, String.Empty), Some uri.AbsolutePath
+
+        let ct = new CancellationTokenSource ()
+        let host = 
+          WebHostBuilder()
+            .UseKestrel()
+            .UseUrls(endpoint)
+            .Configure(Action<_> (fun app ->
+                Option.iter (PathString >> app.UsePathBase >> ignore) path
+                custom app ct))
+            .Build()
+        
+        loggerServer.LogInformation("Start HTTP server at {url}", url)
+        Async.Start (host.RunAsync ct.Token |> Async.AwaitTask, ct.Token)
+        Disposable.create (fun () -> 
+            host.StopAsync () |> Async.AwaitTask |> Async.RunSynchronously
+            ct.Cancel ())
+
+    let private serverRoutesWithCancellation url table =
+        serverCustom url <| fun (app : IApplicationBuilder) ct ->
+            for (predicate, handler) in table do
+                    app.MapWhen (Func<_, _> predicate, Action<_> (fun x -> 
+                        x.Run(RequestDelegate (fun ctx -> 
+                            loggerServer.LogInformation(LogEvent.http, "Receive at '{uri}' <- {method}", url, ctx.Request.Method)
+                            handler ctx ct |> Async.StartAsTask :> Task)))) |> ignore
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted.</param>
+    /// <param name="table">The routing table where each predicate is matched with a handler.</param>
+    let serverRoutes url table = 
+        serverRoutesWithCancellation url (Seq.map (fun (p, h) -> p, (fun ctx _ -> h ctx)) table)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted.</param>
+    /// <param name="predicate">The predicate function to filter out received requests.</param>
+    /// <param name="handler">The handling function to handle the received request.</param>
+    let serverRoute url predicate handler = 
+        serverRoutes url [ predicate, handler ]
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, returning a successful 'OK' for received requests.
+    /// </summary>  
+    /// <param name="url">The url on which the server should be hosted.</param>
+    let server url = 
+        serverRoutes url 
+            [ GET, respondStatus HttpStatusCode.OK
+              POST, respondStatus HttpStatusCode.Accepted
+              PUT, respondStatus HttpStatusCode.Accepted ]
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
+    /// collecting a series of received requests all mapped to a type via the specified mapper function until the specified results predicate succeeds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="handler">The response handler when the specified route gets chosen.</param>
+    /// <param name="resultMapper">The mapping function from a request to a custom type to collect.</param>
+    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    let serverCollectCustom url route handler resultMapper resultsPredicate =
+        let inbox = MailboxProcessor.Start <| fun agent ->
+            let rec loop messages = async {
+                let! message = agent.Receive ()
+                match message with
+                | Add (str, ct) ->
+                    let messages = str :: messages
+                    loggerServer.LogInformation (LogEvent.http, "Collect received request, collected: {length}", messages.Length)
+                    if resultsPredicate messages 
+                    then ct.Cancel (); return ()
+                    return! loop messages
+                | Get sender -> 
+                    sender.Reply messages
+                    return! loop messages }
+            loop []
+
+        let s = serverRoutesWithCancellation url [ route, fun ctx ct -> async {
+            let message = resultMapper ctx.Request
+            inbox.Post (Add (message, ct))
+            do! handler ctx } ]
+
+        fun () -> async { 
+            Async.DefaultCancellationToken.Register (fun () -> s.Dispose ()) |> ignore
+            return! inbox.PostAndAsyncReply Get }
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving requests when the specified routing function holds, 
+    /// collecting a series of received requests until the specified results predicate succeeds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    let serverCollect url route resultsPredicate =
+        serverCollectCustom url route (respondStatusCode 202) HttpRequest.Create resultsPredicate
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost: 8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="count">The amount of requests that should be collected.</param>
+    let serverCollectCount url route count =
+        serverCollect url route (fun xs -> 
+            let l = List.length xs
+            loggerServer.LogInformation("Collect received request at {url} ({current}/{length})", url, l, count) 
+            l = count)
+
 [<AutoOpen>]
-/// Status codes that can be received in an HTTP response
+module HttpContent =
+    type HttpContent with
+        static member byteArray bytes = new ByteArrayContent(bytes)
+        static member byteArray bytes offset count = new ByteArrayContent(bytes, offset, count)
+        static member stream str = new StreamContent (str)
+        static member stream str buffer = new StreamContent(str, buffer)
+        static member string str = new StringContent(str, System.Text.Encoding.UTF8, "text/plain")
+        static member stringEncodingMediaType str encoding mediaType = new StringContent(str, encoding mediaType)
+        static member multipart subtype = new MultipartContent (subtype)
+        static member multipart subtype boundary = new MultipartContent (subtype, boundary)
+        static member multipartFormData () = new MultipartFormDataContent ()
+        static member multipartFormData boundary = new MultipartFormDataContent (boundary)
+        static member formUrlEncoded (coll : KeyValuePair<string, string> seq) = new FormUrlEncodedContent (coll)
+        static member formUrlEncoded (coll : (string * string) seq) = new FormUrlEncodedContent (coll |> Seq.map KeyValuePair)
+
+namespace System.IO
+
+open System.Runtime.CompilerServices
+
+/// <summary>
+/// Extra functionality on the stream type for easier convertion between types (string, byte array, ...)
+/// </summary>
+[<CompilationRepresentationAttribute(CompilationRepresentationFlags.ModuleSuffix)>]
+module Stream =
+
+    let asByteArray (str : Stream) =
+        use ms = new MemoryStream ()
+        str.CopyTo ms
+        ms.Position <- 0L
+        ms.ToArray ()
+
+    let asString (str : Stream) =
+        let bs = asByteArray str
+        System.Text.Encoding.UTF8.GetString bs
+    
+[<Extension>]
+type StreamEx =
+    [<Extension>]
+    static member ReadAsByteArray (str : Stream) = Stream.asByteArray str
+    [<Extension>]
+    static member ReadAsString (str : Stream) = Stream.asString str
+
+namespace System.Net
+
+/// <summary>
+/// HTTP status codes that can be received in an HTTP response
+/// </summary>
+[<AutoOpen>]
 module HttpStatusCodes = 
     /// The server has received the request headers and the client should proceed to send the request body.
     let [<Literal>] Continue = HttpStatusCode.Continue
@@ -36,7 +309,6 @@ module HttpStatusCodes =
     let [<Literal>] Processing = 102
     /// Used to return some response headers before final HTTP message.
     let [<Literal>] EarlyHints = 103
-
     /// Standard response for successful HTTP requests.
     let [<Literal>] OK = HttpStatusCode.OK
     /// The request has been fulfilled, resulting in the creation of a new resource.
@@ -57,7 +329,6 @@ module HttpStatusCodes =
     let [<Literal>] AlreadyReported = 208
     /// The server has fulfilled a request for the resource, and the response is a representation of the result of one or more instance-manipulations applied to the current instance.
     let [<Literal>] IMUsed = 226
-
     /// Indicates multiple options for the resource from which the client may choose (via agent-driven content negotiation).
     let [<Literal>] MultipleChoices = HttpStatusCode.MultipleChoices
     /// This and all future requests should be directed to the given URI.
@@ -76,7 +347,6 @@ module HttpStatusCodes =
     let [<Literal>] TemporaryRedirect = HttpStatusCode.TemporaryRedirect
     /// The request and all future requests should be repeated using another URI. 
     let [<Literal>] PermanentRedirect = 308
-
     /// The server cannot or will not process the request due to an apparent client error.
     let [<Literal>] BadRequest = HttpStatusCode.BadRequest
     /// Similar to 403 Forbidden, but specifically for use when authentication is required and has failed or has not yet been provided.
@@ -131,7 +401,6 @@ module HttpStatusCodes =
     let [<Literal>] RequestHeaderFieldsTooLarge = 431
     /// A server operator has received a legal demand to deny access to a resource or to a set of resources that includes the requested resource.
     let [<Literal>] UnavailableForLegalReasons = 451
-
     /// A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
     let [<Literal>] InternalServerError = HttpStatusCode.InternalServerError
     /// The server either does not recognize the request method, or it lacks the ability to fulfil the request. 
@@ -154,253 +423,3 @@ module HttpStatusCodes =
     let [<Literal>] NotExtended = 510
     /// The client needs to authenticate to gain network access.
     let [<Literal>] NetworkAuthenticationRequired = 511
-
-type Http () =
-    static member private client = new HttpClient ()
-
-    /// <summary>
-    /// Sends a HTTP GET request to the specified uri.
-    /// </summary>
-    static member Get uri = Http.client.GetAsync (uri : string)
-    /// <summary>
-    /// Sends a HTTP POST request with a content to the specified uri.
-    /// </summary>
-    static member Post uri content = Http.client.PostAsync((uri : string), content)
-    /// <summary>
-    /// Sends a HTTP PUT request with a content to the specified uri.
-    /// </summary>
-    static member Put uri content = Http.client.PutAsync((uri : string), content)
-
-    [<CompiledName("Respond")>]
-    static member respond (status : int) = fun (ctx : HttpContext) -> async {
-        ctx.Response.StatusCode <- status
-        ctx.Response.Body.WriteByte 0uy
-        ctx.Response.Body.Dispose () }
-
-    [<CompiledName("Respond")>]
-    static member respond (status : HttpStatusCode) = Http.respond (int status)
-
-    [<CompiledName("Respond")>]
-    static member respond (content : string) = fun (ctx : HttpContext) -> async {
-        ctx.Response.StatusCode <- int OK
-        ctx.Response.ContentType <- "text/plain"
-        ctx.Response.ContentLength <- Nullable <| int64 content.Length
-        use ms = new MemoryStream (System.Text.Encoding.UTF8.GetBytes content)
-        do! ms.CopyToAsync ctx.Response.Body |> Async.AwaitTask }
-
-    [<CompiledName("Respond")>]
-    static member respond (stream : Stream) = Http.respond (new StreamContent (stream))
-
-    [<CompiledName("Respond")>]
-    static member respond (content : HttpContent) = fun (ctx : HttpContext) -> async {
-        ctx.Response.StatusCode <- int OK
-        use _ = content
-        ctx.Response.ContentType <- content.Headers.ContentType.MediaType
-        do! content.CopyToAsync ctx.Response.Body |> Async.AwaitTask }
-
-type HttpRequest (req : Microsoft.AspNetCore.Http.HttpRequest) =
-    let vs = req.Body |> Stream.asAsyncVirtual
-    member x.Headers = req.GetTypedHeaders ()
-    member x.Body : Stream = vs
-    member x.ContentType = req.ContentType
-    static member Create req = new HttpRequest (req)
-
-type HttpResponse (res : HttpResponseMessage) =
-    member x.StatusCode = res.StatusCode
-    member x.Headers = res.Headers
-    member x.ReadAsStream () = res.Content.ReadAsStreamAsync () |> Async.AwaitTask
-    member x.ReadAsString () = res.Content.ReadAsStringAsync () |> Async.AwaitTask
-    member x.ReadAsByteArray () = res.Content.ReadAsByteArrayAsync () |> Async.AwaitTask
-    member x.ContentType = res.Content.Headers.ContentType.MediaType
-    static member Create res = new HttpResponse (res)
-    interface IDisposable with member x.Dispose () = res.Dispose ()
-
-[<AutoOpen>]
-module HttpContent =
-    type HttpContent with
-        static member byteArray bytes = new ByteArrayContent(bytes)
-        static member byteArray bytes offset count = new ByteArrayContent(bytes, offset, count)
-        static member stream str = new StreamContent (str)
-        static member stream str buffer = new StreamContent(str, buffer)
-        static member string str = new StringContent(str, System.Text.Encoding.UTF8, "text/plain")
-        static member stringEncodingMediaType str encoding mediaType = new StringContent(str, encoding mediaType)
-        static member multipart subtype = new MultipartContent (subtype)
-        static member multipart subtype boundary = new MultipartContent (subtype, boundary)
-        static member multipartFormData () = new MultipartFormDataContent ()
-        static member multipartFormData boundary = new MultipartFormDataContent (boundary)
-        static member formUrlEncoded (coll : KeyValuePair<string, string> seq) = new FormUrlEncodedContent (coll)
-        static member formUrlEncoded (coll : (string * string) seq) = new FormUrlEncodedContent (coll |> Seq.map KeyValuePair)
-
-[<CompilationRepresentationAttribute(CompilationRepresentationFlags.ModuleSuffix)>]
-module Stream =
-
-    let asByteArray (str : Stream) =
-        use ms = new MemoryStream ()
-        str.CopyTo ms
-        ms.Position <- 0L
-        ms.ToArray ()
-
-    let asString (str : Stream) =
-        let bs = asByteArray str
-        System.Text.Encoding.UTF8.GetString bs
-    
-    [<Extension>]
-    type System.IO.Stream with
-        [<Extension>]
-        static member ReadAsByteArray (str : Stream) = asByteArray str
-        [<Extension>]
-        static member ReadAsString (str : Stream) = asString str
-
-/// Provides functionality to test and host HTTP endpoints.
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Http =
-
-    let logger = Log.logger<Http> () 
-
-    /// <summary>
-    /// Sends a HTTP GET request to the specified uri.
-    /// </summary>
-    let get (uri : string) = async {
-        logger.LogInformation(LogEvent.http, "GET -> {uri}", uri)
-        let! res = Http.Get uri |> Async.AwaitTask
-        logger.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
-        return HttpResponse.Create res }
-
-    /// <summary>
-    /// Sends a HTTP POST request with a content to the specified uri.
-    /// </summary>
-    let post (uri : string) content = async {
-        logger.LogInformation(LogEvent.http, "POST -> {uri}", uri)
-        let! res = Http.Post uri content |> Async.AwaitTask
-        logger.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
-        return HttpResponse.Create res }
-
-    /// <summary>
-    /// Sends a HTTP PUT request with a content to the specified uri.
-    /// </summary>
-    let put (uri : string) content = async {
-        logger.LogInformation(LogEvent.http, "PUT -> {uri}", uri)
-        let! res = Http.Put uri content |> Async.AwaitTask
-        logger.LogInformation(LogEvent.http, "{status} <- {uri}", res.StatusCode, uri)
-        return HttpResponse.Create res }
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
-    /// </summary>
-    /// <param name="url">The url on which the server should be hosted.</param>
-    /// <param name="predicate">The predicate function to filter out received requests.</param>
-    /// <param name="handler">The handling function to handle the received request.</param>
-    let serverCustom url custom =
-        let uri = Uri url
-        let (endpoint, path) =
-            if uri.AbsolutePath = "/"
-            then uri.AbsoluteUri, None
-            else uri.AbsoluteUri.Replace(uri.AbsolutePath, String.Empty), Some uri.AbsolutePath
-
-        let ct = new CancellationTokenSource ()
-        let host = 
-          WebHostBuilder()
-            .UseKestrel()
-            .UseUrls(endpoint)
-            .Configure(Action<_> (fun app ->
-                Option.iter (PathString >> app.UsePathBase >> ignore) path
-                custom app ct))
-            .Build()
-
-        Async.Start (host.RunAsync ct.Token |> Async.AwaitTask, ct.Token)
-        Disposable.create (fun () -> 
-            host.StopAsync () |> Async.AwaitTask |> Async.RunSynchronously
-            ct.Cancel ())
-    
-    let private serverRoutesWithCancellation url table =
-        serverCustom url <| fun (app : IApplicationBuilder) ct ->
-            for (predicate, handler) in table do
-                    app.MapWhen (Func<_, _> predicate, Action<_> (fun x -> 
-                        x.Run(RequestDelegate (fun ctx -> 
-                            logger.LogInformation(LogEvent.http, "Receive at '{uri}' <- {method}", url, ctx.Request.Method)
-                            handler ctx ct |> Async.StartAsTask :> Task)))) |> ignore
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
-    /// </summary>
-    /// <param name="url">The url on which the server should be hosted.</param>
-    /// <param name="table">The routing table where each predicate is matched with a handler.</param>
-    let serverRoutes url table = 
-        serverRoutesWithCancellation url (Seq.map (fun (p, h) -> p, (fun ctx _ -> h ctx)) table)
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
-    /// </summary>
-    /// <param name="url">The url on which the server should be hosted.</param>
-    /// <param name="predicate">The predicate function to filter out received requests.</param>
-    /// <param name="handler">The handling function to handle the received request.</param>
-    let serverRoute url predicate handler = 
-        serverRoutes url [ predicate, handler ]
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, returning a successful 'OK' for received requests.
-    /// </summary>  
-    /// <param name="url">The url on which the server should be hosted.</param>
-    let server url = 
-        serverRoutes url 
-            [ GET, Http.respond OK
-              POST, Http.respond Accepted
-              PUT, Http.respond Accepted ]
-
-    type private AgentMessage<'a> =
-        | Add of message:'a * cancellation:CancellationTokenSource
-        | Get of sender:AsyncReplyChannel<'a list>
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
-    /// collecting a series of received requests all mapped to a type via the specified mapper function until the specified results predicate succeeds.
-    /// </summary>
-    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
-    /// <param name="route">The route/predicate where the server should collect requests.</param>
-    /// <param name="handler">The response handler when the specified route gets chosen.</param>
-    /// <param name="resultMapper">The mapping function from a request to a custom type to collect.</param>
-    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
-    let serverCollectCustom url route handler resultMapper resultsPredicate =
-        let inbox = MailboxProcessor.Start <| fun agent ->
-            let rec loop messages = async {
-                let! message = agent.Receive ()
-                match message with
-                | Add (str, ct) ->
-                    let messages = str :: messages
-                    logger.LogInformation (LogEvent.http, "Collect received request, collected: {length}", messages.Length)
-                    if resultsPredicate messages 
-                    then ct.Cancel (); return ()
-                    return! loop messages
-                | Get sender -> 
-                    sender.Reply messages
-                    return! loop messages }
-            loop []
-
-        let s = serverRoutesWithCancellation url [ route, fun ctx ct -> async {
-            let message = resultMapper ctx.Request
-            inbox.Post (Add (message, ct))
-            do! handler ctx } ]
-
-        fun () -> async { 
-            Async.DefaultCancellationToken.Register (fun () -> s.Dispose ()) |> ignore
-            return! inbox.PostAndAsyncReply Get }
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, receiving requests when the specified routing function holds, 
-    /// collecting a series of received requests until the specified results predicate succeeds.
-    /// </summary>
-    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
-    /// <param name="route">The route/predicate where the server should collect requests.</param>
-    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
-    let serverCollect url route resultsPredicate =
-        serverCollectCustom url route (Http.respond Accepted) HttpRequest.Create resultsPredicate
-
-    /// <summary>
-    /// Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.
-    /// </summary>
-    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost: 8080').</param>
-    /// <param name="route">The route/predicate where the server should collect requests.</param>
-    /// <param name="count">The amount of requests that should be collected.</param>
-    let serverCollectCount url route count =
-        serverCollect url route (List.length >> (=) count)
-
