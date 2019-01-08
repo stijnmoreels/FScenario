@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Logging;
-using FScenario;
 using Divergic.Logging.Xunit;
+using System.Linq;
+using System.Net;
 
 namespace FScenario.CSharp
 {
@@ -49,12 +51,14 @@ namespace FScenario.CSharp
 
             using (Dir.Disposable("multiple"))
             {
-                await WriteGenFile1SDelayed();
-                await WriteGenFile1SDelayed();
-                await WriteGenFile1SDelayed();
+                await Task.WhenAny(
+                    Task.Delay(1),
+                    WriteGenFile1SDelayed(),
+                    WriteGenFile1SDelayed(),
+                    WriteGenFile1SDelayed());
 
                 var files =
-                    await Poll.Target(() => Dir.Files("multiple"))
+                    await Poll.Target(() => Task.FromResult(Dir.Files("multiple")))
                               .Until(fs => fs.Length == 3)
                               .Every(TimeSpans._1s)
                               .For(TimeSpans._5s)
@@ -82,6 +86,49 @@ namespace FScenario.CSharp
                 "notepad.exe",
                 () => Assert.NotEmpty(
                     Process.GetProcessesByName("notepad")));
+        }
+
+        [Fact]
+        public async Task Http_Server_Responds_With_200_OK()
+        {
+            const string url = "http://localhost:9090";
+            using (Http.Server(url))
+            {
+                await Poll.UntilHttpOkEvery1sFor5s(url);
+            }
+        }
+
+        [Fact]
+        public async Task Http_Server_Collects_3_Received_Requests()
+        {
+            const string url = "http://localhost:9089";
+            const string expected = "This should be received 3 times!";
+            Task SendDelayedRequest()
+            {
+                return Task.Run(async () =>
+                {
+                    await Task.Delay(2000);
+                    await Http.Post(url, new StringContent(expected));
+                });
+            }
+
+            await Task.WhenAny(
+                Task.Delay(1),
+                SendDelayedRequest(),
+                SendDelayedRequest(),
+                SendDelayedRequest());
+
+            Func<Task<HttpRequest[]>> target = Http.ServerCollect(url, HttpMethods.POST, 3);
+            HttpRequest[] requests =
+                await Poll.Target(target)
+                          .UntilCount(3)
+                          .Every(TimeSpans._1s)
+                          .For(TimeSpans._10s)
+                          .Error("HTTP collect should collect 3 requests");
+
+            string[] expecteds = Enumerable.Repeat(expected, 3).ToArray();
+            string[] actuals = requests.Select(r => r.Body.ReadAsString()).ToArray();
+            Assert.Equal(expecteds, actuals);
         }
     }
 }

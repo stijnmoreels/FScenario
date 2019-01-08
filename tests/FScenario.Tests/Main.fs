@@ -8,7 +8,7 @@ open System.IO
 [<EntryPoint>]
 let main argv =
     use __ = Dir.setCurrentUndo "test-workspace"
-    Dir.cleanFilesAndDirs "."
+    Dir.cleanDelete "."
     Tests.runTestsInAssembly { 
         defaultConfig with 
             parallel = false } argv

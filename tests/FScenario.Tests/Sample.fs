@@ -5,7 +5,6 @@ open System.IO
 open System.Net
 open Expecto
 open FScenario
-open System.Diagnostics
 open System.Net.Http
 
 [<Tests>]
@@ -72,7 +71,7 @@ let directory_tests =
 let file_tests =
   testList "file tests" [
     testCase "equalize on hashed content" <| fun _ ->
-      Dir.cleanFiles "."
+      Dir.clean "."
       let p1 = "test1.txt"
       File.WriteAllText (p1, "!!! This should be the same content !!!")
       let p2 = "test2.txt"
@@ -102,7 +101,7 @@ let poll_tests =
     testCaseAsync "should poll for file presence" <| async {
       let! writeFile = writeFileDelayed "present.txt" TimeInt._1s |> Async.StartChild
 
-      Dir.cleanFiles "."
+      Dir.clean "."
       do! writeFile
       let! f = Poll.untilFileExistsEvery1sFor5s "present.txt"
       FileInfo.delete f
@@ -126,8 +125,9 @@ let poll_tests =
      };
      testCaseAsync "should poll until 1-5" <| async {
         let mutable count = 0
-        do! Poll.target (fun () -> count <- count + 1; async.Return count)
-            |> Poll.until (fun x -> x = 5)
+        do! Poll.target2 (fun () -> count <- count + 1; async.Return (Some count)) 
+                         (fun () -> async.Return None)
+            |> Poll.until (fun x -> x = Some 5)
             |> Poll.every _1s
             |> Poll.timeout _5s
             |> Poll.error "counter should increase from 1-5"
@@ -147,7 +147,7 @@ let http_tests =
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
       let endpoint = "http://localhost:8082"
       let expected = "this is a test!"
-      use _ = Http.serverRoutes endpoint [ GET, Http.respond OK; POST, Http.respond expected ]
+      use _ = Http.serverRoutes endpoint [ GET, Http.respondStatus OK; POST, Http.respondContentString expected ]
       do! Poll.untilHttpOkEvery1sFor10s endpoint
 
       use content = HttpContent.string expected
@@ -180,7 +180,7 @@ let http_tests =
           |> Poll.every _1s
           |> Poll.timeout _10s
       
-      let bodies = Seq.map (fun (x : HttpRequest) -> Stream.asString x.Body) requests
+      let bodies = Seq.map (HttpRequest.body >> Stream.asString) requests
       Expect.sequenceEqual (Seq.replicate 3 expected) bodies "http 'serverCollect' should collect the received http requests"
     }
   ]
