@@ -3,6 +3,16 @@
 FScenario is a .NET project to help developers writing more safe integration tests but also to make the developing more fun.
 The project contains several ways to help the developer to clean up in after the integration test has run, polling mechanisms to make the assertion phase more reliable, building blocks to create your own disposable fixture, ...
 
+[![NuGet Badge](https://buildstats.info/nuget/fscenario)](https://www.nuget.org/packages/fscenario)
+
+## Build Status
+
+| Mono                                                                                                                                     | .NET                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![Mono CI Build Status](https://img.shields.io/travis/stijnmoreels/FScenario/master.svg)](https://travis-ci.org/stijnmoreels/FScenario) | [![.NET Build status](https://ci.appveyor.com/api/projects/status/d95a93ywn48ldiss/branch/master?svg=true)](https://ci.appveyor.com/project/stijnmoreels/fscenario/branch/master) |
+
+
+
 ## Examples
 
 The project exposes several reusable building blocks to make your integration/scenario test more reliable in seconds.
@@ -60,14 +70,6 @@ With full C# support!
 Poll.Target(() => Task.FromResult(Dir.Files("my-dir")))
     .Until(fs => fs.Length == 3)
     .Every(TimeSpans._1s)
-    .For(TimeSpans._10s)
+    .For(TimeSpans._10s
     .Error("Directory 'my-dir' should have 3 files);
 ```
-
-
-## Build Status
-
-| Mono                                                                                                                                     | .NET                                                                                                                                                                              |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![Mono CI Build Status](https://img.shields.io/travis/stijnmoreels/FScenario/master.svg)](https://travis-ci.org/stijnmoreels/FScenario) | [![.NET Build status](https://ci.appveyor.com/api/projects/status/d95a93ywn48ldiss/branch/master?svg=true)](https://ci.appveyor.com/project/stijnmoreels/fscenario/branch/master) |
-
