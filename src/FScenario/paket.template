@@ -1,6 +1,6 @@
 type file
 id FScenario
-version 0.0.1
+version 1.0.0-alpha
 title FScenario
 summary Reusable integration test building blocks to write integration tests in a more safe and fun way
 description
@@ -15,7 +15,10 @@ tags fsharp,integration-tests,integration,tests,disposable,polling,fixture,teard
 projectUrl https://github.com/stijnmoreels/FScenario
 iconUrl https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png
 licenseUrl https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt
-releaseNotes Initial release
+releaseNotes
+    - Introduce `Item` module for common file integration test operations
+    - Introduce `Http` module for common http integration test operations
+    - Introduce `Log` module for centrilized logging
 files bin\*.dll ==> lib
 dependencies
     FSharp.Core >= 4.5.4

@@ -7,6 +7,7 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.DotNet.PaketTemplate
+open Fake.DotNet.FSFormatting
 
 let dotnetExePath = "dotnet"
 let bin = "bin"
@@ -144,6 +145,8 @@ Target.create "Docs" <| fun _ ->
             LayoutRoots = layoutRoots
             ProjectParameters  = ("root", root)::info
             Template = docTemplate } )
+
+    
 
     Directory.ensure (output @@ "reference")
     !! (bin @@ "*.dll")

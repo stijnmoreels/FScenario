@@ -8,7 +8,10 @@ open Microsoft.Extensions.Logging
 open Polly
 open Polly.Timeout
 
-module Async =
+/// <summary>
+/// Basic extra functions on the `Async` type.
+/// </summary>
+module internal Async =
 
     let retn = async.Return
 
@@ -317,6 +320,9 @@ module Poll =
     member x.GetAwaiter () = 
         (Poll.untilRecord x |> Async.StartAsTask).GetAwaiter()
 
+/// <summary>
+/// Computation Expression builder for the <see cref="PollAsync{T}"/> type.
+/// </summary>
 [<AutoOpen>]
 module PollBuilder =
     type PollBuilder () =

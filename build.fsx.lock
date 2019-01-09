@@ -1,0 +1,5 @@
+STORAGE: NONE
+RESTRICTION: == netstandard2.0
+
+GROUP fsformatting
+

@@ -179,7 +179,7 @@ let http_tests =
           |> Poll.until (List.length >> (=) 3)
           |> Poll.every _1s
           |> Poll.timeout _10s
-      
+
       let bodies = Seq.map (HttpRequest.body >> Stream.asString) requests
       Expect.sequenceEqual (Seq.replicate 3 expected) bodies "http 'serverCollect' should collect the received http requests"
     }

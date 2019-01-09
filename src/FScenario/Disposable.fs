@@ -32,6 +32,9 @@ type CompositeDisposable (?disposables : IDisposable seq) =
     /// </summary>
     static member Create (xs) = new CompositeDisposable (xs)
 
+/// <summary>
+/// Exposed functionality for <see cref="IDisposable"/> implementations.
+/// </summary>
 module Disposable =
     /// <summary>
     /// Creates a <see cref="IDisposable" /> implementation that runs the specified function when disposed.
@@ -64,11 +67,6 @@ module Disposable =
     /// Creates a representation of a composite of <see cref="IDisposable" /> implementations that disposes all in the composite when disposed.
     /// </summary>
     let Compose ([<ParamArray>] ds) = CompositeDisposable.Create (Seq.ofArray ds)
-    
-    /// <summary>
-    /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
-    /// </summary>
-    let inline (<+>) d1 d2 = compose2 d1 d2
 
     /// Creates a undoable operation by first running the specified <paramref cref="doFunc"/> 
     /// and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.
@@ -81,3 +79,13 @@ module Disposable =
     let Undoable (doFunc : Action) (undoFunc : Action) =
         doFunc.Invoke ()
         create undoFunc.Invoke
+
+/// <summary>
+/// Disposable infix operators
+/// </summary>
+[<AutoOpen>]
+module DisposableOp =
+    /// <summary>
+    /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
+    /// </summary>
+    let inline (<+>) d1 d2 = Disposable.compose2 d1 d2
