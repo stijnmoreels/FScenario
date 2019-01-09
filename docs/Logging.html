@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>release-notes</title>
+    <title>How to easily localize defects?
+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="Reusable integration test building blocks to write integration tests in a more safe and fun way."/>
     <meta name="author" content="Stijn Moreels"/>
@@ -32,19 +33,40 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h3><a name="0-0-1" class="anchor" href="#0-0-1">0.0.1</a></h3>
-<p>Initial release</p>
-<ul>
-<li>Introduce <code>Poll</code> module for generic polling</li>
-<li>Introduce <code>Dir</code> module for common directory integration test operations</li>
-</ul>
-<h3><a name="1-0-0-alpha" class="anchor" href="#1-0-0-alpha">1.0.0-alpha</a></h3>
-<ul>
-<li>Introduce <code>Item</code> module for common file integration test operations</li>
-<li>Introduce <code>Http</code> module for common http integration test operations</li>
-<li>Introduce <code>Log</code> module for centrilized logging</li>
-</ul>
+<h1><a name="How-to-easily-localize-defects" class="anchor" href="#How-to-easily-localize-defects">How to easily localize defects?</a></h1>
+<p>What I like to call <em>No-Stress Defect Localization</em> is a way of adding such a developer-friendly log messages to your tests that the localization of the defect is not a big issue
+or doesn't take a lot of your time.</p>
+<p>Unlike Unit Tests, Integration Tests are tests that uses external resources.
+Because those resources are out of our control, finding what's wrong with a test case can be tricky if it hasn't the right log messages.</p>
+<h2><a name="Http-Logging" class="anchor" href="#Http-Logging">Http Logging</a></h2>
+<p>A good example of this is the exposed <code>Http</code> module. Altough it doesn't look like much extra it exposes, it adds logs before and after actions take place:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FScenario</span>
 
+<span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="m">Http</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="id">get</span> <span class="s">&quot;http://localhost:9090&quot;</span> 
+
+<span class="c">/// Logs:</span>
+<span class="c">/// Information: GET -&gt; http://localhost:9090</span>
+<span class="c">/// Information: OK &lt;- http://localhost:9090</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You may find this a bit overload at the beginning, but I can assure you; when you want to find a defect; logging is the first and can be the most useful tool to find out what's wrong.</p>
+<h2><a name="Custom-Logging" class="anchor" href="#Custom-Logging">Custom Logging</a></h2>
+<p>The project uses the <strong>Microsoft.Extensions.Logging</strong> abstraction to log messages and exposes the factory for this in the <code>FScenario.Log</code> module.
+This allows you to add custom logging providers and therefore centrilize the logging strategy for your entire integration test suite.</p>
+<p>See also <a href="https://msdn.microsoft.com/en-us/magazine/mt694089.aspx">Essential .NET - Logging with .NET Core</a>.</p>
+
+<div class="tip" id="fs1">namespace FScenario</div>
+<div class="tip" id="fs2">Multiple items<br />module Http<br /><br />from FScenario<br /><br />--------------------</div>
+<div class="tip" id="fs3">val get : uri:string -&gt; Async&lt;HttpResponse&gt;</div>
 
         </div>
         <div class="span3">

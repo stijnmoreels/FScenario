@@ -17,12 +17,14 @@ open System.IO
 open FScenario
 
 // Arrange
-use __ = Dir.ensureUndo "temp"
+use d = Dir.ensureUndo "temp" <+> Http.server "http://localhost:9090"
 
 // Act
 File.WriteAllText ("temp" </> "file.txt", "This is a file!")
 
 // Assert
+Poll.untilHttpOkEvery1sFor5s "http://localhost:9090"
+
 Poll.target (fun () -> async { return "temp" </> "file.txt" })
 |> Poll.until File.Exists
 |> Poll.every _1s
@@ -32,9 +34,11 @@ Poll.target (fun () -> async { return "temp" </> "file.txt" })
 (**
 The library comes with comprehensible documentation about the major parts of the project and the complete API reference of the project:
 
- * [Polling Targets](polling.html) contains a further explanation of the polling functionality to have _Open-Minded Assertions_
+ * [Polling Targets](Polling.html) contains a further explanation of the polling functionality to have _Open-Minded Assertions_
 
  * [Undoable IO](IO.html) contains a further explanation of the IO operations and their undoable counterparts to have a _Zero-Waste Environment_
+
+ * [Logging](Logging.html) contains a further explanation of how you can centrilize and add more logs for a _No-Stress Defect Localization_
 
  * [API Reference](reference/index.html) contains automatically generated documentation for all types, modules
    and functions in the library. This includes additional brief samples on using most of the
