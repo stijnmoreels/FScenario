@@ -10,7 +10,7 @@ open Fake.DotNet.PaketTemplate
 open Fake.DotNet.FSFormatting
 
 let dotnetExePath = "dotnet"
-let bin = "bin"
+let bin = ".\\bin"
 let releaseNotes = ReleaseNotes.load "RELEASE_NOTES.md"
 
 Target.create "Clean" <| fun _ ->
@@ -74,7 +74,7 @@ Target.create "Paket" <| fun _ ->
             IconUrl = Some "https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png"
             Copyright = Some "Copyright 2019"
             Tags = [ "fsharp"; "integration-tests"; "integration"; "tests"; "disposable"; "polling"; "fixture"; "teardown" ]
-            Files = [ PaketFileInfo.Include (bin @@ "*.dll", "lib") ]
+            Files = [ PaketFileInfo.Include (bin @@ "Release" @@ "netstandard2.0" @@ "*.dll", "lib/netstandard2.0") ]
             Dependencies = 
                 Paket.getDependenciesForReferencesFile "src/FScenario/paket.references"
                 |> Array.map (fun (package, version) -> PaketDependency (package, GreaterOrEqual (Version version)))
@@ -145,8 +145,6 @@ Target.create "Docs" <| fun _ ->
             LayoutRoots = layoutRoots
             ProjectParameters  = ("root", root)::info
             Template = docTemplate } )
-
-    
 
     Directory.ensure (output @@ "reference")
     !! (bin @@ "*.dll")
