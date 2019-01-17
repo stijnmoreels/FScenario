@@ -6,14 +6,20 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\paket-files\stijnmoreels\System.IO.VirtualStream\VirtualStream.fs">
+    <Compile Include="..\..\paket-files\stijnmoreels\System\Disposable.fs">
+      <Paket>True</Paket>
+      <Link>Disposable.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\stijnmoreels\System\Time.fs">
+      <Paket>True</Paket>
+      <Link>Time.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\stijnmoreels\System.IO\VirtualStream.fs">
       <Paket>True</Paket>
       <Link>VirtualStream.fs</Link>
     </Compile>
-    <Compile Include="Disposable.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="IO.fs" />
-    <Compile Include="Time.fs" />
     <Compile Include="Http.fs" />
     <Compile Include="Poll.fs" />
     <Compile Include="App.fs" />

@@ -69,7 +69,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L73-73" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L90-90" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -89,7 +89,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L82-82" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L99-99" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -109,7 +109,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L91-91" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L108-108" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -129,7 +129,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L123-123" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L158-158" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -149,7 +149,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L113-113" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L147-147" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -162,14 +162,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
-            respondStatus(status)
+            respondStatus status ctx
           </code>
           <div class="tip" id="13">
-            <strong>Signature:</strong> status:(type) -&gt; (type) -&gt; Async&lt;unit&gt;<br />
+            <strong>Signature:</strong> status:(type) -&gt; ctx:(type) -&gt; Async&lt;unit&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L108-108" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L139-139" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -189,7 +189,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L100-100" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L131-131" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -209,7 +209,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L132-132" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L169-169" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -229,7 +229,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L192-192" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L229-229" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -245,11 +245,11 @@
             serverCollect url route resultsPredicate
           </code>
           <div class="tip" id="17">
-            <strong>Signature:</strong> url:string -&gt; route:((type) -&gt; bool) -&gt; resultsPredicate:(HttpRequest list -&gt; bool) -&gt; unit -&gt; Async&lt;HttpRequest list&gt;<br />
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; resultsPredicate:(HttpRequest list -&gt; bool) -&gt; HttpPollTarget&lt;HttpRequest list&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L239-239" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L280-280" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -266,11 +266,11 @@ collecting a series of received requests until the specified results predicate s
             serverCollectCount url route count
           </code>
           <div class="tip" id="18">
-            <strong>Signature:</strong> url:string -&gt; route:((type) -&gt; bool) -&gt; count:int -&gt; unit -&gt; Async&lt;HttpRequest list&gt;<br />
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; count:int -&gt; HttpPollTarget&lt;HttpRequest list&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L248-248" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L289-289" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -286,11 +286,11 @@ collecting a series of received requests until the specified results predicate s
             serverCollectCustom(...)
           </code>
           <div class="tip" id="19">
-            <strong>Signature:</strong> url:string -&gt; route:((type) -&gt; bool) -&gt; handler:((type) -&gt; Async&lt;unit&gt;) -&gt; resultMapper:((type) -&gt; &#39;c) -&gt; resultsPredicate:(&#39;c list -&gt; bool) -&gt; unit -&gt; Async&lt;&#39;c list&gt;<br />
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; handler:HttpHandler -&gt; resultMapper:((type) -&gt; &#39;c) -&gt; resultsPredicate:(&#39;c list -&gt; bool) -&gt; HttpPollTarget&lt;&#39;c list&gt;<br />
                           <strong>Type parameters:</strong> 'c                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L207-207" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L248-248" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -311,7 +311,7 @@ collecting a series of received requests all mapped to a type via the specified 
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L140-140" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L177-177" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -327,11 +327,11 @@ collecting a series of received requests all mapped to a type via the specified 
             serverRoute url predicate handler
           </code>
           <div class="tip" id="21">
-            <strong>Signature:</strong> url:string -&gt; predicate:((type) -&gt; bool) -&gt; handler:((type) -&gt; Async&lt;&#39;a&gt;) -&gt; (type)<br />
-                          <strong>Type parameters:</strong> 'a                      </div>
+            <strong>Signature:</strong> url:string -&gt; predicate:HttpRouter -&gt; handler:HttpHandler -&gt; (type)<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L185-185" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L222-222" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -347,15 +347,55 @@ collecting a series of received requests all mapped to a type via the specified 
             serverRoutes url table
           </code>
           <div class="tip" id="22">
-            <strong>Signature:</strong> url:string -&gt; table:seq&lt;((type) -&gt; bool) * ((type) -&gt; Async&lt;&#39;?8642&gt;)&gt; -&gt; (type)<br />
-                          <strong>Type parameters:</strong> '?8642                      </div>
+            <strong>Signature:</strong> url:string -&gt; table:seq&lt;HttpRouter * HttpHandler&gt; -&gt; (type)<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L176-176" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L213-213" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            serverSimulate url route handlers
+          </code>
+          <div class="tip" id="23">
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; handlers:HttpHandler list -&gt; (type)<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L334-334" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            serverSimulates url table
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> url:string -&gt; table:(HttpRouter * HttpHandler list) list -&gt; (type)<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L304-304" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.</p>
 
 
         </td>

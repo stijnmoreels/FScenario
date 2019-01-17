@@ -32,6 +32,7 @@ type DirectoryEx =
     static member CleanFiles dir = 
         if dir = null then nullArg "dir"
         DirectoryInfo.clean dir
+    
     /// <summary>
     /// Deletes the files in the specified directories.
     /// </summary>
@@ -39,6 +40,7 @@ type DirectoryEx =
     static member CleanFiles (dirs : IEnumerable<DirectoryInfo>) = 
         if dirs = null then nullArg "dirs"
         DirectoryInfo.cleans dirs
+    
     /// <summary>
     /// Delets the files in the specified directory and revert the cleaning after the returned disposable gets disposed.
     /// </summary>
@@ -46,6 +48,7 @@ type DirectoryEx =
     static member CleanFilesUndo dir =
         if dir = null then nullArg "dir"
         DirectoryInfo.cleanUndo dir
+    
     /// <summary>
     /// Delets the files in the specified directories and revert the cleaning after the returned disposable gets disposed.
     /// </summary>
@@ -53,6 +56,7 @@ type DirectoryEx =
     static member CleanFilesUndo (dirs : IEnumerable<DirectoryInfo>) =
         if dirs = null then nullArg "dirs"
         DirectoryInfo.cleansUndo dirs
+    
     /// <summary>
     /// Ensure we have a clean (no files) directory at the specified directory path.
     /// </summary>
@@ -60,6 +64,7 @@ type DirectoryEx =
     static member Ensure dir =
         if dir = null then nullArg "dir"
         DirectoryInfo.ensure dir
+    
     /// <summary>
     /// Ensure we have a clean (no files) directory at the specified directory paths.
     /// </summary>
@@ -67,6 +72,7 @@ type DirectoryEx =
     static member Ensures (dirs : IEnumerable<DirectoryInfo>) =
         if dirs = null then nullArg "dirs"
         DirectoryInfo.ensures dirs
+    
     /// <summary>
     /// Ensures we have a clean (no files) directory at the specified directory path and revert the ensurance after the returned disposable gets disposed, 
     /// taking into account whether the directory was already created by deleting the directory if it didn't existed.
@@ -83,6 +89,7 @@ type DirectoryEx =
     static member EnsuresUndo dirs =
         if dirs = null then nullArg "dirs"
         DirectoryInfo.ensuresUndo dirs
+    
     /// <summary>
     /// Replacs the specified source directory with the specified destination directory.
     /// </summary>
@@ -91,6 +98,7 @@ type DirectoryEx =
         if dest = null then nullArg "dest"
         if src = null then nullArg "src"
         DirectoryInfo.replace dest src
+    
     /// <summary>
     /// Replaces the specified source directory with the specified destination directory and revert this replacement after the 'Dispose' is called of the returned disposable.
     /// </summary>
@@ -99,6 +107,7 @@ type DirectoryEx =
         if dest = null then nullArg "dest"
         if src = null then nullArg "src"
         DirectoryInfo.replaceUndo dest src
+    
     /// <summary>
     /// Ensures we have a clean (no files) directory at the specified directory path
     /// that gets deleted when the returned <see cref="IDisposable" /> is disposed.
@@ -117,6 +126,7 @@ type FileEx =
     static member Hash (f : FileInfo) = 
         if f = null then nullArg "f"
         File.hash f.FullName
+    
     /// <summary>
     /// Determines if two files are equal by hashing (MD5) their contents.
     /// </summary>
@@ -127,16 +137,35 @@ type FileEx =
         FileInfo.hashEqual f1 f2
     [<Extension>]
     static member Delete f = FileInfo.delete f
+    
     /// <summary>
     /// Replaces a specified destination file with a source file.
     /// </summary>
     [<Extension>]
     static member Replace (src, dest) = FileInfo.replace src dest
+    
     /// <summary>
     /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
     /// </summary>
     [<Extension>]
     static member ReplaceUndo (src, dest) = FileInfo.replaceUndo src dest
+
+/// Representation of HTTP methods that are defined as predicates.
+type HttpRoute =
+
+    static member private methodFunc m = Func<Microsoft.AspNetCore.Http.HttpContext, bool> m
+
+    static member GET = HttpRoute.methodFunc HttpRoute.GET
+    
+    static member POST = HttpRoute.methodFunc HttpRoute.POST
+    
+    static member PUT = HttpRoute.methodFunc HttpRoute.PUT
+    
+    static member DELETE = HttpRoute.methodFunc HttpRoute.DELETE
+    
+    static member OPTIONS= HttpRoute.methodFunc HttpRoute.OPTIONS
+    
+    static member TRACE = HttpRoute.methodFunc HttpRoute.TRACE
 
 /// <summary>
 /// Provides functionality to test and host HTTP endpoints.
@@ -156,6 +185,33 @@ type Http =
     /// Sends a HTTP PUT request with a content to the specified uri.
     /// </summary>
     static member Put (uri : string) content = Http.put uri content |> Async.StartAsTask
+
+    static member private RespondFunc f = Func<Microsoft.AspNetCore.Http.HttpContext, Task> (fun ctx -> f ctx |> Async.StartAsTask :> Task)
+
+    /// <summary>
+    /// Creates a handling function that adds a specified status code to the HTTP response.
+    /// </summary>
+    static member RespondStatus (status) = Http.RespondFunc (Http.respondStatus status)
+
+    /// <summary>
+    /// Creates a handling function that adds a specified status code to the HTTP response.
+    /// </summary>
+    static member RespondStatus (statusCode) = Http.RespondFunc (Http.respondStatusCode statusCode)
+
+    /// <summary>
+    /// Creates a handling function that adds a specified generic HTTP content to the HTTP response.
+    /// </summary>
+    static member Respond (content) = Http.RespondFunc (Http.respondContent content)
+
+    /// <summary>
+    /// Creates a handling function that adds a specified string content to the HTTP response.
+    /// </summary>
+    static member RespondContent (contentString) = Http.RespondFunc (Http.respondContentString contentString )
+
+    /// <summary>
+    /// Creates a handling function that adds a specified stream content to the HTTP response.
+    /// </summary>
+    static member RespondContent (contentStream) = Http.RespondFunc (Http.respondStream contentStream)
 
     /// <summary>
     /// Start HTTP server on the specified url, returning a successful 'OK' for received GET requests.
@@ -183,7 +239,9 @@ type Http =
     static member ServerCollect (url, route : Func<_, _>, count) : Func<Task<HttpRequest array>> =
         if route = null then nullArg "route"
         let f = Http.serverCollectCount url route.Invoke count
-        Func<_> (fun () -> f () |> Async.map Array.ofList |> Async.StartAsTask)
+        Func<_> (fun () -> async {
+            let! xs = f ()
+            return Array.ofList xs } |> Async.StartAsTask)
 
     /// <summary>
     /// Starts a HTTP server on the specified url, receiving requests when the specified routing function holds, 
@@ -196,7 +254,9 @@ type Http =
         if route = null then nullArg "route"
         if resultsPredicate = null then nullArg "resultsPredicate"
         let f = Http.serverCollect url route.Invoke (Array.ofList >> resultsPredicate.Invoke)
-        Func<_> (fun () -> f () |> Async.map Array.ofList |> Async.StartAsTask)
+        Func<_> (fun () -> async {
+            let! xs = f ()
+            return Array.ofList xs } |> Async.StartAsTask)
 
     /// <summary>
     /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
@@ -218,13 +278,109 @@ type Http =
        if resultMapper = null then nullArg "resultMapper"
        if resultsPredicate = null then nullArg "resultsPredicate"
        let f = Http.serverCollectCustom url route.Invoke (handler.Invoke >> Async.AwaitTask) resultMapper.Invoke (List.toArray >> resultsPredicate.Invoke)
-       Func<_> (fun () -> f () |> Async.map Array.ofList  |> Async.StartAsTask)
+       Func<_> (fun () -> async { 
+           let! xs = f ()
+           return Array.ofList xs  }  |> Async.StartAsTask)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
+    /// <param name="route">The routing predicate that identifies which kind of HTTP request that must be simulated.</param>
+    /// <param name="handlers">The HTTP request handlers that are executed in sequence for each received HTTP request.</param>
+    static member ServerSimulate
+        ( url,
+          route : Func<_, _>,
+          [<ParamArray>] handlers : Func<_, Task> array) =
+        if route = null then nullArg "route"
+        if handlers = null then nullArg "handlers"
+        Http.serverSimulate url route.Invoke (handlers |> List.ofArray |> List.map (fun f -> f.Invoke >> Async.AwaitTask))
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
+    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    static member ServerSimulate
+        ( url,
+          [<ParamArray>] table : (ValueTuple<Func<_, _>, Func<_, Task>>) array) =
+        if table = null then nullArg "table"
+        table
+        |> List.ofArray
+        |> List.map (fun vt -> 
+            let (route, handler) = vt.ToTuple()
+            route.Invoke, [ handler.Invoke >> Async.AwaitTask ])
+        |> Http.serverSimulates url
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
+    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    static member ServerSimulate
+        ( url,
+          [<ParamArray>] table : (ValueTuple<Func<_, _>, IEnumerable<Func<_, Task>>>) array) =
+        if table = null then nullArg "table"
+        table
+        |> List.ofArray
+        |> List.map (fun t -> 
+            let (route, handlers) = t.ToTuple ()
+            route.Invoke, 
+            handlers |> List.ofSeq 
+                     |> List.map (fun h -> h.Invoke >> Async.AwaitTask))
+        |> Http.serverSimulates url
 
 /// <summary>
 /// Exposing functions to write reliable polling functions for a testable target.
 /// </summary>
 [<Extension>]
 type Poll =
+    /// <summary>
+    /// Creates a polling function that polls at a specified file path.
+    /// </summary>
+    [<Extension>]
+    static member File path =
+        if path = null then nullArg "path"
+        Poll.file path
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified directory path.
+    /// </summary>
+    [<Extension>]
+    static member Dir path =
+        if path = null then nullArg "path"
+        Poll.dir path
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
+    /// </summary>
+    [<Extension>]
+    static member HttpGet endpoint =
+        if endpoint = null then nullArg "endpoint"
+        Poll.http_get endpoint
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
+    /// </summary>
+    [<Extension>]
+    static member HttpPost (endpoint, content) =
+        if endpoint = null then nullArg "endpoint"
+        Poll.http_post endpoint content
+
+    /// <summary>
+    /// Adds a filtering function to to specify that the required result should be equal to the specified value.
+    /// </summary>
+    [<Extension>]
+    static member UntilEqual (poll, x) =
+        Poll.untilEqual x poll
+
+    /// <summary>
+    /// Adds a filtering function to to specify that the required result should not be equal to the specified value.
+    /// </summary>
+    [<Extension>]
+    static member UntilNotEqual (poll, x) =
+        Poll.untilNotEqual x poll
+
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
     /// </summary>
@@ -314,7 +470,7 @@ type Poll =
         PollAsync<_>.Create <| fun () ->
             Task.WhenAny(pollFuncs |> Array.map (fun f -> f.Invoke ())) 
             |> Async.AwaitTask 
-            |> Async.bind Async.AwaitTask
+            |> fun x -> async.Bind(x, Async.AwaitTask)
 
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
@@ -479,4 +635,3 @@ type Poll =
     static member UntilHttpOkEvery5sFor30s (url) =
         if url = null then nullArg "url"
         Poll.untilHttpOkEvery5sFor30s url |> Async.StartAsTask :> Task
-        

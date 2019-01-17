@@ -56,10 +56,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
+          <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
             at(path)
           </code>
-          <div class="tip" id="101">
+          <div class="tip" id="120">
             <strong>Signature:</strong> path:string -&gt; (type)<br />
                                   </div>
         </td>
@@ -76,10 +76,60 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
+          <code onmouseout="hideTip(event, '121', 121)" onmouseover="showTip(event, '121', 121)">
+            copy src dest
+          </code>
+          <div class="tip" id="121">
+            <strong>Signature:</strong> src:string -&gt; dest:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Copy&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L118-118" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Copies a specified source file to a destination file path.</p>
+
+
+              <p>CompiledName: <code>Copy</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
+            copyUndo src dest
+          </code>
+          <div class="tip" id="122">
+            <strong>Signature:</strong> src:string -&gt; dest:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;CopyUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L129-129" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Copies a specified source file to a destination file path and reverts the copying after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>CopyUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
             createSized value metric path
           </code>
-          <div class="tip" id="102">
+          <div class="tip" id="123">
             <strong>Signature:</strong> value:int64 -&gt; metric:Size -&gt; path:string -&gt; (type)<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -101,10 +151,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
+          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
             createSizedTemp value metric
           </code>
-          <div class="tip" id="103">
+          <div class="tip" id="124">
             <strong>Signature:</strong> value:int64 -&gt; metric:Size -&gt; (type)<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -126,10 +176,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
+          <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
             delete(f)
           </code>
-          <div class="tip" id="104">
+          <div class="tip" id="125">
             <strong>Signature:</strong> f:string -&gt; unit<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -138,7 +188,7 @@
           </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L135-135" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L192-192" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -151,10 +201,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
+          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
             deletes(fs)
           </code>
-          <div class="tip" id="105">
+          <div class="tip" id="126">
             <strong>Signature:</strong> fs:seq&lt;string&gt; -&gt; unit<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -163,7 +213,7 @@
           </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L144-144" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L201-201" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -176,10 +226,35 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
+          <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
+            deleteUndo(f)
+          </code>
+          <div class="tip" id="127">
+            <strong>Signature:</strong> f:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;DeleteUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L208-208" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Deletes a file at the specified file path, but reverts the deletion after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>DeleteUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
             exists(f)
           </code>
-          <div class="tip" id="106">
+          <div class="tip" id="128">
             <strong>Signature:</strong> f:string -&gt; bool<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -201,10 +276,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
+          <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
             hash(f)
           </code>
-          <div class="tip" id="107">
+          <div class="tip" id="129">
             <strong>Signature:</strong> f:string -&gt; byte []<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -226,10 +301,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
+          <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
             hashEqual f1 f2
           </code>
-          <div class="tip" id="108">
+          <div class="tip" id="130">
             <strong>Signature:</strong> f1:string -&gt; f2:string -&gt; bool<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -251,10 +326,60 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
+          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+            move src dest
+          </code>
+          <div class="tip" id="131">
+            <strong>Signature:</strong> src:string -&gt; dest:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Move&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L163-163" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Move a specified file to a destination path.</p>
+
+
+              <p>CompiledName: <code>Move</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
+            moveUndo src dest
+          </code>
+          <div class="tip" id="132">
+            <strong>Signature:</strong> src:string -&gt; dest:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;MoveUndo&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L174-174" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.</p>
+
+
+              <p>CompiledName: <code>MoveUndo</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
             replace dest src
           </code>
-          <div class="tip" id="109">
+          <div class="tip" id="133">
             <strong>Signature:</strong> dest:string -&gt; src:string -&gt; unit<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -263,7 +388,7 @@
           </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L95-95" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L101-101" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -276,10 +401,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
+          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
             replaceUndo dest src
           </code>
-          <div class="tip" id="110">
+          <div class="tip" id="134">
             <strong>Signature:</strong> dest:string -&gt; src:string -&gt; (type)<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -288,7 +413,7 @@
           </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L112-112" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L146-146" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -301,10 +426,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
+          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
             writeDummy(path)
           </code>
-          <div class="tip" id="111">
+          <div class="tip" id="135">
             <strong>Signature:</strong> path:string -&gt; unit<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -313,7 +438,7 @@
           </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L129-129" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/IO.fs#L95-95" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

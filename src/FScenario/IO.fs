@@ -87,6 +87,12 @@ module Item =
     /// </summary>
     [<CompiledName("Exists")>]
     let exists f = File.Exists f 
+    
+    /// <summary>
+    /// Write a dummy test file at a specified file path. This is sometimes used to write a file to disk without caring what the content should be.
+    /// </summary>
+    [<CompiledName("WriteDummy")>]
+    let writeDummy path = File.WriteAllText (path, "Auto-generated  test file")
 
     /// <summary>
     /// Replaces a specified destination file with a source file.
@@ -106,6 +112,34 @@ module Item =
         temp
 
     /// <summary>
+    /// Copies a specified source file to a destination file path.
+    /// </summary>
+    [<CompiledName("Copy")>]
+    let copy src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| File.Exists src then invalidArg "src" (sprintf "Cannot copy file '%s' to '%s' because '%s' doesn't exists" src dest src)
+        logger.LogInformation (LogEvent.io, sprintf "Copy '%s' -> '%s'" src dest)
+        File.Copy (src, dest, overwrite=true)
+
+    /// <summary>
+    /// Copies a specified source file to a destination file path and reverts the copying after the returned disposable gets disposed.
+    /// </summary>
+    [<CompiledName("CopyUndo")>]
+    let copyUndo src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| File.Exists src then invalidArg "src" (sprintf "Cannot copy file '%s' to '%s' because '%s' doesn't exists" src dest src)
+        let temp = copyToTemp src
+        logger.LogInformation (LogEvent.io, sprintf "Copy '%s' -> '%s'" src dest)
+        File.Copy (src, dest, overwrite=true)
+        Disposable.create <| fun _ ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo, copy '%s' -> '%s'" src dest)
+            if File.Exists dest then File.Delete dest
+            File.Copy (temp, src, overwrite=true)
+            File.Delete temp
+
+    /// <summary>
     /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
     /// </summary>
     [<CompiledName("ReplaceUndo")>]
@@ -121,12 +155,35 @@ module Item =
             logger.LogInformation (LogEvent.io, sprintf "Undo file replace '%s' with '%s'" dest src)
             File.Copy (temp, dest, overwrite=true)
             File.Delete temp
-    
+
     /// <summary>
-    /// Write a dummy test file at a specified file path. This is sometimes used to write a file to disk without caring what the content should be.
+    /// Move a specified file to a destination path.
     /// </summary>
-    [<CompiledName("WriteDummy")>]
-    let writeDummy path = File.WriteAllText (path, "Auto-generated  test file")
+    [<CompiledName("Move")>]
+    let move src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| File.Exists src then invalidArg "src" (sprintf "Cannot move file '%s' to '%s' because '%s' doesn't exists" src dest src)
+        File.Copy (src, dest, overwrite=true)
+        File.Delete src
+
+    /// <summary>
+    /// Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.
+    /// </summary>
+    [<CompiledName("MoveUndo")>]
+    let moveUndo src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| exists src then invalidArg "src" (sprintf "Cannot move file '%s' to '%s' because '%s' doesn't exists" src dest src)
+        let temp = copyToTemp src
+        logger.LogInformation (LogEvent.io, sprintf "Move '%s' -> '%s'" src dest)
+        File.Copy (src, dest, overwrite=true)
+        File.Delete src
+        Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo, move '%s' -> '%s' back" src dest)
+            if File.Exists dest then File.Delete dest
+            File.Copy (temp, src, overwrite=true)
+            File.Delete temp
 
     /// <summary>
     /// Deletes a file at a specified file path.
@@ -143,6 +200,21 @@ module Item =
     [<CompiledName("Deletes")>]
     let deletes fs = 
         Seq.iter delete fs
+
+    /// <summary>
+    /// Deletes a file at the specified file path, but reverts the deletion after the returned disposable gets disposed.
+    /// </summary>
+    [<CompiledName("DeleteUndo")>]
+    let deleteUndo f =
+        if f = null then nullArg "f"
+        if not <| exists f then invalidArg "f" (sprintf "Cannot delete '%s' because it doesn't exists" f)
+        let temp = copyToTemp f
+        logger.LogInformation (LogEvent.io, sprintf "Delete '%s'" f)
+        File.Delete f
+        Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo delete '%s'" f)
+            File.Copy (temp, f, overwrite=true)
+            File.Delete temp
 
 /// <summary>
 /// Exposes a series of directory functions simular to <see cref="System.IO.Directory"/> and <see cref="System.IO.DirectoryInfo"/>.
@@ -189,6 +261,51 @@ module Dir =
         logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
 
     /// <summary>
+    /// Copies a specified source directory to a destination directory path.
+    /// </summary>
+    [<CompiledName("Copy")>]
+    let copy src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| Directory.Exists src then invalidArg "dest" (sprintf "Cannot copy directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
+
+        let rec copyRec (srcDir : DirectoryInfo) (destDir : DirectoryInfo) =
+            Directory.CreateDirectory destDir.FullName |> ignore
+            srcDir.GetFiles() 
+            |> Seq.iter (fun f -> f.CopyTo (destDir.FullName </> f.Name) |> ignore)
+            
+            srcDir.GetDirectories () 
+            |> Seq.iter (fun d -> 
+                let next = destDir.CreateSubdirectory d.Name
+                copyRec d next)
+
+        logger.LogInformation (LogEvent.io, sprintf "Copy directory '%s' -> '%s'" src dest)
+        copyRec (DirectoryInfo src) (DirectoryInfo dest)
+
+    /// <summary>
+    /// Ensure we have a directory at the specified directory path.
+    /// </summary>
+    [<CompiledName("Ensure")>]
+    let ensure dir = 
+        if dir = null then nullArg "dir"
+        Directory.CreateDirectory dir |> ignore
+        logger.LogInformation (LogEvent.io, sprintf "Ensure directory is created '%s'" dir)
+    
+    /// <summary>
+    /// Ensure we have a directory at the specified directory paths.
+    /// </summary>
+    [<CompiledName("Ensures")>]
+    let ensures dirs = Seq.iter ensure dirs
+
+    let private copyToTemp dir =
+        let temp = Path.GetTempPath() </> Path.GetDirectoryName dir + "-" + Guid.NewGuid().ToString()
+        ensure temp
+        copy dir temp
+        temp
+
+    
+
+    /// <summary>
     /// Deletes the directory at the specified path.
     /// </summary>
     [<CompiledName("Delete")>]
@@ -230,22 +347,8 @@ module Dir =
     /// </summary>
     [<CompiledName("CleanDeletes")>]
     let cleanDeletes dirs = Seq.iter cleanDelete dirs
-    /// <summary>
-    /// Ensure we have a directory at the specified directory path.
-    /// </summary>
-    [<CompiledName("Ensure")>]
-    let ensure dir = 
-        if dir = null then nullArg "dir"
-        Directory.CreateDirectory dir |> ignore
-        logger.LogInformation (LogEvent.io, sprintf "Ensure directory is created '%s'" dir)
     
-    /// <summary>
-    /// Ensure we have a directory at the specified directory paths.
-    /// </summary>
-    [<CompiledName("Ensures")>]
-    let ensures dirs = Seq.iter ensure dirs
-    
-    /// <summary>
+ /// <summary>
     /// Ensure we have a clean (no files) directory at the specified directory path.
     /// </summary>
     [<CompiledName("CleanEnsure")>]
@@ -256,6 +359,53 @@ module Dir =
     /// </summary>
     [<CompiledName("CleanEnsures")>]
     let cleanEnsures dirs = Seq.iter cleanEnsure dirs
+
+    /// <summary>
+    /// Copies a specified directory to a specified directory path and reverts the copying after the returned disposable gets disposed.
+    /// </summary>
+    [<CompiledName("CopyUndo")>]
+    let copyUndo src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| Directory.Exists src then invalidArg "src" (sprintf "Cannot copy directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
+        let temp = copyToTemp src
+        copy src dest
+        Disposable.create <| fun _ ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo, copy directory '%s' -> '%s' back" src dest)
+            if Directory.Exists dest then delete dest
+            cleanDelete src
+            copy temp src
+            delete temp
+
+    /// <summary>
+    /// Moves a specified source directory to a specified destination directory path.
+    /// </summary>
+    [<CompiledName("Move")>]
+    let move src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| Directory.Exists src then invalidArg "src" (sprintf "Cannot move directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
+        logger.LogInformation (LogEvent.io, sprintf "Move directory '%s' -> '%s'" src dest)
+        Directory.Move (src, dest)
+    
+    /// <summary>
+    /// Moves a specified source directory to a specified destination directory path and reverts the movement after the returned disposable gets disposed.
+    /// </summary>
+    [<CompiledName("MoveUndo")>]
+    let moveUndo src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        if not <| Directory.Exists src then invalidArg "src" (sprintf "Cannot move directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
+        logger.LogInformation (LogEvent.io, sprintf "Move directory '%s' -> '%s'" src dest)
+        let temp = copyToTemp src
+        move src dest
+        Disposable.create <| fun () ->
+            logger.LogInformation (LogEvent.io, sprintf "Undo, move directory '%s' -> '%s'" src dest)
+            if exists dest then delete dest
+            ensure src
+            cleanDelete src
+            copy temp src
+            delete temp
     
     /// <summary>
     /// Ensures we have a clean (no files) directory at the specified directory path
@@ -279,25 +429,6 @@ module Dir =
         Disposable.create (fun () -> 
             logger.LogInformation (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" dir original)
             Environment.CurrentDirectory <- original)
-
-    /// <summary>
-    /// Copies the files from the specified source directory to the specified destination directory, 
-    /// while ensuring that the destination directory is created.
-    /// </summary>
-    [<CompiledName("Copy")>]
-    let copy src dest =
-        if not <| exists src then io (sprintf "Directory '%s' cannot be copied to '%s' because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" src dest)
-        if not <| exists dest then ensure dest
-        for f in files src do
-            logger.LogInformation (LogEvent.io, sprintf "Copy file '%s' -> '%s'" f dest)
-            File.Copy (f, dest </> Path.GetFileName f)
-        logger.LogInformation (LogEvent.io, sprintf "Directory is copied '%s' -> '%s'" src dest)
-
-    let private copyToTemp dir =
-        let temp = Path.GetTempPath() </> Path.GetDirectoryName dir + "-" + Guid.NewGuid().ToString()
-        ensure temp
-        copy dir temp
-        temp
 
     let private reduceDisposables f srcs = 
         Seq.map f srcs |> CompositeDisposable.Create :> IDisposable
@@ -534,9 +665,21 @@ module IO =
         /// </summary>
         static member delete f = Item.delete f
         /// <summary>
+        /// Copies a specified source file to a destination file path.
+        /// </summary>
+        static member copy src dest = Item.copy src dest
+        /// <summary>
+        /// Copies a specified source file to a destination file path and reverts the copying after the returned disposable gets disposed.
+        /// </summary>
+        static member copyUndo src dest = Item.copyUndo src dest
+        /// <summary>
         /// Deletes files at the specified file paths.
         /// </summary>
         static member deletes fs = Item.deletes fs
+        /// <summary>
+        /// Deletes a file at the specified file path, but reverts the deletion after the returned disposable gets disposed.
+        /// </summary>
+        static member deleteUndo f = Item.deleteUndo f
         /// <summary>
         /// Replaces the specified destination file with the specified source file.
         /// </summary>
@@ -545,6 +688,14 @@ module IO =
         /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
         /// </summary>
         static member replaceUndo src dest = Item.replaceUndo src dest
+        /// <summary>
+        /// Move a specified file to a destination path.
+        /// </summary>
+        static member move src dest = Item.move src dest
+        /// <summary>
+        /// Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.
+        /// </summary>
+        static member moveUndo src dest = Item.moveUndo src dest
 
     type FileInfo with
         /// <summary>
@@ -559,9 +710,21 @@ module IO =
         /// </summary>
         static member hash (f : FileInfo) = Item.hash f.FullName
         /// <summary>
+        /// Copies a specified source file to a destination file path.
+        /// </summary>
+        static member copy (src : FileInfo) (dest : FileInfo) = Item.copy src.FullName dest.FullName
+        /// <summary>
+        /// Copies a specified source file to a destination file path and reverts the copying after the returned disposable gets disposed.
+        /// </summary>
+        static member copyUndo (src : FileInfo) (dest : FileInfo) = Item.copyUndo src.FullName dest.FullName
+        /// <summary>
         /// Deletes a file at a specified file path.
         /// </summary>
         static member delete (f : FileInfo) = Item.delete f.FullName
+         /// <summary>
+        /// Deletes a file at the specified file path, but reverts the deletion after the returned disposable gets disposed.
+        /// </summary>
+        static member deleteUndo (f : FileInfo) = Item.deleteUndo f.FullName
         /// <summary>
         /// Replaces the specified destination file with the specified source file.
         /// </summary>
@@ -570,6 +733,14 @@ module IO =
         /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
         /// </summary>
         static member replaceUndo (dest : FileInfo) (src : FileInfo) = Item.replaceUndo dest.FullName src.FullName
+         /// <summary>
+        /// Move a specified file to a destination path.
+        /// </summary>
+        static member move (src : FileInfo) (dest : FileInfo) = Item.move src.FullName dest.FullName
+        /// <summary>
+        /// Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.
+        /// </summary>
+        static member moveUndo (src : FileInfo) (dest : FileInfo) = Item.moveUndo src.FullName dest.FullName
 
     /// <summary>
     /// Determines if two files are equal by hashing (MD5) their contents.

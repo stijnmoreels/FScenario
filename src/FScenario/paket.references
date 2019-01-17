@@ -2,4 +2,6 @@ FSharp.Core
 Polly-Signed
 Microsoft.AspNetCore.Server.Kestrel
 Microsoft.Extensions.Logging.Console
+File:Time.fs .
+File:Disposable.fs .
 File:VirtualStream.fs .

@@ -65,6 +65,37 @@ let directory_tests =
        d.Dispose ()
        Expect.hasCountOf (Dir.files "replace-undo-src") 1u (fun _ -> true) "Directory 'replace-undo-src' should only contain the original file"
        Expect.exists (Dir.files "replace-undo-src") (fun f -> f.Contains "original") "Directory 'replace-undo-src' should now contain back the original file"
+
+    testCase "copyUndo copies the directory but reverts the copying afterwards" <| fun _ ->
+      use __  = Dir.ensureUndo "dir-copy-undo"
+      Dir.ensure ("dir-copy-undo" </> "source")
+      Dir.ensure ("dir-copy-undo" </> "destination")
+      File.WriteAllText ("dir-copy-undo" </> "source" </> "test.txt", "COPY ME!")
+
+      let d = Dir.copyUndo ("dir-copy-undo" </> "source") ("dir-copy-undo" </> "destination")
+      Expect.isTrue (Dir.exists ("dir-copy-undo" </> "source")) "Dir.copyUndo should leave the source directory untouched"
+      Expect.isTrue (Dir.exists ("dir-copy-undo" </> "destination")) "Dir.copyUndo should create the destination directory"
+      Expect.isTrue (File.Exists ("dir-copy-undo" </> "destination" </> "test.txt")) "Dir.copyUndo should copy the contents to the destination directory"
+      Expect.equal "COPY ME!" (File.ReadAllText ("dir-copy-undo" </> "destination" </> "test.txt")) "Dir.copyUndo should copy the entire contents of the files to the destination directory"
+      d.Dispose ()
+      Expect.isTrue (Dir.exists ("dir-copy-undo" </> "source")) "After disposing, Dir.copyUndo should leave the source directory untouched"
+      Expect.isFalse (Dir.exists ("dir-copy-undo" </> "destination")) "After disposing, Dir.copyUndo should remove the destination directory"
+
+    testCase "moveUndo moves the directory but reverts the movement afterwards" <| fun _ ->
+      use __ = Dir.ensureUndo "dir-move-undo"
+      Dir.ensure ("dir-move-undo" </> "source")
+      File.WriteAllText ("dir-move-undo" </> "source" </> "test.txt", "MOVE ME!")
+
+      let d = Dir.moveUndo ("dir-move-undo" </> "source") ("dir-move-undo" </> "destination")
+      Expect.isFalse (Dir.exists ("dir-move-undo" </> "source")) "Dir.moveUndo should delete the source directory"
+      Expect.isTrue (Dir.exists ("dir-move-undo" </> "destination")) "Dir.moveUndo should move the destination directory"
+      Expect.isTrue (File.Exists ("dir-move-undo" </> "destination" </> "test.txt")) "Dir.moveUndo should move all the files to the destination directory"
+      Expect.equal "MOVE ME!" (File.ReadAllText ("dir-move-undo" </> "destination" </> "test.txt")) "Dir.moveUndo should move the entire file contents to the destination directory"
+      d.Dispose ()
+      Expect.isTrue (Dir.exists ("dir-move-undo" </> "source")) "After disposing, Dir.moveUndo should place back the source directory"
+      Expect.isFalse (Dir.exists ("dir-move-undo" </> "destination")) "After disposing, Dir.moveUndo should delete the destination directory"
+      Expect.isTrue (File.Exists ("dir-move-undo" </> "source" </> "test.txt")) "After disposing, Dir.moveUndo should place the files back in the source directory"
+      Expect.equal "MOVE ME!" (File.ReadAllText ("dir-move-undo" </> "source" </> "test.txt")) "After disposing, Dir.moveUndo should move the entire files contents back to the source directory"
   ]
 
 [<Tests>]
@@ -78,6 +109,7 @@ let file_tests =
       File.WriteAllText (p2, "!!! This should be the same content !!!")
       Expect.isTrue (File.hashEqual p1 p2) "file contents should be the same after hash"
       File.deletes [ p1; p2 ]
+    
     testCase "replaces file but switch back to original after disposing" <| fun _ ->
       use __ = Dir.ensureUndo "item-replace-undo"
       let testEnvPath = "item-replace-undo" </> "test-env.txt"
@@ -89,6 +121,48 @@ let file_tests =
       Expect.equal (File.ReadAllText prodEnvPath) "test environment" "Item.replaceUndo should replace the destination file with the source file"
       d.Dispose ()
       Expect.equal (File.ReadAllText prodEnvPath) "prod environment" "After disposing Item.replaceUndo the destination file should be put back"
+
+    testCase "deletes file but revert deletion after disposing" <| fun _ ->
+      use __ = Dir.ensureUndo "item-delete-undo"
+      let toBeDeletedPath = "item-delete-undo" </> "delete-me.txt"
+      File.WriteAllText (toBeDeletedPath, "DELETE ME!")
+
+      let d = Item.deleteUndo toBeDeletedPath
+      Expect.isFalse (File.Exists toBeDeletedPath) "Item.deleteUndo should delete the file"
+      d.Dispose ()
+      Expect.isTrue (File.Exists toBeDeletedPath) "After disposing Item.deleteUndo the deleted file should be put back"
+      Expect.equal (File.ReadAllText toBeDeletedPath) "DELETE ME!" "Reverted file after Item.deleteUndo should have the same content"
+
+    testCase "moves file but revert movement after disposing" <| fun _ ->
+      use __ = Dir.ensureUndo "item-move-undo"
+      let testPath = "item-move-undo" </> "test-config.txt"
+      let workPath = "item-move-undo" </> "config.txt"
+      File.WriteAllText (testPath, "test config")
+
+      let d = Item.moveUndo testPath workPath
+      Expect.isFalse (File.Exists testPath) "Item.moveUndo should move the file, leaving the source file disapeard"
+      Expect.isTrue (File.Exists workPath) "Item.moveUndo should move the file, placing the destination file"
+      Expect.equal "test config" (File.ReadAllText workPath) "Item.moveUndo should move the entire content to the destination file"
+      d.Dispose ()
+      Expect.isTrue (File.Exists testPath) "After disposing Item.moveUndo, the original source file should be placed back"
+      Expect.isFalse (File.Exists workPath) "After disposing Item.moveUndo, the destination file should be deleted"
+      Expect.equal "test config" (File.ReadAllText testPath) "After disposing Item.moveUndo, the orignal file should have its original content"
+
+    testCase "copy file but revert copying after disposing" <| fun _ ->
+      use __ = Dir.ensureUndo "item-copy-undo"
+      let testPath = "item-copy-undo" </> "test-config.txt"
+      let workPath = "item-copy-undo" </> "config.txt"
+      File.WriteAllText (testPath, "test config")
+
+      let d = Item.copyUndo testPath workPath
+      Expect.isTrue (File.Exists testPath) "Item.copyUndo should leave the source file untouched"
+      Expect.equal "test config" (File.ReadAllText testPath) "Item.copyUndo should leave the source file contents untouched"
+      Expect.isTrue (File.Exists workPath) "Item.copyUndo should copy the file to the destination path"
+      Expect.equal "test config" (File.ReadAllText workPath) "Item.copyUndo should copy the entire content to the destination file"
+      d.Dispose ()
+      Expect.isTrue (File.Exists testPath) "After disposing Item.copyUndo should leave the source file untouched"
+      Expect.equal "test config" (File.ReadAllText testPath) "After disposing Item.copyUndo should leave the source file contents untouched"
+      Expect.isFalse (File.Exists workPath) "After disposing Item.copyUndo, the destination file should be deleted"
   ]
 
 let writeFileDelayed n t =
@@ -104,9 +178,10 @@ let poll_tests =
       Dir.clean "."
       do! writeFile
       let! f = Poll.untilFileExistsEvery1sFor5s "present.txt"
-      FileInfo.delete f
-     };
-     testCaseAsync "should poll until file count matches" <| async {
+      FileInfo.delete f 
+      }
+
+    testCaseAsync "should poll until file count matches" <| async {
        let writeGenFile1sDelayed () = 
         writeFileDelayed ("./multiple/" + System.Guid.NewGuid().ToString() + "-file.txt") TimeInt._1s
 
@@ -122,12 +197,13 @@ let poll_tests =
                   error "directory 'multiple' should have 3 files" }
 
        Expect.hasCountOf files 3u (fun _ -> true) "polled files result should have 3 files"
-     };
-     testCaseAsync "should poll until 1-5" <| async {
+     }
+
+    testCaseAsync "should poll until 1-5" <| async {
         let mutable count = 0
         do! Poll.target2 (fun () -> count <- count + 1; async.Return (Some count)) 
                          (fun () -> async.Return None)
-            |> Poll.until (fun x -> x = Some 5)
+            |> Poll.untilSomeValue 5
             |> Poll.every _1s
             |> Poll.timeout _5s
             |> Poll.error "counter should increase from 1-5"
@@ -143,11 +219,16 @@ let http_tests =
       do! Poll.untilHttpOkEvery1sFor5s endpoint
       use! res = Http.get endpoint
       Expect.equal OK res.StatusCode "http status code should be OK"
-    };
+    }
+
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
       let endpoint = "http://localhost:8082"
       let expected = "this is a test!"
-      use _ = Http.serverRoutes endpoint [ GET, Http.respondStatus OK; POST, Http.respondContentString expected ]
+      let routes = 
+        [ GET, Http.respondStatus OK 
+          POST, Http.respondContentString expected ]
+
+      use _ = Http.serverRoutes endpoint routes
       do! Poll.untilHttpOkEvery1sFor10s endpoint
 
       use content = HttpContent.string expected
@@ -160,9 +241,10 @@ let http_tests =
       let! str = (res : HttpResponse).ReadAsString ()
       Expect.equal res.StatusCode OK "POST: http status code should be OK"
       Expect.equal expected str (sprintf "POST: http response content should be: '%s'" expected)
-    };
+    }
+
     testCaseAsync "collects 3 received requests for POST" <| async {
-      let endpoint = "http://localhost:3456"
+      let endpoint = "http://localhost:6543"
       let expected = "this should be repeated 3 times"
       let delayedPost = async {
           do! Async.Sleep TimeInt._1s
@@ -176,11 +258,22 @@ let http_tests =
       let target = Http.serverCollectCount endpoint POST 3
       let! requests =
           Poll.target target
-          |> Poll.until (List.length >> (=) 3)
+          |> Poll.untilLength 3
           |> Poll.every _1s
           |> Poll.timeout _10s
 
       let bodies = Seq.map (HttpRequest.body >> Stream.asString) requests
       Expect.sequenceEqual (Seq.replicate 3 expected) bodies "http 'serverCollect' should collect the received http requests"
+    }
+
+    testCaseAsync "simulates 2 failure requests for GET" <| async {
+      let endpoint = "http://localhost:3457"
+      let simulation = [ 
+        Http.respondStatus BadRequest 
+        Http.respondStatus BadRequest
+        Http.respondStatus OK ]
+      
+      use __ = Http.serverSimulate endpoint GET simulation
+      do! Poll.untilHttpOkEvery1sFor5s endpoint
     }
   ]

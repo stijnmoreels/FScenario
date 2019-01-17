@@ -118,7 +118,7 @@ namespace FScenario.CSharp
                 SendDelayedRequest(),
                 SendDelayedRequest());
 
-            Func<Task<HttpRequest[]>> target = Http.ServerCollect(url, HttpMethods.POST, 3);
+            Func<Task<HttpRequest[]>> target = Http.ServerCollect(url, HttpRoute.POST, 3);
             HttpRequest[] requests =
                 await Poll.Target(target)
                           .UntilCount(3)
@@ -129,6 +129,21 @@ namespace FScenario.CSharp
             string[] expecteds = Enumerable.Repeat(expected, 3).ToArray();
             string[] actuals = requests.Select(r => r.Body.ReadAsString()).ToArray();
             Assert.Equal(expecteds, actuals);
+        }
+
+        [Fact]
+        public async Task Http_Server_Simulates_2_Failures()
+        {
+            const string url = "http://localhost:9088";
+            using (Http.ServerSimulate(
+                    url,
+                    HttpRoute.GET, 
+                    Http.RespondStatus(HttpStatusCode.BadRequest),
+                    Http.RespondStatus(HttpStatusCode.BadRequest),
+                    Http.RespondStatus(HttpStatusCode.OK)))
+            {
+                await Poll.UntilHttpOkEvery1sFor5s(url);
+            }
         }
     }
 }

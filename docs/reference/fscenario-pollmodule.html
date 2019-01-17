@@ -61,15 +61,35 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
-            error message poll
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
+            dir(path)
           </code>
-          <div class="tip" id="23">
-            <strong>Signature:</strong> message:string -&gt; poll:PollAsync&lt;&#39;?8554&gt; -&gt; PollAsync&lt;&#39;?8554&gt;<br />
-                          <strong>Type parameters:</strong> '?8554                      </div>
+          <div class="tip" id="25">
+            <strong>Signature:</strong> path:string -&gt; PollAsync&lt;(type)&gt;<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L135-135" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L91-91" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a polling function that polls at a specified directory path.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
+            error message poll
+          </code>
+          <div class="tip" id="26">
+            <strong>Signature:</strong> message:string -&gt; poll:PollAsync&lt;&#39;?8592&gt; -&gt; PollAsync&lt;&#39;?8592&gt;<br />
+                          <strong>Type parameters:</strong> '?8592                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L169-169" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -81,15 +101,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
             every interval poll
           </code>
-          <div class="tip" id="24">
-            <strong>Signature:</strong> interval:(type) -&gt; poll:PollAsync&lt;&#39;?8550&gt; -&gt; PollAsync&lt;&#39;?8550&gt;<br />
-                          <strong>Type parameters:</strong> '?8550                      </div>
+          <div class="tip" id="27">
+            <strong>Signature:</strong> interval:(type) -&gt; poll:PollAsync&lt;&#39;?8588&gt; -&gt; PollAsync&lt;&#39;?8588&gt;<br />
+                          <strong>Type parameters:</strong> '?8588                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L125-125" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L159-159" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -101,15 +121,75 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
-            target(f)
+          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
+            file(path)
           </code>
-          <div class="tip" id="25">
-            <strong>Signature:</strong> f:(unit -&gt; Async&lt;&#39;?8527&gt;) -&gt; PollAsync&lt;&#39;?8527&gt;<br />
-                          <strong>Type parameters:</strong> '?8527                      </div>
+          <div class="tip" id="28">
+            <strong>Signature:</strong> path:string -&gt; PollAsync&lt;(type)&gt;<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L70-70" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L86-86" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a polling function that polls at a specified file path.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
+            http_get(url)
+          </code>
+          <div class="tip" id="29">
+            <strong>Signature:</strong> url:string -&gt; PollAsync&lt;HttpResponse&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L96-96" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a polling function that polls at a specified HTTP endpoint with GET requests.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
+            http_post url content
+          </code>
+          <div class="tip" id="30">
+            <strong>Signature:</strong> url:string -&gt; content:(type) -&gt; PollAsync&lt;HttpResponse&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L105-105" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a polling function that polls at a specified HTTP endpoint with GET requests.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
+            target(f)
+          </code>
+          <div class="tip" id="31">
+            <strong>Signature:</strong> f:(unit -&gt; Async&lt;&#39;?8552&gt;) -&gt; PollAsync&lt;&#39;?8552&gt;<br />
+                          <strong>Type parameters:</strong> '?8552                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L56-56" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -121,15 +201,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
+          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
             target2 f1 f2
           </code>
-          <div class="tip" id="26">
-            <strong>Signature:</strong> f1:(unit -&gt; Async&lt;&#39;?8533 option&gt;) -&gt; f2:(unit -&gt; Async&lt;&#39;?8533 option&gt;) -&gt; PollAsync&lt;&#39;?8533 option&gt;<br />
-                          <strong>Type parameters:</strong> '?8533                      </div>
+          <div class="tip" id="32">
+            <strong>Signature:</strong> f1:(unit -&gt; Async&lt;&#39;?8558 option&gt;) -&gt; f2:(unit -&gt; Async&lt;&#39;?8558 option&gt;) -&gt; PollAsync&lt;&#39;?8558 option&gt;<br />
+                          <strong>Type parameters:</strong> '?8558                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L89-89" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L75-75" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -142,33 +222,12 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
+          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
             target3 f1 f2 f3
           </code>
-          <div class="tip" id="27">
-            <strong>Signature:</strong> f1:(unit -&gt; Async&lt;&#39;?8535 option&gt;) -&gt; f2:(unit -&gt; Async&lt;&#39;?8535 option&gt;) -&gt; f3:(unit -&gt; Async&lt;&#39;?8535 option&gt;) -&gt; PollAsync&lt;&#39;?8535 option&gt;<br />
-                          <strong>Type parameters:</strong> '?8535                      </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L95-95" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x'
-for a period of time until either the predicate succeeds or the expression times out.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
-            targets(fs)
-          </code>
-          <div class="tip" id="28">
-            <strong>Signature:</strong> fs:seq&lt;(unit -&gt; Async&lt;&#39;?8531 option&gt;)&gt; -&gt; PollAsync&lt;&#39;?8531 option&gt;<br />
-                          <strong>Type parameters:</strong> '?8531                      </div>
+          <div class="tip" id="33">
+            <strong>Signature:</strong> f1:(unit -&gt; Async&lt;&#39;?8560 option&gt;) -&gt; f2:(unit -&gt; Async&lt;&#39;?8560 option&gt;) -&gt; f3:(unit -&gt; Async&lt;&#39;?8560 option&gt;) -&gt; PollAsync&lt;&#39;?8560 option&gt;<br />
+                          <strong>Type parameters:</strong> '?8560                      </div>
         </td>
         <td class="xmldoc">
                       <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L81-81" class="github-link">
@@ -184,15 +243,36 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
-            targetSync(f)
+          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+            targets(fs)
           </code>
-          <div class="tip" id="29">
-            <strong>Signature:</strong> f:(unit -&gt; &#39;?8529) -&gt; PollAsync&lt;&#39;?8529&gt;<br />
-                          <strong>Type parameters:</strong> '?8529                      </div>
+          <div class="tip" id="34">
+            <strong>Signature:</strong> fs:seq&lt;(unit -&gt; Async&lt;&#39;?8556 option&gt;)&gt; -&gt; PollAsync&lt;&#39;?8556 option&gt;<br />
+                          <strong>Type parameters:</strong> '?8556                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L75-75" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L67-67" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x'
+for a period of time until either the predicate succeeds or the expression times out.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+            targetSync(f)
+          </code>
+          <div class="tip" id="35">
+            <strong>Signature:</strong> f:(unit -&gt; &#39;?8554) -&gt; PollAsync&lt;&#39;?8554&gt;<br />
+                          <strong>Type parameters:</strong> '?8554                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L61-61" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -204,15 +284,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
+          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
             timeout timeout poll
           </code>
-          <div class="tip" id="30">
-            <strong>Signature:</strong> timeout:(type) -&gt; poll:PollAsync&lt;&#39;?8552&gt; -&gt; PollAsync&lt;&#39;?8552&gt;<br />
-                          <strong>Type parameters:</strong> '?8552                      </div>
+          <div class="tip" id="36">
+            <strong>Signature:</strong> timeout:(type) -&gt; poll:PollAsync&lt;&#39;?8590&gt; -&gt; PollAsync&lt;&#39;?8590&gt;<br />
+                          <strong>Type parameters:</strong> '?8590                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L130-130" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L164-164" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -224,19 +304,19 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
+          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
             until predicate poll
           </code>
-          <div class="tip" id="31">
-            <strong>Signature:</strong> predicate:(&#39;?8537 -&gt; bool) -&gt; poll:PollAsync&lt;&#39;?8537&gt; -&gt; PollAsync&lt;&#39;?8537&gt;<br />
-                          <strong>Type parameters:</strong> '?8537                      </div>
+          <div class="tip" id="37">
+            <strong>Signature:</strong> predicate:(&#39;?8566 -&gt; bool) -&gt; poll:PollAsync&lt;&#39;?8566&gt; -&gt; PollAsync&lt;&#39;?8566&gt;<br />
+                          <strong>Type parameters:</strong> '?8566                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L100-100" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L114-114" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Adds a filtering function to speicfy the required result of the polling.</p>
+          <p>Adds a filtering function to specify the required result of the polling.</p>
 
 
         </td>
@@ -244,15 +324,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
+          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
             untilAny(poll)
           </code>
-          <div class="tip" id="32">
-            <strong>Signature:</strong> poll:PollAsync&lt;&#39;b&gt; -&gt; PollAsync&lt;&#39;b&gt;<br />
-                          <strong>Type parameters:</strong> 'b, 'a                      </div>
+          <div class="tip" id="38">
+            <strong>Signature:</strong> poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'a                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L105-105" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L129-129" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -264,15 +344,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
             untilCustom(...)
           </code>
-          <div class="tip" id="33">
+          <div class="tip" id="39">
             <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;b&gt;) -&gt; predicate:(&#39;b -&gt; bool) -&gt; interval:(type) -&gt; timeout:(type) -&gt; errorMessage:string -&gt; Async&lt;&#39;b&gt;<br />
                           <strong>Type parameters:</strong> 'b                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L146-146" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L180-180" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -284,15 +364,35 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
-            untilEvery1sFor10s(...)
+          <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+            untilEqual x poll
           </code>
-          <div class="tip" id="34">
-            <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;?8562&gt;) -&gt; predicate:(&#39;?8562 -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;&#39;?8562&gt;<br />
-                          <strong>Type parameters:</strong> '?8562                      </div>
+          <div class="tip" id="40">
+            <strong>Signature:</strong> x:&#39;a -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L181-181" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L119-119" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a filtering function to to specify that the required result should be equal to the specified value.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            untilEvery1sFor10s(...)
+          </code>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;?8600&gt;) -&gt; predicate:(&#39;?8600 -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;&#39;?8600&gt;<br />
+                          <strong>Type parameters:</strong> '?8600                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L215-215" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -304,15 +404,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
             untilEvery1sFor5s(...)
           </code>
-          <div class="tip" id="35">
-            <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;?8560&gt;) -&gt; predicate:(&#39;?8560 -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;&#39;?8560&gt;<br />
-                          <strong>Type parameters:</strong> '?8560                      </div>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;?8598&gt;) -&gt; predicate:(&#39;?8598 -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;&#39;?8598&gt;<br />
+                          <strong>Type parameters:</strong> '?8598                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L172-172" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L206-206" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -324,15 +424,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
             untilEvery5sFor30s(...)
           </code>
-          <div class="tip" id="36">
-            <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;?8564&gt;) -&gt; predicate:(&#39;?8564 -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;&#39;?8564&gt;<br />
-                          <strong>Type parameters:</strong> '?8564                      </div>
+          <div class="tip" id="43">
+            <strong>Signature:</strong> pollFunc:(unit -&gt; Async&lt;&#39;?8602&gt;) -&gt; predicate:(&#39;?8602 -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;&#39;?8602&gt;<br />
+                          <strong>Type parameters:</strong> '?8602                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L190-190" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L224-224" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -344,15 +444,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
             untilFile(...)
           </code>
-          <div class="tip" id="37">
+          <div class="tip" id="44">
             <strong>Signature:</strong> filePath:string -&gt; predicate:((type) -&gt; bool) -&gt; interval:(type) -&gt; timeout:(type) -&gt; errorMessage:string -&gt; Async&lt;(type)&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L201-201" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L235-235" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -364,15 +464,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
             untilFileExists(...)
           </code>
-          <div class="tip" id="38">
+          <div class="tip" id="45">
             <strong>Signature:</strong> filePath:string -&gt; interval:(type) -&gt; timeout:(type) -&gt; Async&lt;(type)&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L212-212" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L246-246" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -384,15 +484,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
             untilFileExistsEvery1sFor10s(filePath)
           </code>
-          <div class="tip" id="39">
+          <div class="tip" id="46">
             <strong>Signature:</strong> filePath:string -&gt; Async&lt;(type)&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L229-229" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L263-263" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -404,15 +504,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
             untilFileExistsEvery1sFor5s(filePath)
           </code>
-          <div class="tip" id="40">
+          <div class="tip" id="47">
             <strong>Signature:</strong> filePath:string -&gt; Async&lt;(type)&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L223-223" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L257-257" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -424,15 +524,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
             untilFileExistsEvery5sFor30s(filePath)
           </code>
-          <div class="tip" id="41">
+          <div class="tip" id="48">
             <strong>Signature:</strong> filePath:string -&gt; Async&lt;(type)&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L235-235" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L269-269" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -444,15 +544,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
             untilFiles(...)
           </code>
-          <div class="tip" id="42">
+          <div class="tip" id="49">
             <strong>Signature:</strong> dirPath:string -&gt; predicate:((type) [] -&gt; bool) -&gt; interval:(type) -&gt; timeout:(type) -&gt; errorMessage:string -&gt; Async&lt;(type) []&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L244-244" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L278-278" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -464,15 +564,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
             untilFilesEvery1sFor10s(...)
           </code>
-          <div class="tip" id="43">
+          <div class="tip" id="50">
             <strong>Signature:</strong> dirPath:string -&gt; predicate:((type) [] -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;(type) []&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L265-265" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L299-299" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -484,15 +584,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
             untilFilesEvery1sFor5s(...)
           </code>
-          <div class="tip" id="44">
+          <div class="tip" id="51">
             <strong>Signature:</strong> dirPath:string -&gt; predicate:((type) [] -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;(type) []&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L256-256" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L290-290" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -504,15 +604,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
             untilFilesEvery5sFor30s(...)
           </code>
-          <div class="tip" id="45">
+          <div class="tip" id="52">
             <strong>Signature:</strong> dirPath:string -&gt; predicate:((type) [] -&gt; bool) -&gt; errorMessage:string -&gt; Async&lt;(type) []&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L274-274" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L308-308" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -524,15 +624,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
             untilHttpOk url interval timeout
           </code>
-          <div class="tip" id="46">
+          <div class="tip" id="53">
             <strong>Signature:</strong> url:string -&gt; interval:(type) -&gt; timeout:(type) -&gt; Async&lt;unit&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L283-283" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L317-317" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -544,15 +644,15 @@ for a period of time until either the predicate succeeds or the expression times
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
             untilHttpOkEvery1sFor10s(url)
           </code>
-          <div class="tip" id="47">
+          <div class="tip" id="54">
             <strong>Signature:</strong> url:string -&gt; Async&lt;unit&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L308-308" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L346-346" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -565,15 +665,15 @@ or the expression times out after 10 seconds.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
             untilHttpOkEvery1sFor5s(url)
           </code>
-          <div class="tip" id="48">
+          <div class="tip" id="55">
             <strong>Signature:</strong> url:string -&gt; Async&lt;unit&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L300-300" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L338-338" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -586,15 +686,15 @@ or the expression times out after 5 seconds.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
             untilHttpOkEvery5sFor30s(url)
           </code>
-          <div class="tip" id="49">
+          <div class="tip" id="56">
             <strong>Signature:</strong> url:string -&gt; Async&lt;unit&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L316-316" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L354-354" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -607,15 +707,15 @@ or the expression times out after 30 seconds.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
             untilLength length poll
           </code>
-          <div class="tip" id="50">
-            <strong>Signature:</strong> length:int -&gt; poll:PollAsync&lt;&#39;b&gt; -&gt; PollAsync&lt;&#39;b&gt;<br />
-                          <strong>Type parameters:</strong> 'b, 'a                      </div>
+          <div class="tip" id="57">
+            <strong>Signature:</strong> length:int -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'a                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L110-110" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L134-134" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -627,15 +727,35 @@ or the expression times out after 30 seconds.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
-            untilOk(poll)
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            untilNotEqual x poll
           </code>
-          <div class="tip" id="51">
-            <strong>Signature:</strong> poll:PollAsync&lt;Result&lt;&#39;?8547,&#39;?8548&gt;&gt; -&gt; PollAsync&lt;Result&lt;&#39;?8547,&#39;?8548&gt;&gt;<br />
-                          <strong>Type parameters:</strong> '?8547, '?8548                      </div>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> x:&#39;a -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L120-120" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L124-124" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a filtering function to to specify that the required result should not be equal to the specified value.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+            untilOk(poll)
+          </code>
+          <div class="tip" id="59">
+            <strong>Signature:</strong> poll:PollAsync&lt;Result&lt;&#39;?8582,&#39;?8583&gt;&gt; -&gt; PollAsync&lt;Result&lt;&#39;?8582,&#39;?8583&gt;&gt;<br />
+                          <strong>Type parameters:</strong> '?8582, '?8583                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L149-149" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -647,19 +767,59 @@ or the expression times out after 30 seconds.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
-            untilSome(poll)
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            untilOkValue x poll
           </code>
-          <div class="tip" id="52">
-            <strong>Signature:</strong> poll:PollAsync&lt;&#39;?8545 option&gt; -&gt; PollAsync&lt;&#39;?8545 option&gt;<br />
-                          <strong>Type parameters:</strong> '?8545                      </div>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> x:&#39;?8585 -&gt; poll:PollAsync&lt;Result&lt;&#39;?8585,&#39;?8586&gt;&gt; -&gt; PollAsync&lt;Result&lt;&#39;?8585,&#39;?8586&gt;&gt;<br />
+                          <strong>Type parameters:</strong> '?8585, '?8586                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L115-115" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L154-154" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a filtering function to specify that the required result of the polling should be a <code>Ok x</code> result, where <code>x</code> is a specified value.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+            untilSome(poll)
+          </code>
+          <div class="tip" id="61">
+            <strong>Signature:</strong> poll:PollAsync&lt;&#39;?8578 option&gt; -&gt; PollAsync&lt;&#39;?8578 option&gt;<br />
+                          <strong>Type parameters:</strong> '?8578                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L139-139" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Adds a filtering function to specify that the required result of the polling should be a <code>Some x</code> option.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
+            untilSomeValue x poll
+          </code>
+          <div class="tip" id="62">
+            <strong>Signature:</strong> x:&#39;?8580 -&gt; poll:PollAsync&lt;&#39;?8580 option&gt; -&gt; PollAsync&lt;&#39;?8580 option&gt;<br />
+                          <strong>Type parameters:</strong> '?8580                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L144-144" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a filtering function to specify that the required result of the polling should be a <code>Some x</code> option, where <code>x</code> is a specified value.</p>
 
 
         </td>

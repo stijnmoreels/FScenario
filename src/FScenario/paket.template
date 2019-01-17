@@ -19,9 +19,8 @@ releaseNotes
     - Introduce `Item` module for common file integration test operations
     - Introduce `Http` module for common http integration test operations
     - Introduce `Log` module for centrilized logging
-files .\bin\Release\netstandard2.0\*.dll ==> lib/netstandard2.0
+files .\bin\Release/netstandard2.0/*.dll ==> lib/netstandard2.0
 dependencies
-    FSharp.Core >= 4.5.4
     Microsoft.AspNetCore.Server.Kestrel >= 2.2
     Microsoft.Extensions.Logging.Console >= 2.2
     Polly-Signed >= 5.9

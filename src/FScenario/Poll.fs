@@ -9,20 +9,6 @@ open Polly
 open Polly.Timeout
 
 /// <summary>
-/// Basic extra functions on the `Async` type.
-/// </summary>
-module internal Async =
-
-    let retn = async.Return
-
-    let bind f a = async {
-        let! x = a
-        return! f x }
-
-    let map f a = bind (f >> async.Return) a
-
-
-/// <summary>
 /// Type representing the required values to run a polling execution.
 /// </summary>
 type PollAsync<'a> =
@@ -95,9 +81,47 @@ module Poll =
     let target3 f1 f2 f3 = targets [ f1; f2; f3 ]
 
     /// <summary>
-    /// Adds a filtering function to speicfy the required result of the polling.
+    /// Creates a polling function that polls at a specified file path.
+    /// </summary>
+    let file path = targetSync (fun () -> FileInfo path)
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified directory path.
+    /// </summary>
+    let dir path = targetSync (fun () -> DirectoryInfo path)
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
+    /// </summary>
+    let http_get url = target (fun () -> async {
+        logger.LogInformation ("Poll GET {url} -> ...", (url : string))
+        let! r = Http.get url
+        logger.LogInformation ("Poll GET {url} -> {status}", url, r.StatusCode)
+        return r })
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
+    /// </summary>
+    let http_post url (content : Http.HttpContent) = target (fun () -> async {
+        logger.LogInformation ("Poll POST {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
+        let! r = Http.post url content
+        logger.LogInformation ("Poll POST {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
+        return r })
+
+    /// <summary>
+    /// Adds a filtering function to specify the required result of the polling.
     /// </summary>
     let until predicate poll = { poll with Filter = predicate }
+
+    /// <summary>
+    /// Adds a filtering function to to specify that the required result should be equal to the specified value.
+    /// </summary>
+    let untilEqual x poll = { poll with Filter = (=) x }
+
+    /// <summary>
+    /// Adds a filtering function to to specify that the required result should not be equal to the specified value.
+    /// </summary>
+    let untilNotEqual x poll = { poll with Filter = (<>) x }
 
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
@@ -115,9 +139,19 @@ module Poll =
     let untilSome poll = { poll with Filter = Option.isSome }
 
     /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option, where `x` is a specified value.
+    /// </summary>
+    let untilSomeValue x poll = { poll with Filter = (=) (Some x) }
+
+    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result.
     /// </summary>
     let untilOk poll = { poll with Filter = function Ok _ -> true | _ -> false }
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result, where `x` is a specified value.
+    /// </summary>
+    let untilOkValue x poll = { poll with Filter = function Ok y -> x = y | _ -> false }
 
     /// <summary>
     /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
@@ -282,10 +316,14 @@ module Poll =
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     let untilHttpOk url interval timeout =
         untilCustom 
-            (fun () -> Http.get url) 
+            (fun () -> async {
+                logger.LogInformation ("Poll GET {url} -> ...", (url : string))
+                let! r = Http.get url
+                logger.LogInformation ("Poll GET {url} -> {status}", url, r.StatusCode)
+                return r }) 
             (fun r ->   
                 let ok = r.StatusCode = OK
-                logger.LogInformation("GET {url} {ok}", url, if ok then "= OK" else "<> OK, but " + string r.StatusCode)
+                logger.LogInformation("Poll GET {url} -> {ok}", url, if ok then "= OK" else "<> OK, but " + string r.StatusCode)
                 ok) 
             interval 
             timeout 
@@ -335,22 +373,22 @@ module PollBuilder =
         /// Adds a filtering function to speicfy the required result of the polling.
         /// </summary>
         [<CustomOperation("until")>] 
-        member __.Until (state, predicate) = { state with Filter = predicate }
+        member __.Until (state, predicate) = Poll.until predicate state
         /// <summary>
         /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
         /// </summary>
         [<CustomOperation("every")>]
-        member __.Every (state, interval) = { state with Interval = interval }
+        member __.Every (state, interval) = Poll.every interval state
         /// <summary>
         /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
         /// </summary>
         [<CustomOperation("timeout")>]
-        member __.Timeout (state, timeout) = { state with Timeout = timeout }
+        member __.Timeout (state, timeout) = Poll.timeout timeout state
         /// <summary>
         /// Adds a custom error message to show when the polling has been time out.
         /// </summary>
         [<CustomOperation("error")>]
-        member __.Error(state, message) = { state with ErrorMessage = message }
+        member __.Error(state, message) = Poll.error message state
         member __.Yield (_) = 
             { PollFunc = (fun () -> async.Return Unchecked.defaultof<_>)
               Filter = (fun _ -> true)
