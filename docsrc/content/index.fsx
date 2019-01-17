@@ -47,16 +47,16 @@ The library comes with comprehensible documentation about the major parts of the
 See also other F#/C# testing libraries
 --------------------------------------
 
-* [FSec] is a testing library to simplifying Security Tests for .NET programs. 
+* [FSec](https://github.com/stijnmoreels/FSec) is a testing library to simplifying Security Tests for .NET programs. 
   The library exposes all kinds of different generators that the developer can use to discover possible security issues with the application.
   
-  ![FSec](/FScenario/img/fsec.png)
+  <img src="/FScenario/img/fsec.png" width=50 height=50 />
 
-* [FsCheck] is a tool for testing .NET programs automatically. 
+* [FsCheck](https://github.com/fscheck/FsCheck) is a tool for testing .NET programs automatically. 
   The programmer provides a specification of the program, in the form of properties which functions, methods or objects should satisfy, 
   and FsCheck then tests that the properties hold in a large number of randomly generated cases. 
   
-  ![FsCheck](/FScenario/img/fscheck.png)
+  <img src="/FScenario/img/fscheck.png" width=50 height=50 />
 
 Contributing and copyright
 --------------------------
