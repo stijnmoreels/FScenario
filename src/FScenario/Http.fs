@@ -304,7 +304,8 @@ module Http =
     let serverSimulates url table =
         let createAgent handlers = MailboxProcessor.Start <| fun agent -> 
             let rec loop count = async {
-                match! agent.Receive () with
+                let! msg = agent.Receive ()
+                match msg with
                 | Stop -> return () 
                 | GetHandler reply ->
                     let length = List.length handlers
