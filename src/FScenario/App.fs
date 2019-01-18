@@ -6,7 +6,7 @@ module App =
     open System.Diagnostics
      
     let private logger = Log.logger<Process> ()
-     
+
      /// <summary>
     /// Stops the process resource.
     /// </summary>

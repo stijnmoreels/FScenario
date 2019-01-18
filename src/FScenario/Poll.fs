@@ -129,6 +129,16 @@ module Poll =
     let untilAny poll = { poll with Filter = fun (xs : #seq<'a>) -> not <| Seq.isEmpty xs}
 
     /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
+    /// </summary>
+    let untilContains x poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.contains x xs }
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
+    /// </summary>
+    let untilExists f poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.exists f xs }
+
+    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
     /// </summary>
     let untilLength length poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.length xs = length }

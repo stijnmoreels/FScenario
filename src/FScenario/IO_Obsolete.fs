@@ -1,18 +1,8 @@
-﻿namespace FScenario
+﻿namespace System.IO
 
 open System
-open System.IO
 open Microsoft.Extensions.Logging
 open FScenario
-
-[<AutoOpen>]
-module IOExtensions =
-    let internal io x = raise (IOException x)
-
-    /// <summary>
-    /// Combines two strings into a path.
-    /// </summary>
-    let (</>) p1 p2 = Path.Combine (p1, p2)
 
 type Size = 
     | MB = 1_048_576L
@@ -21,6 +11,7 @@ type Size =
 /// <summary>
 /// Exposes a series of file functions simular to <see cref="System.IO.File"/> and <see cref="System.IO.FileInfo" />.
 /// </summary>
+[<Obsolete("System.IO.Item is moved to FScenario.Item")>]
 module Item =
     open System.Security.Cryptography
 
@@ -220,7 +211,10 @@ module Item =
 /// <summary>
 /// Exposes a series of directory functions simular to <see cref="System.IO.Directory"/> and <see cref="System.IO.DirectoryInfo"/>.
 /// </summary>
+[<Obsolete("System.IO.Dir is moved to FScenario.Dir")>]
 module Dir =
+    open FScenario
+
     let private logger = Log.logger<Directory> ()
 
     /// <summary>
@@ -303,8 +297,6 @@ module Dir =
         ensure temp
         copy dir temp
         temp
-
-    
 
     /// <summary>
     /// Deletes the directory at the specified path.
@@ -529,220 +521,3 @@ module Dir =
     /// </summary>
     [<CompiledName("DeletesUndo")>]
     let deletesUndo dirs = reduceDisposables deleteUndo dirs
-
-[<AutoOpen>]
-module IO =
-    type Directory with
-        /// <summary>
-        /// Deletes the files in the specified directory.
-        /// </summary>
-        static member clean path = Dir.clean path
-        /// <summary>
-        /// Deletes the files in the specified directories.
-        /// </summary>
-        static member cleans paths = Dir.cleans paths
-        /// <summary>
-        /// Delets the files in the specified directory and revert the cleaning after the returned disposable gets disposed.
-        /// </summary>
-        static member cleanUndo path = Dir.cleanUndo path
-        /// <summary>
-        /// Delets the files in the specified directories and revert the cleaning after the returned disposable gets disposed.
-        /// </summary>
-        static member cleansUndo paths = Dir.cleansUndo paths
-        /// <summary>
-        /// Ensure we have a clean (no files) directory at the specified directory path.
-        /// </summary>
-        static member ensure path = Dir.ensure path
-        /// <summary>
-        /// Ensure we have a clean (no files) directory at the specified directory path.
-        /// </summary>
-        static member ensures dirs = Dir.ensures dirs
-        /// <summary>
-        /// Ensures we have a clean (no files) directory at the specified directory path and revert the ensurance after the returned disposable gets disposed,
-        /// taking into account whether the directory was already created by deleting the directory if it didn't existed.
-        /// </summary>
-        static member ensureUndo path = Dir.ensureUndo path
-        /// <summary>
-        /// Ensures we have a clean (no files) directories at the specified directory paths and revert the ensurance after the returned disposable gets disposed,
-        /// taking into account whether the directory was already created by deleting the directory if it didn't existed.
-        /// </summary>
-        static member ensuresUndo paths = Dir.ensuresUndo paths
-        /// <summary>
-        /// Replacs the specified source directory with the specified destination directory.
-        /// </summary>
-        static member replace dest src = Dir.replace dest src
-        /// <summary>
-        /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
-        /// </summary>
-        static member replaceUndo dest src = Dir.replaceUndo dest src
-         /// <summary>
-        /// Ensures we have a clean (no files) directory at the specified directory path
-        /// that gets deleted when the returned <see cref="IDisposable" /> is disposed.
-        /// </summary>
-        static member disposable path = Dir.disposable path
-
-    type DirectoryInfo with
-        /// <summary>
-        /// Deletes the files in the specified directory.
-        /// </summary>
-        static member clean (dir : DirectoryInfo) = Dir.clean dir.FullName
-        /// <summary>
-        /// Deletes the files in the specified directories.
-        /// </summary>
-        static member cleans dirs = Seq.iter DirectoryInfo.clean dirs
-        /// <summary>
-        /// Delets the files in the specified directory and revert the cleaning after the returned disposable gets disposed.
-        /// </summary>
-        static member cleanUndo (dir : DirectoryInfo) = Dir.cleanUndo dir.FullName
-        /// <summary>
-        /// Delets the files in the specified directories and revert the cleaning after the returned disposable gets disposed.
-        /// </summary>
-        static member cleansUndo dirs = Seq.map DirectoryInfo.cleanUndo dirs |> CompositeDisposable.Create :> IDisposable
-        /// <summary>
-        /// Deletes the files in the specified directory.
-        /// </summary>
-        static member ensure (dir : DirectoryInfo) = Dir.ensure dir.FullName
-        /// <summary>
-        /// Deletes the files in the specified directories.
-        /// </summary>
-        static member ensures dirs = Seq.iter DirectoryInfo.ensure dirs
-        /// <summary>
-        /// Ensures we have a clean (no files) directory at the specified directory path and revert the ensurance after the returned disposable gets disposed,
-        /// taking into account whether the directory was already created by deleting the directory if it didn't existed.
-        /// </summary>
-        static member ensureUndo (dir : DirectoryInfo) = Dir.ensureUndo dir.FullName
-        /// <summary>
-        /// Ensures we have a clean (no files) directories at the specified directory paths and revert the ensurance after the returned disposable gets disposed,
-        /// taking into account whether the directory was already created by deleting the directory if it didn't existed.
-        /// </summary>
-        static member ensuresUndo paths = Seq.map DirectoryInfo.ensureUndo paths |> CompositeDisposable.Create :> IDisposable
-        /// <summary>
-        /// Replacs the specified source directory with the specified destination directory.
-        /// </summary>
-        static member replace (dest : DirectoryInfo) (src : DirectoryInfo) = Dir.replace dest.FullName src.FullName
-        /// <summary>
-        /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
-        /// </summary>
-        static member replaceUndo (dest : DirectoryInfo) (src : DirectoryInfo) = Dir.replaceUndo dest.FullName src.FullName
-         /// <summary>
-        /// Ensures we have a clean (no files) directory at the specified directory path
-        /// that gets deleted when the returned <see cref="IDisposable" /> is disposed.
-        /// </summary>
-        static member disposable (dir : DirectoryInfo) = Dir.disposable dir.FullName
-
-    type File with
-        /// <summary>
-        /// Creates a <see cref="System.IO.FileInfo"/> instance from a file path.
-        /// </summary>
-        static member at path = FileInfo path
-        /// <summary>
-        /// Determines if two files are equal by hashing (MD5) their contents.
-        /// </summary>
-        static member hashEqual f1 f2 = Item.hashEqual f1 f2
-        /// <summary>
-        /// Gets the hash value of a given file contents.
-        /// </summary>
-        static member hash f = Item.hash f
-        /// <summary>
-        /// Creates a file at the given file path the size of the specified value in the specified metric system.
-        /// </summary>
-        /// <param name="value">The amount of in the metric system to create as size of the file.</param>
-        /// <param name="metric">The metric in which the value is represented (ex. MB, GB, ...)</param>
-        /// <param name="path">The file path at which the file should be created.</param>
-        static member createSized value metric path = Item.createSized value metric path
-        /// <summary>
-        /// Creates a file at the given file path the size of the specified value in the specified metric system.
-        /// </summary>
-        /// <param name="value">The amount of in the metric system to create as size of the file.</param>
-        /// <param name="metric">The metric in which the value is represented (ex. MB, GB, ...)</param>
-        static member createSizedTemp value metric = Item.createSizedTemp value metric
-        /// <summary>
-        /// Deletes a file at a specified file path.
-        /// </summary>
-        static member delete f = Item.delete f
-        /// <summary>
-        /// Copies a specified source file to a destination file path.
-        /// </summary>
-        static member copy src dest = Item.copy src dest
-        /// <summary>
-        /// Copies a specified source file to a destination file path and reverts the copying after the returned disposable gets disposed.
-        /// </summary>
-        static member copyUndo src dest = Item.copyUndo src dest
-        /// <summary>
-        /// Deletes files at the specified file paths.
-        /// </summary>
-        static member deletes fs = Item.deletes fs
-        /// <summary>
-        /// Deletes a file at the specified file path, but reverts the deletion after the returned disposable gets disposed.
-        /// </summary>
-        static member deleteUndo f = Item.deleteUndo f
-        /// <summary>
-        /// Replaces the specified destination file with the specified source file.
-        /// </summary>
-        static member replace src dest = Item.replace src dest
-        /// <summary>
-        /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
-        /// </summary>
-        static member replaceUndo src dest = Item.replaceUndo src dest
-        /// <summary>
-        /// Move a specified file to a destination path.
-        /// </summary>
-        static member move src dest = Item.move src dest
-        /// <summary>
-        /// Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.
-        /// </summary>
-        static member moveUndo src dest = Item.moveUndo src dest
-
-    type FileInfo with
-        /// <summary>
-        /// Determines if two files are equal by hashing (MD5) their contents.
-        /// </summary>
-        static member hashEqual (f1 : FileInfo) (f2 : FileInfo) =
-            if f1 = null then nullArg "f1"
-            if f2 = null then nullArg "f2"
-            Item.hashEqual f1.FullName f2.FullName
-        /// <summary>
-        /// Gets the hash value of a given file contents.
-        /// </summary>
-        static member hash (f : FileInfo) = Item.hash f.FullName
-        /// <summary>
-        /// Copies a specified source file to a destination file path.
-        /// </summary>
-        static member copy (src : FileInfo) (dest : FileInfo) = Item.copy src.FullName dest.FullName
-        /// <summary>
-        /// Copies a specified source file to a destination file path and reverts the copying after the returned disposable gets disposed.
-        /// </summary>
-        static member copyUndo (src : FileInfo) (dest : FileInfo) = Item.copyUndo src.FullName dest.FullName
-        /// <summary>
-        /// Deletes a file at a specified file path.
-        /// </summary>
-        static member delete (f : FileInfo) = Item.delete f.FullName
-         /// <summary>
-        /// Deletes a file at the specified file path, but reverts the deletion after the returned disposable gets disposed.
-        /// </summary>
-        static member deleteUndo (f : FileInfo) = Item.deleteUndo f.FullName
-        /// <summary>
-        /// Replaces the specified destination file with the specified source file.
-        /// </summary>
-        static member replace (dest : FileInfo) (src : FileInfo) = Item.replace dest.FullName src.FullName
-        /// <summary>
-        /// Replaces a specified destination file with a source file and revert the replacement after the returned disposable gets disposed.
-        /// </summary>
-        static member replaceUndo (dest : FileInfo) (src : FileInfo) = Item.replaceUndo dest.FullName src.FullName
-         /// <summary>
-        /// Move a specified file to a destination path.
-        /// </summary>
-        static member move (src : FileInfo) (dest : FileInfo) = Item.move src.FullName dest.FullName
-        /// <summary>
-        /// Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.
-        /// </summary>
-        static member moveUndo (src : FileInfo) (dest : FileInfo) = Item.moveUndo src.FullName dest.FullName
-
-    /// <summary>
-    /// Determines if two files are equal by hashing (MD5) their contents.
-    /// </summary>
-    let (==) f1 f2 = Item.hashEqual f1 f2
-    /// <summary>
-    /// Determines if two files are equal by hashing (MD5) their contents.
-    /// </summary>
-    let (===) f1 f2 = FileInfo.hashEqual f1 f2

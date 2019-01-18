@@ -1,19 +1,4 @@
-﻿namespace System
-
-open System.Runtime.CompilerServices
-
-[<Extension>]
-type DisposableExtensions =
-    /// <summary>
-    /// Combines the two given <see cref="IDisposable"/> instances into a single instance that disposes both when disposed.
-    /// </summary>
-    [<Extension>]
-    static member And (d1, d2) = 
-        if d1 = null then nullArg "d1"
-        if d2 = null then nullArg "d2"
-        Disposable.compose2 d1 d2
-
-namespace FScenario
+﻿namespace FScenario
 
 open System
 open System.IO
@@ -32,7 +17,7 @@ type DirectoryEx =
     static member CleanFiles dir = 
         if dir = null then nullArg "dir"
         DirectoryInfo.clean dir
-    
+
     /// <summary>
     /// Deletes the files in the specified directories.
     /// </summary>
@@ -408,6 +393,66 @@ type Poll =
     [<Extension>]
     static member UntilAny (poll : PollAsync<IList<_>>) =
         Poll.untilAny poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
+    /// </summary>
+    [<Extension>]
+    static member UntilAny (poll : PollAsync<IEnumerable<_>>, predicate : Func<_, _>) =
+        if predicate = null then nullArg "predicate"
+        Poll.untilExists predicate.Invoke poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
+    /// </summary>
+    [<Extension>]
+    static member UntilAny (poll : PollAsync<_ array>, predicate : Func<_, _>) =
+        if predicate = null then nullArg "predicate"
+        Poll.untilExists predicate.Invoke poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
+    /// </summary>
+    [<Extension>]
+    static member UntilAny (poll : PollAsync<ICollection<_>>, predicate : Func<_, _>) =
+        if predicate = null then nullArg "predicate"
+        Poll.untilExists predicate.Invoke poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
+    /// </summary>
+    [<Extension>]
+    static member UntilAny (poll : PollAsync<IList<_>>, predicate : Func<_, _>) =
+        if predicate = null then nullArg "predicate"
+        Poll.untilExists predicate.Invoke poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
+    /// </summary>
+    [<Extension>]
+    static member UntilContains (poll : PollAsync<IEnumerable<_>>, value) =
+        Poll.untilContains value poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
+    /// </summary>
+    [<Extension>]
+    static member UntilContains (poll : PollAsync<_ array>, value) =
+        Poll.untilContains value poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
+    /// </summary>
+    [<Extension>]
+    static member UntilContains (poll : PollAsync<ICollection<_>>, value) =
+        Poll.untilContains value poll
+
+    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
+    /// </summary>
+    [<Extension>]
+    static member UntilContains (poll : PollAsync<IList<_>>, value) =
+        Poll.untilContains value poll
 
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.

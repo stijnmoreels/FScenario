@@ -74,7 +74,6 @@ type HttpResponse (res : HttpResponseMessage) =
     static member Create res = new HttpResponse (res)
     interface IDisposable with member x.Dispose () = res.Dispose ()
 
-
 /// <summary>
 /// Provides functionality to test and host HTTP endpoints.
 /// </summary>
@@ -369,13 +368,37 @@ module Stream =
     let asString (str : Stream) =
         let bs = asByteArray str
         System.Text.Encoding.UTF8.GetString bs
-    
+
 [<Extension>]
 type StreamEx =
     [<Extension>]
     static member ReadAsByteArray (str : Stream) = Stream.asByteArray str
     [<Extension>]
     static member ReadAsString (str : Stream) = Stream.asString str
+
+[<AutoOpen>]
+module HttpRequestExtensions =
+    open FScenario
+    
+    let (|String|_|) (r : HttpRequest) = Some (Stream.asString r.Body)
+    let (|ByteArray|_|) (r : HttpRequest) = Some (Stream.asByteArray r.Body)
+
+    type HttpRequest with
+        static member readAsString (r : HttpRequest) = Stream.asString r.Body
+        static member readAsByteArray (r : HttpRequest) = Stream.asByteArray r.Body
+
+[<AutoOpen>]
+module HttpResponseExtensions =
+    open FScenario
+
+    let (|String|_|) (r : HttpResponse) = Some (r.ReadAsString ())
+    let (|ByteArray|_|) (r : HttpResponse) = Some (r.ReadAsByteArray ())
+    let (|Stream|_|) (r : HttpResponse) = Some (r.ReadAsStream ())
+
+    type HttpResponse with
+        static member readAsString (r : HttpResponse) = r.ReadAsString ()
+        static member reasAsByteArray (r : HttpResponse) = r.ReadAsByteArray ()
+        static member readAsStream (r : HttpResponse) = r.ReadAsStream ()
 
 namespace System.Net
 

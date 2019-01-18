@@ -6,6 +6,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="..\..\paket-files\stijnmoreels\System\Disposable.fs">
       <Paket>True</Paket>
       <Link>Disposable.fs</Link>
@@ -20,10 +21,12 @@
     </Compile>
     <Compile Include="Log.fs" />
     <Compile Include="IO.fs" />
+    <Compile Include="IO_Obsolete.fs" />
     <Compile Include="Http.fs" />
     <Compile Include="Poll.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Interop.fs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
