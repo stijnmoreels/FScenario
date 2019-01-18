@@ -114,8 +114,8 @@ redistribution for both commercial and non-commercial purposes. For more informa
 <div class="tip" id="fs2">namespace System.IO</div>
 <div class="tip" id="fs3">namespace FScenario</div>
 <div class="tip" id="fs4">val d : IDisposable</div>
-<div class="tip" id="fs5">module Dir<br /><br />from System.IO</div>
-<div class="tip" id="fs6">val ensureUndo : dir:string -&gt; IDisposable</div>
+<div class="tip" id="fs5">Multiple items<br />module Dir<br /><br />from FScenario<br /><br />--------------------<br />module Dir<br /><br />from System.IO</div>
+<div class="tip" id="fs6">Multiple items<br />val ensureUndo : dir:string -&gt; IDisposable<br /><br />--------------------<br />val ensureUndo : dir:string -&gt; IDisposable</div>
 <div class="tip" id="fs7">Multiple items<br />module Http<br /><br />from FScenario<br /><br />--------------------</div>
 <div class="tip" id="fs8">val server : url:string -&gt; IDisposable</div>
 <div class="tip" id="fs9">type File =<br />&#160;&#160;static member AppendAllLines : path:string * contents:IEnumerable&lt;string&gt; -&gt; unit + 1 overload<br />&#160;&#160;static member AppendAllText : path:string * contents:string -&gt; unit + 1 overload<br />&#160;&#160;static member AppendText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Copy : sourceFileName:string * destFileName:string -&gt; unit + 1 overload<br />&#160;&#160;static member Create : path:string -&gt; FileStream + 2 overloads<br />&#160;&#160;static member CreateText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Decrypt : path:string -&gt; unit<br />&#160;&#160;static member Delete : path:string -&gt; unit<br />&#160;&#160;static member Encrypt : path:string -&gt; unit<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;...</div>
