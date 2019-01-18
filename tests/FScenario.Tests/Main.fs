@@ -1,7 +1,7 @@
 ﻿module Main
 
 open Expecto
-open System.IO
+open FScenario
 
 #nowarn "0046"
 

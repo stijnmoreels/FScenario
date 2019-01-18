@@ -238,7 +238,7 @@ let http_tests =
         |> Poll.every _1s
         |> Poll.timeout _10s
         |> Poll.error "http server should respond with OK on POST"
-      let! str = (res : HttpResponse).ReadAsString ()
+      let! str = HttpResponse.readAsString res
       Expect.equal res.StatusCode OK "POST: http status code should be OK"
       Expect.equal expected str (sprintf "POST: http response content should be: '%s'" expected)
     }
@@ -262,7 +262,7 @@ let http_tests =
           |> Poll.every _1s
           |> Poll.timeout _10s
 
-      let bodies = Seq.map (HttpRequest.body >> Stream.asString) requests
+      let bodies = Seq.map HttpRequest.readAsString requests
       Expect.sequenceEqual (Seq.replicate 3 expected) bodies "http 'serverCollect' should collect the received http requests"
     }
 
