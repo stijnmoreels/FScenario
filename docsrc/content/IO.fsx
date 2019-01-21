@@ -26,7 +26,7 @@ Because we do this, the environment is left "untouched" meaning we can run tests
 The library provides several [type extensions](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/type-extensions) on the `System.IO` namespace.
 These extensions are commonly used operations in integration test suites:
 
-- `System.IO.Dir.cleanFiles`: cleans all the files in a given directory.
+- `System.IO.Dir.clean`: cleans all the files in a given directory.
 - `System.IO.Dir.ensure`: ensures that a directory is created.
 - `System.IO.Dir.replace`: replaces a directory with another.
 
@@ -35,7 +35,7 @@ These extensions are commonly used operations in integration test suites:
 All these functions have counterparts: the opposite of cleaning a folder would be placing the files back for example.
 The counterparts defined like this:
 
-- `System.IO.Dir.cleanFilesUndo`: cleans all the files in a given directory but reverts the cleaning when the returned disposable gets disposed.
+- `System.IO.Dir.cleanUndo`: cleans all the files in a given directory but reverts the cleaning when the returned disposable gets disposed.
 - `System.IO.Dir.ensureUndo`: ensures that a directory is created but reverts the ensurement when the returned disposable gets disposed.
 - `System.IO.Dir.replaceUndo`: replaces a directory with another but reverts the replacement when the returned disposable gets disposed.
 

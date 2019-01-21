@@ -94,6 +94,24 @@ type DirectoryEx =
         DirectoryInfo.replaceUndo dest src
     
     /// <summary>
+    /// Moves a specified source directory to a specified destination directory path.
+    /// </summary>
+    [<Extension>]
+    static member Move src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        DirectoryInfo.move src dest
+
+    /// <summary>
+    /// Moves a specified source directory to a specified destination directory path and reverts the movement after the returned disposable gets disposed.
+    /// </summary>
+    [<Extension>]
+    static member MoveUndo src dest =
+        if src = null then nullArg "src"
+        if dest = null then nullArg "dest"
+        DirectoryInfo.moveUndo src dest
+
+    /// <summary>
     /// Ensures we have a clean (no files) directory at the specified directory path
     /// that gets deleted when the returned <see cref="IDisposable" /> is disposed.
     /// </summary>
@@ -134,6 +152,18 @@ type FileEx =
     /// </summary>
     [<Extension>]
     static member ReplaceUndo (src, dest) = FileInfo.replaceUndo src dest
+
+    /// <summary>
+    /// Move a specified file to a destination path.
+    /// </summary>
+    [<Extension>]
+    static member Move (src, dest) = FileInfo.move src dest
+
+    /// <summary>
+    /// Move a specified source file to a destination path and revert the movement after the returned disposable gets disposed.
+    /// </summary>
+    [<Extension>]
+    static member MoveUndo (src, dest) = FileInfo.moveUndo src dest
 
 /// Representation of HTTP methods that are defined as predicates.
 type HttpRoute =

@@ -46,7 +46,7 @@ This "undo" operation is the exact oposite of the first operation, which causes 
 <p>The library provides several <a href="https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/type-extensions">type extensions</a> on the <code>System.IO</code> namespace.
 These extensions are commonly used operations in integration test suites:</p>
 <ul>
-<li><code>System.IO.Dir.cleanFiles</code>: cleans all the files in a given directory.</li>
+<li><code>System.IO.Dir.clean</code>: cleans all the files in a given directory.</li>
 <li><code>System.IO.Dir.ensure</code>: ensures that a directory is created.</li>
 <li><code>System.IO.Dir.replace</code>: replaces a directory with another.</li>
 </ul>
@@ -56,7 +56,7 @@ These extensions are commonly used operations in integration test suites:</p>
 <p>All these functions have counterparts: the opposite of cleaning a folder would be placing the files back for example.
 The counterparts defined like this:</p>
 <ul>
-<li><code>System.IO.Dir.cleanFilesUndo</code>: cleans all the files in a given directory but reverts the cleaning when the returned disposable gets disposed.</li>
+<li><code>System.IO.Dir.cleanUndo</code>: cleans all the files in a given directory but reverts the cleaning when the returned disposable gets disposed.</li>
 <li><code>System.IO.Dir.ensureUndo</code>: ensures that a directory is created but reverts the ensurement when the returned disposable gets disposed.</li>
 <li><code>System.IO.Dir.replaceUndo</code>: replaces a directory with another but reverts the replacement when the returned disposable gets disposed.</li>
 </ul>

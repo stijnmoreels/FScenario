@@ -42,8 +42,45 @@
 <h3><a name="1-0-0" class="anchor" href="#1-0-0">1.0.0</a></h3>
 <ul>
 <li>Introduce <code>Item</code> module for common file integration test operations</li>
-<li>Introduce <code>Http</code> module for common http integration test operations</li>
+<li>
+Introduce <code>Http</code> module for common http integration test operations
+<ul>
+<li>Starting a HTTP endpoint on a given url</li>
+<li>Route received HTTP requests to custom handlers</li>
+<li>Collecting several HTTP requests until expected count</li>
+</ul>
+</li>
 <li>Introduce <code>Log</code> module for centrilized logging</li>
+</ul>
+<h3><a name="1-2-0" class="anchor" href="#1-2-0">1.2.0</a></h3>
+<ul>
+<li>
+Add polling shortcuts:
+<ul>
+<li><code>Poll.targetSync</code> for polling at "sync" targets (ex. filesystem)</li>
+<li><code>Poll.file</code>, <code>Poll.dir</code> &amp; <code>Poll.http_*</code> for shortcutting common targets</li>
+<li><code>Poll.untilAny</code>, <code>Poll.untilLength</code>, <code>Poll.untilContains</code>, ... for shortcutting sequence filters</li>
+<li><code>Poll.untilEqual</code> &amp; <code>Poll.untilNotEqual</code> for shortcutting simple equalization</li>
+</ul>
+</li>
+<li>
+Adding more logging information and customization:
+<ul>
+<li><code>Poll.errorf</code> for custom string formatting the error message for the polling (also available in the <code>PollBuilder</code> Computation Expression)</li>
+</ul>
+</li>
+<li>
+Adding HTTP simulation:
+<ul>
+<li><code>Http.simulate(s)</code> for simulating a series of HTTP responses for the same hosted HTTP server (ex. for testing retryable operations)</li>
+</ul>
+</li>
+<li>
+Adding IO operations:
+<ul>
+<li><code>Dir.move(Undo)</code>, <code>Item.move(Undo)</code> for moving directories/files with and reverting on disposal</li>
+</ul>
+</li>
 </ul>
 
 

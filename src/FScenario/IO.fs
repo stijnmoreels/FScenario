@@ -614,6 +614,14 @@ module IO =
         /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
         /// </summary>
         static member replaceUndo dest src = Dir.replaceUndo dest src
+        /// <summary>
+        /// Moves a specified source directory to a specified destination directory path.
+        /// </summary>
+        static member move src dest = Dir.move src dest
+        /// <summary>
+        /// Moves a specified source directory to a specified destination directory path and reverts the movement after the returned disposable gets disposed.
+        /// </summary>
+        static member moveUndo src dest = Dir.moveUndo src dest
          /// <summary>
         /// Ensures we have a clean (no files) directory at the specified directory path
         /// that gets deleted when the returned <see cref="IDisposable" /> is disposed.
@@ -663,6 +671,14 @@ module IO =
         /// Replaces the specified source directory with the specified destination directory and revert this replacement after the returned disposable gets disposed.
         /// </summary>
         static member replaceUndo (dest : DirectoryInfo) (src : DirectoryInfo) = Dir.replaceUndo dest.FullName src.FullName
+        /// <summary>
+        /// Moves a specified source directory to a specified destination directory path.
+        /// </summary>
+        static member move (src : DirectoryInfo) (dest : DirectoryInfo) = Dir.move src.FullName dest.FullName
+        /// <summary>
+        /// Moves a specified source directory to a specified destination directory path and reverts the movement after the returned disposable gets disposed.
+        /// </summary>
+        static member moveUndo (src : DirectoryInfo) (dest : DirectoryInfo) = Dir.moveUndo src.FullName dest.FullName
          /// <summary>
         /// Ensures we have a clean (no files) directory at the specified directory path
         /// that gets deleted when the returned <see cref="IDisposable" /> is disposed.
