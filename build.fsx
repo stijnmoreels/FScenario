@@ -78,7 +78,8 @@ Target.create "Paket" <| fun _ ->
             Dependencies = 
                 Paket.getDependenciesForReferencesFile "src/FScenario/paket.references"
                 |> Array.map (fun (package, version) -> PaketDependency (package, GreaterOrEqual (Version version)))
-                |> List.ofArray })
+                |> List.ofArray
+                |> fun xs -> PaketDependency ("FSharp.Core", GreaterOrEqual (Version "4.5.4")) :: xs })
 
     Paket.pack (fun defaults ->
         { defaults with
