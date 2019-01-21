@@ -58,11 +58,11 @@ namespace FScenario.CSharp
                     WriteGenFile1SDelayed());
 
                 var files =
-                    await Poll.Target(() => Task.FromResult(Dir.Files("multiple")))
-                              .Until(fs => fs.Length == 3)
+                    await Poll.Target(() => Dir.Files("multiple"))
+                              .UntilCount(3)
                               .Every(TimeSpans._1s)
                               .For(TimeSpans._5s)
-                              .Error("Directory 'multiple' should have 3 files");
+                              .Error("Directory 'multiple' should have {count} files", 3);
 
                 Assert.True(
                     files.Length == 3,
@@ -124,7 +124,7 @@ namespace FScenario.CSharp
                           .UntilCount(3)
                           .Every(TimeSpans._1s)
                           .For(TimeSpans._10s)
-                          .Error("HTTP collect should collect 3 requests");
+                          .Error("HTTP collect should collect {count} requests", 3);
 
             string[] expecteds = Enumerable.Repeat(expected, 3).ToArray();
             string[] actuals = requests.Select(r => r.Body.ReadAsString()).ToArray();
@@ -137,7 +137,7 @@ namespace FScenario.CSharp
             const string url = "http://localhost:9088";
             using (Http.ServerSimulate(
                     url,
-                    HttpRoute.GET, 
+                    HttpRoute.GET,
                     Http.RespondStatus(HttpStatusCode.BadRequest),
                     Http.RespondStatus(HttpStatusCode.BadRequest),
                     Http.RespondStatus(HttpStatusCode.OK)))

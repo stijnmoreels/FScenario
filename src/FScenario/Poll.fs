@@ -26,22 +26,6 @@ type PollAsync<'a> =
           Interval = _5s
           Timeout = _30s
           ErrorMessage = "Polling doesn't result in any values" }
-      /// <summary>
-      /// Adds a filtering function to speicfy the required result of the polling.
-      /// </summary>
-      member x.Until (filter : Func<'a, bool>) = { x with Filter = filter.Invoke }
-      /// <summary>
-      /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
-      /// </summary>
-      member x.Every (interval : TimeSpan) = { x with Interval = interval }
-      /// <summary>
-      /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
-      /// </summary>
-      member x.For (timeout : TimeSpan) = { x with Timeout = timeout }
-      /// <summary>
-      /// Adds a custom error message to show when the polling has been time out.
-      /// </summary>
-      member x.Error (message : string) = { x with ErrorMessage = message }
 
 /// <summary>
 /// Exposing functions to write reliable polling functions for a testable target.
@@ -100,12 +84,21 @@ module Poll =
         return r })
 
     /// <summary>
-    /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
+    /// Creates a polling function that polls at a specified HTTP endpoint with POST requests.
     /// </summary>
     let http_post url (content : Http.HttpContent) = target (fun () -> async {
         logger.LogInformation ("Poll POST {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
         let! r = Http.post url content
         logger.LogInformation ("Poll POST {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
+        return r })
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified HTTP endpoint with PUT requests.
+    /// </summary>
+    let http_put url (content : Http.HttpContent) = target (fun () -> async {
+        logger.LogInformation ("Poll PUT {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
+        let! r = Http.put url content
+        logger.LogInformation ("Poll PUT {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
         return r })
 
     /// <summary>
@@ -177,6 +170,11 @@ module Poll =
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
     let error message poll = { poll with ErrorMessage = message }
+
+    /// <summary>
+    /// Adds a custom error message with string formatting to show when the polling has been time out.
+    /// </summary>
+    let errorf message args poll = { poll with ErrorMessage = sprintf message args }
 
     /// <summary>
     /// Poll at a given target using a filtering function for a period of time until either the predicate succeeds or the expression times out.
@@ -380,10 +378,50 @@ module PollBuilder =
         [<CustomOperation("target")>] 
         member __.Target (state, f) = { state with PollFunc = f }
         /// <summary>
+        /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+        /// </summary>
+        [<CustomOperation("targetSync")>] 
+        member __.TargetSync (state, f) = { state with PollFunc = f >> async.Return }
+        /// <summary>
         /// Adds a filtering function to speicfy the required result of the polling.
         /// </summary>
         [<CustomOperation("until")>] 
         member __.Until (state, predicate) = Poll.until predicate state
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
+        /// </summary>
+        [<CustomOperation("untilAny")>] 
+        member __.UntilAny (state) = Poll.untilAny state
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
+        /// </summary>
+        [<CustomOperation("untilLength")>] 
+        member __.UntilLength (state, length) = Poll.untilLength length state
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
+        /// </summary>
+        [<CustomOperation("untilAny")>] 
+        member __.UntilContains (state, value) = Poll.untilContains value state
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result.
+        /// </summary>
+        [<CustomOperation("untilOk")>] 
+        member __.UntilOk (state) = Poll.untilOk state 
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result, where `x` is a specified value.
+        /// </summary>
+        [<CustomOperation("untilOkValue")>] 
+        member __.UntilOkValue (state, value) = Poll.untilOkValue value state 
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option.
+        /// </summary>
+        [<CustomOperation("untilSome")>] 
+        member __.UntilSome (state) = Poll.untilSome state 
+        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option, where `x` is a specified value.
+        /// </summary>
+        [<CustomOperation("untilSomeValue")>] 
+        member __.UntilSomeValue (state, value) = Poll.untilSomeValue value state 
         /// <summary>
         /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
         /// </summary>
@@ -399,6 +437,11 @@ module PollBuilder =
         /// </summary>
         [<CustomOperation("error")>]
         member __.Error(state, message) = Poll.error message state
+        /// <summary>
+        /// Adds a custom error message with string formatting to show when the polling has been time out.
+        /// </summary>
+        [<CustomOperation("errorf")>]
+        member __.ErrorFormat(state, message, args) = Poll.errorf message args state
         member __.Yield (_) = 
             { PollFunc = (fun () -> async.Return Unchecked.defaultof<_>)
               Filter = (fun _ -> true)

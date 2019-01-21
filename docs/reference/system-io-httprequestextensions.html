@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>MemoryFlag - FScenario</title>
+    <title>HttpRequestExtensions - FScenario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Stijn Moreels"/>
@@ -36,71 +36,108 @@
 
 
 
-<h1>MemoryFlag</h1>
+<h1>HttpRequestExtensions</h1>
 <p>
-
-    <span>Namespace: System.IO</span><br />
-    </p>
+  <span>Namespace: System.IO</span><br />
+        <span>
+          Attributes:<br />
+[&lt;AutoOpen&gt;]<br />
+          
+      </span>
+</p>
 <div class="xmldoc">
 </div>
-  <h3>Union Cases</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Type extensions</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Union Case</td><td>Description</td></tr>
+      <tr><td>Type extension</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '215', 215)" onmouseover="showTip(event, '215', 215)">
-            AutoOverflowToDisk
+          <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
+            HttpRequest.readAsByteArray(r)
           </code>
-          <div class="tip" id="215">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="144">
+            <strong>Signature:</strong> r:HttpRequest -&gt; byte []<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System.IO/VirtualStream.fs#L7-7" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L388-388" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>HttpRequest.readAsByteArray.Static</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '216', 216)" onmouseover="showTip(event, '216', 216)">
-            OnlyInMemory
+          <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
+            HttpRequest.readAsString(r)
           </code>
-          <div class="tip" id="216">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="145">
+            <strong>Signature:</strong> r:HttpRequest -&gt; string<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System.IO/VirtualStream.fs#L8-8" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L387-387" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>HttpRequest.readAsString.Static</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+            ( |ByteArray|_| )(r)
+          </code>
+          <div class="tip" id="146">
+            <strong>Signature:</strong> r:HttpRequest -&gt; byte [] option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L384-384" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>|ByteArray|_|</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
-            OnlyToDisk
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+            ( |String|_| )(r)
           </code>
-          <div class="tip" id="217">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="147">
+            <strong>Signature:</strong> r:HttpRequest -&gt; string option<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System.IO/VirtualStream.fs#L9-9" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L383-383" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
+              <p>CompiledName: <code>|String|_|</code></p>
         </td>
       </tr>
     </tbody>

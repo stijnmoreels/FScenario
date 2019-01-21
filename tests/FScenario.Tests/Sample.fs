@@ -84,7 +84,7 @@ let directory_tests =
     testCase "moveUndo moves the directory but reverts the movement afterwards" <| fun _ ->
       use __ = Dir.ensureUndo "dir-move-undo"
       Dir.ensure ("dir-move-undo" </> "source")
-      File.WriteAllText ("dir-move-undo" </> "source" </> "test.txt", "MOVE ME!")
+      Item.writeText "MOVE ME!" ("dir-move-undo" </> "source" </> "test.txt")
 
       let d = Dir.moveUndo ("dir-move-undo" </> "source") ("dir-move-undo" </> "destination")
       Expect.isFalse (Dir.exists ("dir-move-undo" </> "source")) "Dir.moveUndo should delete the source directory"
@@ -190,11 +190,11 @@ let poll_tests =
        do! writeGenFile1sDelayed ()
        do! writeGenFile1sDelayed ()
        let! files =
-           poll { target (fun () -> async.Return (Dir.files "multiple"))
-                  until (Seq.length >> (=) 3)
+           poll { targetSync (fun () -> Dir.files "multiple")
+                  untilLength 3
                   every _1s
                   timeout _10s
-                  error "directory 'multiple' should have 3 files" }
+                  errorf "directory 'multiple' should have %i files" 3 }
 
        Expect.hasCountOf files 3u (fun _ -> true) "polled files result should have 3 files"
      }
@@ -261,6 +261,7 @@ let http_tests =
           |> Poll.untilLength 3
           |> Poll.every _1s
           |> Poll.timeout _10s
+          |> Poll.errorf "Polling for %i requests failed" 3
 
       let bodies = Seq.map HttpRequest.readAsString requests
       Expect.sequenceEqual (Seq.replicate 3 expected) bodies "http 'serverCollect' should collect the received http requests"

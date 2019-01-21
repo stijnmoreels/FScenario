@@ -4,6 +4,7 @@ open System
 open System.IO
 open Microsoft.Extensions.Logging
 open FScenario
+open System.IO.Compression
 
 [<AutoOpen>]
 module IOExtensions =
@@ -87,13 +88,53 @@ module Item =
     /// Determines if a specified file path points to an existing file.
     /// </summary>
     [<CompiledName("Exists")>]
-    let exists f = File.Exists f 
+    let exists f = 
+        if f = null then nullArg "f"
+        File.Exists f 
     
     /// <summary>
     /// Write a dummy test file at a specified file path. This is sometimes used to write a file to disk without caring what the content should be.
     /// </summary>
     [<CompiledName("WriteDummy")>]
-    let writeDummy path = File.WriteAllText (path, "Auto-generated  test file")
+    let writeDummy path = 
+        if path = null then nullArg "path"
+        File.WriteAllText (path, "Auto-generated  test file " + Guid.NewGuid().ToString()); path
+
+    /// <summary>
+    /// Write a file to disk with the specified text content.
+    /// </summary>
+    [<CompiledName("WriteText")>]
+    let writeText str path = 
+        if str = null then nullArg "str"
+        if path = null then nullArg "path"
+        File.WriteAllText (path, str)
+
+    /// <summary>
+    /// Write a file to disk with the specified byte array.
+    /// </summary>
+    [<CompiledName("WriteBytes")>]
+    let writeBytes bytes path =
+        if bytes = null then nullArg "bytes"
+        if path = null then nullArg "path"
+        File.WriteAllBytes (path, bytes)
+
+    /// <summary>
+    /// Write a file to disk with the specified stream.
+    /// </summary>
+    [<CompiledName("WriteStream")>]
+    let writeStream str path =
+        if str = null then nullArg "str"
+        if path = null then nullArg "path"
+        use fs = File.Open (path, FileMode.Create)
+        (str : Stream).CopyTo fs
+
+    /// <summary>
+    /// Reads the entire contents of a file in a string format.
+    /// </summary>
+    [<CompiledName("ReadText")>]
+    let readText path = 
+        if path = null then nullArg "path"
+        File.ReadAllText path
 
     /// <summary>
     /// Replaces a specified destination file with a source file.
@@ -303,8 +344,6 @@ module Dir =
         ensure temp
         copy dir temp
         temp
-
-    
 
     /// <summary>
     /// Deletes the directory at the specified path.
@@ -644,6 +683,10 @@ module IO =
         /// </summary>
         static member hash f = Item.hash f
         /// <summary>
+        /// Reads the entire contents of a file in a string format.
+        /// </summary>
+        static member readText path = Item.readText path
+        /// <summary>
         /// Creates a file at the given file path the size of the specified value in the specified metric system.
         /// </summary>
         /// <param name="value">The amount of in the metric system to create as size of the file.</param>
@@ -656,6 +699,18 @@ module IO =
         /// <param name="value">The amount of in the metric system to create as size of the file.</param>
         /// <param name="metric">The metric in which the value is represented (ex. MB, GB, ...)</param>
         static member createSizedTemp value metric = Item.createSizedTemp value metric
+        /// <summary>
+        /// Write a file to disk with the specified text content.
+        /// </summary>
+        static member writeText str path= Item.writeText str path
+        /// <summary>
+        /// Write a file to disk with the specified byte array.
+        /// </summary>
+        static member writeBytes bytes path = Item.writeBytes bytes path
+        /// <summary>
+        /// Write a file to disk with the specified stream.
+        /// </summary>
+        static member writeStream str path = Item.writeStream str path
         /// <summary>
         /// Deletes a file at a specified file path.
         /// </summary>
@@ -694,6 +749,22 @@ module IO =
         static member moveUndo src dest = Item.moveUndo src dest
 
     type FileInfo with
+        /// <summary>
+        /// Reads the entire contents of a file in a string format.
+        /// </summary>
+        static member readText (f : FileInfo) = Item.readText f.FullName
+        /// <summary>
+        /// Write a file to disk with the specified text content.
+        /// </summary>
+        static member writeText str (f : FileInfo)= Item.writeText str f.FullName
+        /// <summary>
+        /// Write a file to disk with the specified byte array.
+        /// </summary>
+        static member writeBytes bytes (f : FileInfo) = Item.writeBytes bytes f.FullName
+        /// <summary>
+        /// Write a file to disk with the specified stream.
+        /// </summary>
+        static member writeStream str (f : FileInfo) = Item.writeStream str f.FullName
         /// <summary>
         /// Determines if two files are equal by hashing (MD5) their contents.
         /// </summary>

@@ -321,6 +321,32 @@ type Http =
 [<Extension>]
 type Poll =
     /// <summary>
+    /// Adds a filtering function to speicfy the required result of the polling.
+    /// </summary>
+    [<Extension>]
+    static member Until (poll, filter : Func<'a, bool>) = { poll with Filter = filter.Invoke }
+    /// <summary>
+    /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
+    /// </summary>
+    [<Extension>]
+    static member Every (poll, interval : TimeSpan) = { poll with Interval = interval }
+    /// <summary>
+    /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
+    /// </summary>
+    [<Extension>]
+    static member For (poll, timeout : TimeSpan) = { poll with Timeout = timeout }
+    /// <summary>
+    /// Adds a custom error message to show when the polling has been time out.
+    /// </summary>
+    [<Extension>]
+    static member Error (poll, message : string) = { poll with ErrorMessage = message }
+    /// <summary>
+    /// Adds a custom error message with string formatting to show when the polling has been time out.
+    /// </summary>
+    [<Extension>]
+    static member Error (poll, message, [<ParamArray>] args) = { poll with ErrorMessage = String.Format(message, args) }
+
+    /// <summary>
     /// Creates a polling function that polls at a specified file path.
     /// </summary>
     [<Extension>]
@@ -345,12 +371,20 @@ type Poll =
         Poll.http_get endpoint
 
     /// <summary>
-    /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
+    /// Creates a polling function that polls at a specified HTTP endpoint with POST requests.
     /// </summary>
     [<Extension>]
     static member HttpPost (endpoint, content) =
         if endpoint = null then nullArg "endpoint"
         Poll.http_post endpoint content
+
+    /// <summary>
+    /// Creates a polling function that polls at a specified HTTP endpoint with PUT requests.
+    /// </summary>
+    [<Extension>]
+    static member HttpPut (endpoint, content) =
+        if endpoint = null then nullArg "endpoint"
+        Poll.http_put endpoint content
 
     /// <summary>
     /// Adds a filtering function to to specify that the required result should be equal to the specified value.
@@ -482,7 +516,7 @@ type Poll =
     static member UntilCount (poll : PollAsync<IList<_>>, length) =
         Poll.untilLength length poll
     
-     /// <summary>
+    /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     static member Target ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, bool>), interval, timeout, errorMessage) =
@@ -491,7 +525,7 @@ type Poll =
         let message = if errorMessage = null then "Polling doesn't result in any values" else errorMessage
         untilCustom (pollFunc.Invoke >> Async.AwaitTask) filter interval timeout message |> Async.StartAsTask
 
-     /// <summary>
+    /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     static member Target ((pollFunc : Func<Task<'a>>)) =
@@ -499,14 +533,14 @@ type Poll =
         PollAsync<'a>.Create(fun () -> pollFunc.Invoke () |> Async.AwaitTask)
     
 
-     /// <summary>
+    /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     static member Target ((pollFunc : Func<_>)) =
         if pollFunc = null then nullArg "pollFunc"
         PollAsync<_>.Create(fun () -> async { return pollFunc.Invoke () })
     
-     /// <summary>
+    /// <summary>
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
