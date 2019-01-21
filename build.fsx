@@ -74,7 +74,9 @@ Target.create "Paket" <| fun _ ->
             IconUrl = Some "https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png"
             Copyright = Some "Copyright 2019"
             Tags = [ "fsharp"; "integration-tests"; "integration"; "tests"; "disposable"; "polling"; "fixture"; "teardown" ]
-            Files = [ PaketFileInfo.Include (bin @@ "Release/netstandard2.0/*.dll", "lib/netstandard2.0") ]
+            Files = 
+                [ PaketFileInfo.Include (bin @@ "Release/netstandard2.0/*.dll", "lib/netstandard2.0")
+                  PaketFileInfo.Include (bin @@ "Release/netstandard2.0/*.xml", "lib/netstandard2.0") ]
             Dependencies = 
                 Paket.getDependenciesForReferencesFile "src/FScenario/paket.references"
                 |> Array.map (fun (package, version) -> PaketDependency (package, GreaterOrEqual (Version version)))

@@ -27,7 +27,9 @@ releaseNotes
     - `Http.simulate(s)` for simulating a series of HTTP responses for the same hosted HTTP server (ex. for testing retryable operations)
     - Adding IO operations:
     - `Dir.move(Undo)`, `Item.move(Undo)` for moving directories/files with and reverting on disposal
-files .\bin\Release/netstandard2.0/*.dll ==> lib/netstandard2.0
+files
+    .\bin\Release/netstandard2.0/*.dll ==> lib/netstandard2.0
+    .\bin\Release/netstandard2.0/*.xml ==> lib/netstandard2.0
 dependencies
     FSharp.Core >= 4.5.4
     Microsoft.AspNetCore.Server.Kestrel >= 2.2

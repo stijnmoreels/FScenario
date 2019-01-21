@@ -14,7 +14,7 @@ Initial release
   - Collecting several HTTP requests until expected count
 - Introduce `Log` module for centrilized logging
 
-### 1.1.0
+### 1.2.1
 
 - Add polling shortcuts:
   - `Poll.targetSync` for polling at "sync" targets (ex. filesystem)
