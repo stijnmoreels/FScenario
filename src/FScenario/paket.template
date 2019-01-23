@@ -1,6 +1,6 @@
 type file
 id FScenario
-version 1.1.0
+version 1.2.1
 title FScenario
 summary Reusable integration test building blocks to write integration tests in a more safe and fun way
 description
@@ -28,8 +28,8 @@ releaseNotes
     - Adding IO operations:
     - `Dir.move(Undo)`, `Item.move(Undo)` for moving directories/files with and reverting on disposal
 files
-    .\bin\Release/netstandard2.0/*.dll ==> lib/netstandard2.0
-    .\bin\Release/netstandard2.0/*.xml ==> lib/netstandard2.0
+    bin/Release/netstandard2.0/*.dll ==> lib/netstandard2.0
+    bin/Release/netstandard2.0/*.xml ==> lib/netstandard2.0
 dependencies
     FSharp.Core >= 4.5.4
     Microsoft.AspNetCore.Server.Kestrel >= 2.2

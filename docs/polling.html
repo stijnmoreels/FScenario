@@ -5,7 +5,7 @@
     <title>How to reliable assert on a external value?
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="Reusable integration test building blocks to write integration tests in a more safe and fun way."/>
+    <meta name="description" content="Reusable integration test building blocks to write integration tests in a more safe and fun way"/>
     <meta name="author" content="Stijn Moreels"/>
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
@@ -78,17 +78,17 @@ During the creation of the polling, there will always be the same values you can
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">System</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="id">IO</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="id">FScenario</span>
+<span class="k">open</span> <span class="id">FScenario</span>
 
-<span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="k">async</span> <span class="pn">{</span>
-    <span class="k">let!</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="id">file</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="rt">FileInfo</span><span class="pn">)</span> <span class="o">=</span>
-        <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="k">poll</span> <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="k">target</span> <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs4', 10)" onmouseover="showTip(event, 'fs4', 10)" class="k">async</span> <span class="pn">{</span> <span class="k">return</span> <span onmouseout="hideTip(event, 'fs6', 11)" onmouseover="showTip(event, 'fs6', 11)" class="rt">FileInfo</span> <span class="s">&quot;temp.txt&quot;</span> <span class="pn">}</span><span class="pn">)</span>
-               <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="k">until</span> <span class="pn">(</span><span class="k">fun</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="id">f</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs10', 14)" onmouseover="showTip(event, 'fs10', 14)" class="id">f</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs11', 15)" onmouseover="showTip(event, 'fs11', 15)" class="id">Exists</span><span class="pn">)</span>
-               <span onmouseout="hideTip(event, 'fs12', 16)" onmouseover="showTip(event, 'fs12', 16)" class="k">every</span> <span onmouseout="hideTip(event, 'fs13', 17)" onmouseover="showTip(event, 'fs13', 17)" class="vt">TimeSpan</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs14', 18)" onmouseover="showTip(event, 'fs14', 18)" class="id">_1s</span>
-               <span onmouseout="hideTip(event, 'fs15', 19)" onmouseover="showTip(event, 'fs15', 19)" class="k">timeout</span> <span onmouseout="hideTip(event, 'fs13', 20)" onmouseover="showTip(event, 'fs13', 20)" class="vt">TimeSpan</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs16', 21)" onmouseover="showTip(event, 'fs16', 21)" class="id">_5s</span>
-               <span onmouseout="hideTip(event, 'fs17', 22)" onmouseover="showTip(event, 'fs17', 22)" class="k">error</span> <span class="s">&quot;polling at path: &#39;temp.txt&#39; doesn&#39;t result in any file&quot;</span> <span class="pn">}</span>
+<span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="k">async</span> <span class="pn">{</span>
+    <span class="k">let!</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="id">file</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="rt">FileInfo</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="id">poll</span> <span class="pn">{</span> <span class="id">target</span> <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="id">async</span> <span class="pn">{</span> <span class="k">return</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="id">FileInfo</span> <span class="s">&quot;temp.txt&quot;</span> <span class="pn">}</span><span class="pn">)</span>
+               <span class="id">until</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">f</span> <span class="k">-&gt;</span> <span class="id">f</span><span class="pn">.</span><span class="id">Exists</span><span class="pn">)</span>
+               <span class="id">every</span> <span onmouseout="hideTip(event, 'fs6', 9)" onmouseover="showTip(event, 'fs6', 9)" class="id">TimeSpan</span><span class="pn">.</span><span class="id">_1s</span>
+               <span class="id">timeout</span> <span onmouseout="hideTip(event, 'fs6', 10)" onmouseover="showTip(event, 'fs6', 10)" class="id">TimeSpan</span><span class="pn">.</span><span class="id">_5s</span>
+               <span class="id">error</span> <span class="s">&quot;polling at path: &#39;temp.txt&#39; doesn&#39;t result in any file&quot;</span> <span class="pn">}</span>
 
-   <span class="k">assert</span> <span class="pn">(</span><span class="s">&quot;temp&quot;</span> <span class="o">=</span> <span class="id">file</span><span class="pn">.</span><span class="id">Name</span><span class="pn">)</span> <span class="pn">}</span>
+   <span class="k">assert</span> <span class="pn">(</span><span class="s">&quot;temp&quot;</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="id">file</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="id">Name</span><span class="pn">)</span> <span class="pn">}</span>
 </code></pre></td>
 </tr>
 </table>
@@ -110,16 +110,16 @@ During the creation of the polling, there will always be the same values you can
 <span class="l">11: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;FScenario.dll&quot;</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 23)" onmouseover="showTip(event, 'fs1', 23)" class="id">System</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 24)" onmouseover="showTip(event, 'fs1', 24)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs2', 25)" onmouseover="showTip(event, 'fs2', 25)" class="id">IO</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 26)" onmouseover="showTip(event, 'fs3', 26)" class="id">FScenario</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 13)" onmouseover="showTip(event, 'fs1', 13)" class="id">System</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 14)" onmouseover="showTip(event, 'fs1', 14)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs2', 15)" onmouseover="showTip(event, 'fs2', 15)" class="id">IO</span>
+<span class="k">open</span> <span class="id">FScenario</span>
 
-<span onmouseout="hideTip(event, 'fs4', 27)" onmouseover="showTip(event, 'fs4', 27)" class="k">async</span> <span class="pn">{</span> 
-    <span class="k">do!</span> <span onmouseout="hideTip(event, 'fs18', 28)" onmouseover="showTip(event, 'fs18', 28)" class="m">Poll</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 29)" onmouseover="showTip(event, 'fs19', 29)" class="id">target</span> <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs4', 30)" onmouseover="showTip(event, 'fs4', 30)" class="k">async</span> <span class="pn">{</span> <span class="k">return</span> <span onmouseout="hideTip(event, 'fs6', 31)" onmouseover="showTip(event, 'fs6', 31)" class="rt">FileInfo</span> <span class="s">&quot;temp.txt&quot;</span> <span class="pn">}</span><span class="pn">)</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 32)" onmouseover="showTip(event, 'fs18', 32)" class="m">Poll</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 33)" onmouseover="showTip(event, 'fs20', 33)" class="id">until</span> <span class="pn">(</span><span class="k">fun</span> <span onmouseout="hideTip(event, 'fs10', 34)" onmouseover="showTip(event, 'fs10', 34)" class="id">f</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs10', 35)" onmouseover="showTip(event, 'fs10', 35)" class="id">f</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs11', 36)" onmouseover="showTip(event, 'fs11', 36)" class="id">Exists</span><span class="pn">)</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 37)" onmouseover="showTip(event, 'fs18', 37)" class="m">Poll</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs21', 38)" onmouseover="showTip(event, 'fs21', 38)" class="id">every</span> <span onmouseout="hideTip(event, 'fs22', 39)" onmouseover="showTip(event, 'fs22', 39)" class="id">_1s</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 40)" onmouseover="showTip(event, 'fs18', 40)" class="m">Poll</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs23', 41)" onmouseover="showTip(event, 'fs23', 41)" class="id">timeout</span> <span onmouseout="hideTip(event, 'fs24', 42)" onmouseover="showTip(event, 'fs24', 42)" class="id">_5s</span>
-        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 43)" onmouseover="showTip(event, 'fs18', 43)" class="m">Poll</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs25', 44)" onmouseover="showTip(event, 'fs25', 44)" class="id">error</span> <span class="s">&quot;polling at path: &#39;temp.txt&#39; doesn&#39;t result in any file&quot;</span> <span class="pn">}</span>
+<span onmouseout="hideTip(event, 'fs3', 16)" onmouseover="showTip(event, 'fs3', 16)" class="k">async</span> <span class="pn">{</span> 
+    <span class="k">do!</span> <span class="id">Poll</span><span class="pn">.</span><span class="id">target</span> <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs3', 17)" onmouseover="showTip(event, 'fs3', 17)" class="id">async</span> <span class="pn">{</span> <span class="k">return</span> <span onmouseout="hideTip(event, 'fs5', 18)" onmouseover="showTip(event, 'fs5', 18)" class="id">FileInfo</span> <span class="s">&quot;temp.txt&quot;</span> <span class="pn">}</span><span class="pn">)</span>
+        <span class="o">|&gt;</span> <span class="id">Poll</span><span class="pn">.</span><span class="id">until</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">f</span> <span class="k">-&gt;</span> <span class="id">f</span><span class="pn">.</span><span class="id">Exists</span><span class="pn">)</span>
+        <span class="o">|&gt;</span> <span class="id">Poll</span><span class="pn">.</span><span class="id">every</span> <span class="id">_1s</span>
+        <span class="o">|&gt;</span> <span class="id">Poll</span><span class="pn">.</span><span class="id">timeout</span> <span class="id">_5s</span>
+        <span class="o">|&gt;</span> <span class="id">Poll</span><span class="pn">.</span><span class="id">error</span> <span class="s">&quot;polling at path: &#39;temp.txt&#39; doesn&#39;t result in any file&quot;</span> <span class="pn">}</span>
 </code></pre></td>
 </tr>
 </table>
@@ -181,29 +181,11 @@ Task&lt;FileInfo&gt; _ <span class="o">=</span> Poll.UntilFileExistsEvery<span c
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">namespace System.IO</div>
-<div class="tip" id="fs3">namespace FScenario</div>
-<div class="tip" id="fs4">val async : AsyncBuilder</div>
-<div class="tip" id="fs5">val file : FileInfo</div>
-<div class="tip" id="fs6">Multiple items<br />type FileInfo =<br />&#160;&#160;inherit FileSystemInfo<br />&#160;&#160;new : fileName:string -&gt; FileInfo<br />&#160;&#160;member AppendText : unit -&gt; StreamWriter<br />&#160;&#160;member CopyTo : destFileName:string -&gt; FileInfo + 1 overload<br />&#160;&#160;member Create : unit -&gt; FileStream<br />&#160;&#160;member CreateText : unit -&gt; StreamWriter<br />&#160;&#160;member Decrypt : unit -&gt; unit<br />&#160;&#160;member Delete : unit -&gt; unit<br />&#160;&#160;member Directory : DirectoryInfo<br />&#160;&#160;member DirectoryName : string<br />&#160;&#160;member Encrypt : unit -&gt; unit<br />&#160;&#160;...<br /><br />--------------------<br />FileInfo(fileName: string) : FileInfo</div>
-<div class="tip" id="fs7">val poll : PollBuilder</div>
-<div class="tip" id="fs8">custom operation: target (unit -&gt; Async&lt;&#39;a&gt;)<br /><br />Calls PollBuilder.Target</div>
-<div class="tip" id="fs9">custom operation: until (&#39;a -&gt; bool)<br /><br />Calls PollBuilder.Until</div>
-<div class="tip" id="fs10">val f : FileInfo</div>
-<div class="tip" id="fs11">property FileInfo.Exists: bool</div>
-<div class="tip" id="fs12">custom operation: every (TimeSpan)<br /><br />Calls PollBuilder.Every</div>
-<div class="tip" id="fs13">Multiple items<br />type TimeSpan =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;new : ticks:int64 -&gt; TimeSpan + 3 overloads<br />&#160;&#160;&#160;&#160;member Add : ts:TimeSpan -&gt; TimeSpan<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Days : int<br />&#160;&#160;&#160;&#160;member Duration : unit -&gt; TimeSpan<br />&#160;&#160;&#160;&#160;member Equals : value:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member Hours : int<br />&#160;&#160;&#160;&#160;member Milliseconds : int<br />&#160;&#160;&#160;&#160;member Minutes : int<br />&#160;&#160;&#160;&#160;...<br />&#160;&#160;end<br /><br />--------------------<br />TimeSpan ()<br />TimeSpan(ticks: int64) : TimeSpan<br />TimeSpan(hours: int, minutes: int, seconds: int) : TimeSpan<br />TimeSpan(days: int, hours: int, minutes: int, seconds: int) : TimeSpan<br />TimeSpan(days: int, hours: int, minutes: int, seconds: int, milliseconds: int) : TimeSpan</div>
-<div class="tip" id="fs14">property TimeSpan._1s: TimeSpan</div>
-<div class="tip" id="fs15">custom operation: timeout (TimeSpan)<br /><br />Calls PollBuilder.Timeout</div>
-<div class="tip" id="fs16">property TimeSpan._5s: TimeSpan</div>
-<div class="tip" id="fs17">custom operation: error (string)<br /><br />Calls PollBuilder.Error</div>
-<div class="tip" id="fs18">Multiple items<br />module Poll<br /><br />from FScenario<br /><br />--------------------</div>
-<div class="tip" id="fs19">val target : f:(unit -&gt; Async&lt;&#39;a&gt;) -&gt; PollAsync&lt;&#39;a&gt;</div>
-<div class="tip" id="fs20">val until : predicate:(&#39;a -&gt; bool) -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;</div>
-<div class="tip" id="fs21">val every : interval:TimeSpan -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;</div>
-<div class="tip" id="fs22">val _1s : TimeSpan</div>
-<div class="tip" id="fs23">val timeout : timeout:TimeSpan -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;</div>
-<div class="tip" id="fs24">val _5s : TimeSpan</div>
-<div class="tip" id="fs25">val error : message:string -&gt; poll:PollAsync&lt;&#39;a&gt; -&gt; PollAsync&lt;&#39;a&gt;</div>
+<div class="tip" id="fs3">val async : AsyncBuilder</div>
+<div class="tip" id="fs4">val file : FileInfo</div>
+<div class="tip" id="fs5">Multiple items<br />type FileInfo =<br />&#160;&#160;inherit FileSystemInfo<br />&#160;&#160;new : fileName:string -&gt; FileInfo<br />&#160;&#160;member AppendText : unit -&gt; StreamWriter<br />&#160;&#160;member CopyTo : destFileName:string -&gt; FileInfo + 1 overload<br />&#160;&#160;member Create : unit -&gt; FileStream<br />&#160;&#160;member CreateText : unit -&gt; StreamWriter<br />&#160;&#160;member Decrypt : unit -&gt; unit<br />&#160;&#160;member Delete : unit -&gt; unit<br />&#160;&#160;member Directory : DirectoryInfo<br />&#160;&#160;member DirectoryName : string<br />&#160;&#160;member Encrypt : unit -&gt; unit<br />&#160;&#160;...<br /><br />--------------------<br />FileInfo(fileName: string) : FileInfo</div>
+<div class="tip" id="fs6">Multiple items<br />type TimeSpan =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;new : ticks:int64 -&gt; TimeSpan + 3 overloads<br />&#160;&#160;&#160;&#160;member Add : ts:TimeSpan -&gt; TimeSpan<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Days : int<br />&#160;&#160;&#160;&#160;member Duration : unit -&gt; TimeSpan<br />&#160;&#160;&#160;&#160;member Equals : value:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member Hours : int<br />&#160;&#160;&#160;&#160;member Milliseconds : int<br />&#160;&#160;&#160;&#160;member Minutes : int<br />&#160;&#160;&#160;&#160;...<br />&#160;&#160;end<br /><br />--------------------<br />TimeSpan ()<br />TimeSpan(ticks: int64) : TimeSpan<br />TimeSpan(hours: int, minutes: int, seconds: int) : TimeSpan<br />TimeSpan(days: int, hours: int, minutes: int, seconds: int) : TimeSpan<br />TimeSpan(days: int, hours: int, minutes: int, seconds: int, milliseconds: int) : TimeSpan</div>
+<div class="tip" id="fs7">property FileInfo.Name: string</div>
 
         </div>
         <div class="span3">

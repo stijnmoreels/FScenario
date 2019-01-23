@@ -1,3 +1,4 @@
+open Fake.Core
 #load ".fake/build.fsx/intellisense.fsx"
 
 open Fake.Core
@@ -9,35 +10,54 @@ open Fake.Core.TargetOperators
 open Fake.DotNet.PaketTemplate
 open Fake.DotNet.FSFormatting
 
+type Projet =
+    { Name : string
+      Summary : string
+      Description : string list
+      GitHubUrl : string
+      NuGetUrl : string
+      Authors : string list }
+
+let project = 
+    { Name = "FScenario" 
+      Summary = "Reusable integration test building blocks to write integration tests in a more safe and fun way"
+      Description = 
+        [ "Reusable integration test building blocks to write integration tests in a more safe and fun way. "
+          "The package consists of several functions to help write tests that clean up after themselves, " 
+          "making assertions more reliable by polling for required results, "
+          "adds some standard building blocks for you to start creating your own disposable fixture, ..." ]
+      GitHubUrl = "https://github.com/stijnmoreels/FScenario"
+      NuGetUrl = "http://nuget.org/packages/FScenario"
+      Authors = [ "Stijn Moreels" ] }
+
 let dotnetExePath = "dotnet"
-let bin = ".\\bin"
 let releaseNotes = ReleaseNotes.load "RELEASE_NOTES.md"
+let solution = project.Name + ".sln"
 
 Target.create "Clean" <| fun _ ->
     !! "src/**/bin"
     ++ "src/**/obj"
     ++ "docs"
-    ++ bin
     |> Shell.cleanDirs 
 
 Target.create "Build" <| fun _ ->
-    AssemblyInfoFile.createFSharp "src/FScenario/Properties/AssemblyInfo.cs"
-        [ AssemblyInfo.Title "FScenario"
-          AssemblyInfo.Description  "Reusable integration test building blocks to write integration tests in a more safe and fun way"
+    AssemblyInfoFile.createFSharp ("src/" + project.Name +  "/AssemblyInfo.fs")
+        [ AssemblyInfo.Title project.Name
+          AssemblyInfo.Description  project.Summary
           AssemblyInfo.Guid "871111ca-f7e3-48c5-95b1-6eec4c289948"
-          AssemblyInfo.Product "FScenario"
+          AssemblyInfo.Product project.Name
           AssemblyInfo.Version releaseNotes.NugetVersion
           AssemblyInfo.FileVersion releaseNotes.NugetVersion ]
 
-    "FScenario.sln" |> DotNet.restore id
-    Paket.restore id
+    solution 
+    |> DotNet.restore id
 
-    !! "src/**/*.*proj"
-    |> Seq.iter (DotNet.build (fun defaults -> { defaults with OutputPath = Some (__SOURCE_DIRECTORY__ @@ bin) }))
-
-    !! "tests/**/*.*proj"
-    ++ "samples/**/*.*proj"
-    |> Seq.iter (DotNet.build id)
+    !! "src/**/*.fsproj"
+    ++ "tests/**/*.fsproj"
+    ++ "tests/**/*.csproj"
+    |> Seq.iter (DotNet.build (fun defaults ->
+        { defaults with 
+            Configuration = DotNet.BuildConfiguration.Release }))
 
 Target.create "Tests" <| fun _ ->
     let runTest project =
@@ -48,62 +68,56 @@ Target.create "Tests" <| fun _ ->
     
     runTest "tests/FScenario.Tests/FScenario.Tests.fsproj"
 
-    "FScenario.Tests.TestResults.xml"
-    |> Path.combine bin
-    |> Trace.publish (ImportData.Nunit NunitDataVersion.Nunit)
-
 Target.create "Paket" <| fun _ ->
+    let templateFile = "src/FScenario/paket.template"
+    let referencesFile = "src/FScenario/paket.references"
     PaketTemplate.create (fun defaults ->
         { defaults with 
-            TemplateFilePath = Some "src/FScenario/paket.template"
+            TemplateFilePath = Some templateFile
             TemplateType = PaketTemplate.PaketTemplateType.File
-            Id = Some "FScenario"
+            Id = Some project.Name
             Version = Some releaseNotes.NugetVersion
-            Description =
-                [ "Reusable integration test building blocks to write integration tests in a more safe and fun way. "
-                  "The package consists of several functions to help write tests that clean up after themselves, " 
-                  "making assertions more reliable by polling for required results, "
-                  "adds some standard building blocks for you to start creating your own disposable fixture, ..." ]
-            Title = Some "FScenario"
-            Authors = [ "Stijn Moreels" ]
-            Owners = [ "Stijn Moreels" ]
+            Description = project.Description
+            Title = Some project.Name
+            Authors = project.Authors
+            Owners = project.Authors
             ReleaseNotes = releaseNotes.Notes
-            Summary = [ "Reusable integration test building blocks to write integration tests in a more safe and fun way" ]
-            ProjectUrl = Some "https://github.com/stijnmoreels/FScenario"
-            LicenseUrl = Some "https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt"
+            Summary = [ project.Summary ]
+            ProjectUrl = Some project.GitHubUrl
+            LicenseUrl = Some (project.GitHubUrl + "/blob/master/LICENSE.txt")
             IconUrl = Some "https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png"
             Copyright = Some "Copyright 2019"
             Tags = [ "fsharp"; "integration-tests"; "integration"; "tests"; "disposable"; "polling"; "fixture"; "teardown" ]
             Files = 
-                [ PaketFileInfo.Include (bin @@ "Release/netstandard2.0/*.dll", "lib/netstandard2.0")
-                  PaketFileInfo.Include (bin @@ "Release/netstandard2.0/*.xml", "lib/netstandard2.0") ]
+                [ PaketFileInfo.Include ("bin/Release/netstandard2.0/*.dll", "lib/netstandard2.0")
+                  PaketFileInfo.Include ("bin/Release/netstandard2.0/*.xml", "lib/netstandard2.0") ]
             Dependencies = 
-                Paket.getDependenciesForReferencesFile "src/FScenario/paket.references"
+                Paket.getDependenciesForReferencesFile referencesFile
                 |> Array.map (fun (package, version) -> PaketDependency (package, GreaterOrEqual (Version version)))
                 |> List.ofArray
+                // Apperently the FSharp.Core >= 4.5.4 package isn't added this way (`Paket.getDependenciesForReferencesFile`).
                 |> fun xs -> PaketDependency ("FSharp.Core", GreaterOrEqual (Version "4.5.4")) :: xs })
 
     Paket.pack (fun defaults ->
         { defaults with
             OutputPath = "bin"
             WorkingDir = "."
-            TemplateFile = "src/FScenario/paket.template" })
+            TemplateFile = templateFile })
 
 Target.create "Docs" <| fun _ ->
     let content    = __SOURCE_DIRECTORY__ @@ "docsrc/content"
-    let output     = __SOURCE_DIRECTORY__ @@ "docs"
+    let docsOutput = __SOURCE_DIRECTORY__ @@ "docs"
     let files      = __SOURCE_DIRECTORY__ @@ "docsrc/files"
     let templates  = __SOURCE_DIRECTORY__ @@ "docsrc/tools/templates"
     let formatting = __SOURCE_DIRECTORY__ @@ "packages/formatting/FSharp.Formatting"
-    let docTemplate = "docpage.cshtml"
-    let githubLink = "https://github.com/stijnmoreels/FScenario"
-    let root = "/FScenario"
+    let docTemplate = formatting @@ "templates/docpage.cshtml"
+    let root = "/" + project.Name
     let info =
-          [ "project-name", "FScenario"
-            "project-author", "Stijn Moreels"
-            "project-summary", "Reusable integration test building blocks to write integration tests in a more safe and fun way."
-            "project-github", "https://github.com/stijnmoreels/FScenario"
-            "project-nuget", "http://nuget.org/packages/FScenario" ]
+          [ "project-name", project.Name
+            "project-author", project.Authors |> List.head
+            "project-summary", project.Summary
+            "project-github", project.GitHubUrl
+            "project-nuget", project.NuGetUrl ]
             
     let layoutRootsAll = System.Collections.Generic.Dictionary<string, string list>()
     layoutRootsAll.Add("en", [ templates
@@ -122,13 +136,13 @@ Target.create "Docs" <| fun _ ->
     |> Seq.iter (fun d ->
         let name = d.Name
         if name.Length = 2 || name.Length = 3 
-        then layoutRootsAll.Add(name, [templates @@ name
-                                       formatting @@ "templates"
-                                       formatting @@ "templates/reference" ]))
-    Shell.copyRecursive files output true
+        then layoutRootsAll.Add(name, [ templates @@ name
+                                        formatting @@ "templates"
+                                        formatting @@ "templates/reference" ]))
+    Shell.copyRecursive files docsOutput true
     |> Trace.logItems "Copying file: "
-    Directory.ensure (output @@ "content")
-    Shell.copyRecursive (formatting @@ "styles") (output @@ "content") true
+    Directory.ensure (docsOutput @@ "content")
+    Shell.copyRecursive (formatting @@ "styles") (docsOutput @@ "content") true
     |> Trace.logItems "Copying styles and scripts: "
 
     let langSpecificPath (lang, path:string) =
@@ -141,22 +155,22 @@ Target.create "Docs" <| fun _ ->
         | Some lang -> layoutRootsAll.[lang]
         | None -> layoutRootsAll.["en"]
 
+    Directory.ensure (docsOutput @@ "reference")
+    !! ("src/**/bin/Release/**/*.dll") 
+    |> FSFormatting.createDocsForDlls (fun args ->
+        { args with
+            OutputDirectory = docsOutput @@ "reference"
+            LayoutRoots =  layoutRootsAll.["en"]
+            ProjectParameters =  ("root", root) :: info
+            SourceRepository = project.GitHubUrl @@ "tree/master" })
+
     FSFormatting.createDocs (fun args ->
         { args with
             Source = content
-            OutputDirectory = output
+            OutputDirectory = docsOutput
             LayoutRoots = layoutRoots
-            ProjectParameters  = ("root", root)::info
+            ProjectParameters  = ("root", root) :: info
             Template = docTemplate } )
-
-    Directory.ensure (output @@ "reference")
-    !! (bin @@ "*.dll")
-    |> FSFormatting.createDocsForDlls (fun args ->
-        { args with
-            OutputDirectory = output @@ "reference"
-            LayoutRoots =  layoutRootsAll.["en"]
-            ProjectParameters =  ("root", root) :: info
-            SourceRepository = githubLink @@ "tree/master" })
 
 Target.create "All" ignore
 

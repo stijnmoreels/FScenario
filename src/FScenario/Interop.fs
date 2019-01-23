@@ -353,48 +353,61 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to speicfy the required result of the polling.
     /// </summary>
+    /// <param name="filter">A filtering function to specify the required result of the polling.</param>
     [<Extension>]
     static member Until (poll, filter : Func<'a, bool>) = { poll with Filter = filter.Invoke }
     /// <summary>
     /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
     /// </summary>
+    /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     [<Extension>]
     static member Every (poll, interval : TimeSpan) = { poll with Interval = interval }
     /// <summary>
     /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
     /// </summary>
+    /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     [<Extension>]
     static member For (poll, timeout : TimeSpan) = { poll with Timeout = timeout }
     /// <summary>
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
+    /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
     [<Extension>]
-    static member Error (poll, message : string) = { poll with ErrorMessage = message }
+    static member Error (poll, errorMessage : string) = 
+        if errorMessage = null then nullArg "errorMessage"
+        { poll with ErrorMessage = errorMessage }
     /// <summary>
     /// Adds a custom error message with string formatting to show when the polling has been time out.
     /// </summary>
+    /// <param name="errorMessage">A custom error message with string formatting to show when the polling has been time out. </param>
+    /// <param name="args">The formatting arguments to use as inputs for the string formatting message.</param>
     [<Extension>]
-    static member Error (poll, message, [<ParamArray>] args) = { poll with ErrorMessage = String.Format(message, args) }
+    static member Error (poll, errorMessage, [<ParamArray>] args) = 
+        if errorMessage = null then nullArg "errorMessage"
+        { poll with ErrorMessage = String.Format(errorMessage, args) }
 
     /// <summary>
     /// Creates a polling function that polls at a specified file path.
     /// </summary>
+    /// <param name="filePath">The path that will be polled for a file.</param> 
     [<Extension>]
-    static member File path =
-        if path = null then nullArg "path"
-        Poll.file path
+    static member File filePath =
+        if filePath = null then nullArg "dirPath"
+        Poll.file filePath
 
     /// <summary>
     /// Creates a polling function that polls at a specified directory path.
     /// </summary>
+    /// <param name="dirPath">The path that will be polled for a directory</param>
     [<Extension>]
-    static member Dir path =
-        if path = null then nullArg "path"
-        Poll.dir path
+    static member Dir dirPath =
+        if dirPath = null then nullArg "dirPath"
+        Poll.dir dirPath
 
     /// <summary>
     /// Creates a polling function that polls at a specified HTTP endpoint with GET requests.
     /// </summary>
+    /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     [<Extension>]
     static member HttpGet endpoint =
         if endpoint = null then nullArg "endpoint"
@@ -403,6 +416,8 @@ type Poll =
     /// <summary>
     /// Creates a polling function that polls at a specified HTTP endpoint with POST requests.
     /// </summary>
+    /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
+    /// <param name="content">The content that must be sent with the HTTP request.</param>
     [<Extension>]
     static member HttpPost (endpoint, content) =
         if endpoint = null then nullArg "endpoint"
@@ -411,6 +426,8 @@ type Poll =
     /// <summary>
     /// Creates a polling function that polls at a specified HTTP endpoint with PUT requests.
     /// </summary>
+    /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
+    /// <param name="content">The content that must be sent with the HTTP request.</param>
     [<Extension>]
     static member HttpPut (endpoint, content) =
         if endpoint = null then nullArg "endpoint"
@@ -419,16 +436,18 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to to specify that the required result should be equal to the specified value.
     /// </summary>
+    /// <param name="other">The value that should be equal to the polled target result.</param>
     [<Extension>]
-    static member UntilEqual (poll, x) =
-        Poll.untilEqual x poll
+    static member UntilEqual (poll, other) =
+        Poll.untilEqual other poll
 
     /// <summary>
     /// Adds a filtering function to to specify that the required result should not be equal to the specified value.
     /// </summary>
+    /// <param name="other">The value that shouldn't be equal to the polled target result.</param>
     [<Extension>]
-    static member UntilNotEqual (poll, x) =
-        Poll.untilNotEqual x poll
+    static member UntilNotEqual (poll, other) =
+        Poll.untilNotEqual other poll
 
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
@@ -461,6 +480,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
     /// </summary>
+    /// <param name="predicate">The predicate that should hold on the polled sequence.</param>
     [<Extension>]
     static member UntilAny (poll : PollAsync<IEnumerable<_>>, predicate : Func<_, _>) =
         if predicate = null then nullArg "predicate"
@@ -469,6 +489,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
     /// </summary>
+    /// <param name="predicate">The predicate that should hold on the polled sequence.</param>
     [<Extension>]
     static member UntilAny (poll : PollAsync<_ array>, predicate : Func<_, _>) =
         if predicate = null then nullArg "predicate"
@@ -477,6 +498,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
     /// </summary>
+    /// <param name="predicate">The predicate that should hold on the polled sequence.</param>
     [<Extension>]
     static member UntilAny (poll : PollAsync<ICollection<_>>, predicate : Func<_, _>) =
         if predicate = null then nullArg "predicate"
@@ -485,6 +507,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
     /// </summary>
+    /// <param name="predicate">The predicate that should hold on the polled sequence.</param>
     [<Extension>]
     static member UntilAny (poll : PollAsync<IList<_>>, predicate : Func<_, _>) =
         if predicate = null then nullArg "predicate"
@@ -500,6 +523,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
     /// </summary>
+    /// <param name="value">The value the polled sequence must contain.</param>
     [<Extension>]
     static member UntilContains (poll : PollAsync<_ array>, value) =
         Poll.untilContains value poll
@@ -507,6 +531,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
     /// </summary>
+    /// <param name="value">The value the polled sequence must contain.</param>
     [<Extension>]
     static member UntilContains (poll : PollAsync<ICollection<_>>, value) =
         Poll.untilContains value poll
@@ -514,6 +539,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
     /// </summary>
+    /// <param name="value">The value the polled sequence must contain.</param>
     [<Extension>]
     static member UntilContains (poll : PollAsync<IList<_>>, value) =
         Poll.untilContains value poll
@@ -521,6 +547,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
     /// </summary>
+    /// <param name="value">The value the polled sequence must contain.</param>
     [<Extension>]
     static member UntilCount (poll : PollAsync<IEnumerable<_>>, length) =
         Poll.untilLength length poll
@@ -528,6 +555,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
     /// </summary>
+    /// <param name="length">The length the polled sequence must have.</param>
     [<Extension>]
     static member UntilCount (poll : PollAsync<_ array>, length) =
         Poll.untilLength length poll
@@ -535,6 +563,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
     /// </summary>
+    /// <param name="length">The length the polled sequence must have.</param>
     [<Extension>]
     static member UntilCount (poll : PollAsync<ICollection<_>>, length) =
         Poll.untilLength length poll
@@ -542,6 +571,7 @@ type Poll =
     /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
     /// </summary>
+    /// <param name="length">The length the polled sequence must have.</param>
     [<Extension>]
     static member UntilCount (poll : PollAsync<IList<_>>, length) =
         Poll.untilLength length poll
@@ -549,6 +579,11 @@ type Poll =
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
+    /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
+    /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
+    /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
     static member Target ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, bool>), interval, timeout, errorMessage) =
         if pollFunc = null then nullArg "pollFunc"
         let filter = if predicate = null then (fun _ -> true) else predicate.Invoke
@@ -558,6 +593,7 @@ type Poll =
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     static member Target ((pollFunc : Func<Task<'a>>)) =
         if pollFunc = null then nullArg "pollFunc"
         PollAsync<'a>.Create(fun () -> pollFunc.Invoke () |> Async.AwaitTask)
@@ -566,6 +602,7 @@ type Poll =
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     static member Target ((pollFunc : Func<_>)) =
         if pollFunc = null then nullArg "pollFunc"
         PollAsync<_>.Create(fun () -> async { return pollFunc.Invoke () })
@@ -574,6 +611,7 @@ type Poll =
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
+    /// <param name="pollFuncs">A series of functions to poll on a target, these function will be called in parallel once every interval.</param>
     static member Targets ([<ParamArray>] pollFuncs : Func<Task<'a>> array) =
         if pollFuncs = null then nullArg "pollFuncs"
         PollAsync<_>.Create <| fun () ->
@@ -584,6 +622,7 @@ type Poll =
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     static member Until ((pollFunc : Func<Task<_>>)) =
         if pollFunc = null then nullArg "pollFunc"
         PollAsync<_>.Create(pollFunc.Invoke >> Async.AwaitTask)

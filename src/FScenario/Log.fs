@@ -3,6 +3,7 @@ namespace FScenario
 open System
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
+open Microsoft.Extensions.Logging
 
 module LogEvent =
 
@@ -21,7 +22,6 @@ module LogEvent =
 
 /// Exposing logging functionality that is used throughout the test suite components.
 module Log =
-
     let private serviceCollection = 
         (new ServiceCollection())
             .AddLogging(Action<_> (fun builder -> 
@@ -35,7 +35,7 @@ module Log =
 
     // Creates a logger implementation with the configured logging factory.
     [<CompiledName("Logger")>]
-    let logger<'a>() = factory.CreateLogger<'a>()
+    let logger<'a>() = factory.CreateLogger<'a>() :> ILogger
 
     /// Writes a trace log message. 
     let trace m (l : ILogger) = l.LogTrace m
@@ -43,9 +43,11 @@ module Log =
     /// Writes a debug log message.
     let debug m (l : ILogger) = l.LogDebug m
 
-    /// Writes a info log message.
+    /// Writes an info log message.
     let info m (l : ILogger) = l.LogInformation m
 
+    /// Writes an error log message.
     let error m (l : ILogger) = l.LogError m
 
+    /// Writes a critical log message.
     let critical m (l : ILogger) = l.LogCritical m

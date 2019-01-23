@@ -67,9 +67,7 @@ type HttpRequest (req : Microsoft.AspNetCore.Http.HttpRequest) =
 type HttpResponse (res : HttpResponseMessage) =
     member x.StatusCode = res.StatusCode
     member x.Headers = res.Headers
-    member x.ReadAsStream () = res.Content.ReadAsStreamAsync () |> Async.AwaitTask
-    member x.ReadAsString () = res.Content.ReadAsStringAsync () |> Async.AwaitTask
-    member x.ReadAsByteArray () = res.Content.ReadAsByteArrayAsync () |> Async.AwaitTask
+    member x.Content = res.Content
     member x.ContentType = res.Content.Headers.ContentType.MediaType
     static member Create res = new HttpResponse (res)
     interface IDisposable with member x.Dispose () = res.Dispose ()
@@ -86,28 +84,33 @@ module Http =
     /// <summary>
     /// Sends a HTTP GET request to the specified uri.
     /// </summary>
-    let get (uri : string) = async {
-        loggerClient.LogInformation(LogEvent.http, "GET -> {uri}", uri)
-        let! res = client.GetAsync (uri : string) |> Async.AwaitTask
-        loggerClient.LogInformation(LogEvent.http, "{status} <- GET {uri}", res.StatusCode, uri)
+    /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
+    let get (url : string) = async {
+        loggerClient.LogInformation(LogEvent.http, "GET -> {uri}", url)
+        let! res = client.GetAsync (url : string) |> Async.AwaitTask
+        loggerClient.LogInformation(LogEvent.http, "{status} <- GET {uri}", res.StatusCode, url)
         return HttpResponse.Create res }
 
     /// <summary>
     /// Sends a HTTP POST request with a content to the specified uri.
     /// </summary>
-    let post (uri : string) content = async {
-        loggerClient.LogInformation(LogEvent.http, "POST -> {uri}", uri)
-        let! (res : HttpResponseMessage) = client.PostAsync((uri : string), content) |> Async.AwaitTask
-        loggerClient.LogInformation(LogEvent.http, "{status} <- POST {uri}", res.StatusCode, uri)
+    /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
+    /// <param name="content">The content that must be sent with the HTTP request.</param>
+    let post (url : string) content = async {
+        loggerClient.LogInformation(LogEvent.http, "POST -> {uri}", url)
+        let! (res : HttpResponseMessage) = client.PostAsync((url : string), content) |> Async.AwaitTask
+        loggerClient.LogInformation(LogEvent.http, "{status} <- POST {uri}", res.StatusCode, url)
         return HttpResponse.Create res }
 
     /// <summary>
     /// Sends a HTTP PUT request with a content to the specified uri.
     /// </summary>
-    let put (uri : string) content = async {
-        loggerClient.LogInformation(LogEvent.http, "PUT -> {uri}", uri)
-        let! (res : HttpResponseMessage) = client.PutAsync((uri : string), content) |> Async.AwaitTask
-        loggerClient.LogInformation(LogEvent.http, "{status} <- PUT {uri}", res.StatusCode, uri)
+    /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
+    /// <param name="content">The content that must be sent with the HTTP request.</param>
+    let put (url : string) content = async {
+        loggerClient.LogInformation(LogEvent.http, "PUT -> {uri}", url)
+        let! (res : HttpResponseMessage) = client.PutAsync((url : string), content) |> Async.AwaitTask
+        loggerClient.LogInformation(LogEvent.http, "{status} <- PUT {uri}", res.StatusCode, url)
         return HttpResponse.Create res }
 
     let private displayRequestUrl (req : Microsoft.AspNetCore.Http.HttpRequest) =
@@ -390,6 +393,11 @@ module HttpRequestExtensions =
 [<AutoOpen>]
 module HttpResponseExtensions =
     open FScenario
+
+    type HttpResponse with
+        member x.ReadAsStream () = x.Content.ReadAsStreamAsync () |> Async.AwaitTask
+        member x.ReadAsString () = x.Content.ReadAsStringAsync () |> Async.AwaitTask
+        member x.ReadAsByteArray () = x.Content.ReadAsByteArrayAsync () |> Async.AwaitTask
 
     let (|String|_|) (r : HttpResponse) = Some (r.ReadAsString ())
     let (|ByteArray|_|) (r : HttpResponse) = Some (r.ReadAsByteArray ())

@@ -233,7 +233,7 @@ let http_tests =
 
       use content = HttpContent.string expected
       use! res = 
-        Poll.target (fun () -> Http.post endpoint content)
+        Poll.http_post endpoint content
         |> Poll.until (fun r -> r.StatusCode = OK)
         |> Poll.every _1s
         |> Poll.timeout _10s
@@ -255,9 +255,9 @@ let http_tests =
       Async.Start delayedPost
       Async.Start delayedPost
 
-      let target = Http.serverCollectCount endpoint POST 3
+      let getCollectedRequests = Http.serverCollectCount endpoint POST 3
       let! requests =
-          Poll.target target
+          Poll.target getCollectedRequests
           |> Poll.untilLength 3
           |> Poll.every _1s
           |> Poll.timeout _10s
