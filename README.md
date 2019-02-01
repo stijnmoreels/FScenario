@@ -5,6 +5,13 @@ The project contains several ways to help the developer to clean up in after the
 
 <img src="/docsrc/files/img/logo.png" width=100 height=100 alt="logo" />
 
+## Information
+
+Following resources contains some extra information about this library:
+* [Reusable Integration Test Building Blocks with F# FScenario and C# Interop](https://www.codit.eu/blog/reusable-integration-test-building-blocks-with-f-fscenario-and-c-interop/)
+
+## NuGet
+
 [![NuGet Badge](https://buildstats.info/nuget/fscenario)](https://www.nuget.org/packages/fscenario)
 
 ## Build Status
