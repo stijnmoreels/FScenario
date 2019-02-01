@@ -8,6 +8,7 @@ The project contains several ways to help the developer to clean up in after the
 ## Information
 
 Following resources contains some extra information about this library:
+* [FScenario Wiki](https://stijnmoreels.github.io/FScenario/)
 * [Reusable Integration Test Building Blocks with F# FScenario and C# Interop](https://www.codit.eu/blog/reusable-integration-test-building-blocks-with-f-fscenario-and-c-interop/)
 
 ## NuGet
