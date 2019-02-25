@@ -3,9 +3,10 @@ module Tests
 open System
 open System.IO
 open System.Net
+open System.Net.Http
+
 open Expecto
 open FScenario
-open System.Net.Http
 
 [<Tests>]
 let directory_tests =
@@ -38,7 +39,7 @@ let directory_tests =
         Expect.isNonEmpty (Dir.files "clean-undo") "'clean-undo' should have any files after revert cleanup"
         let actual = File.ReadAllText ("clean-undo" </> "test.txt")
         Expect.equal actual "contents" ""
-    
+
     testCase "ensures non-existing directory but revert and therefore remove directory afterwards" <| fun _ ->
        let d = Dir.ensuresUndo [ "ensure-undo" ]
        Expect.isTrue (Dir.exists "ensure-undo") "Directory 'ensure-undo' should exists after calling 'ensureUndo'"
@@ -207,7 +208,35 @@ let poll_tests =
             |> Poll.every _1s
             |> Poll.timeout _5s
             |> Poll.error "counter should increase from 1-5"
+    }
+
+    testCaseAsync "should also handle exceptions" <| async {
+       let dirPath = "poll" </> "exceptions"
+       use __ = Dir.ensureUndo dirPath
+       let filePath = dirPath </> "temp.txt"
+       do! writeFileDelayed filePath TimeInt._5s
+       do! Poll.targetSync (fun () -> Item.readText filePath)
+           |> Poll.until (not << String.IsNullOrEmpty)
+           |> Poll.error "polling for file contents should also catch exceptions"
+
+       Item.delete filePath
      }
+    
+    testCase "should fail when polling doesn't result in expected value" <| fun _ ->
+      Expect.throwsT<TimeoutException> (fun () ->
+        Poll.targetSync (fun () -> false)
+        |> Poll.untilTrue
+        |> Poll.toAsync
+        |> Async.Ignore
+        |> Async.RunSynchronously) "Polling for non-value should result in an exception"
+
+    testCaseAsync "should switch over to another polling function when the first one fails" <| async {
+      let! x =
+        Poll.targetSync (fun () -> 0)
+        |> Poll.untilEqual 1
+        |> Poll.orElseValue 2
+      Expect.equal x 2 "Should switch over to default value"
+    }
   ]
 
 [<Tests>]
@@ -228,7 +257,7 @@ let http_tests =
         [ GET, Http.respondStatus OK 
           POST, Http.respondContentString expected ]
 
-      use _ = Http.serverRoutes endpoint routes
+      use _ = Http.routes endpoint routes
       do! Poll.untilHttpOkEvery1sFor10s endpoint
 
       use content = HttpContent.string expected
@@ -249,13 +278,13 @@ let http_tests =
       let delayedPost = async {
           do! Async.Sleep TimeInt._1s
           let! _ = Http.post endpoint (HttpContent.string expected) 
-          return () }
+          return () } 
 
       Async.Start delayedPost
       Async.Start delayedPost
       Async.Start delayedPost
 
-      let getCollectedRequests = Http.serverCollectCount endpoint POST 3
+      let getCollectedRequests = Http.collectCount endpoint POST 3
       let! requests =
           Poll.target getCollectedRequests
           |> Poll.untilLength 3
@@ -274,7 +303,22 @@ let http_tests =
         Http.respondStatus BadRequest
         Http.respondStatus OK ]
       
-      use __ = Http.serverSimulate endpoint GET simulation
+      use __ = Http.simulate endpoint GET simulation
       do! Poll.untilHttpOkEvery1sFor5s endpoint
+    }
+
+    testCaseAsync "collects 1 receied request for GET" <| async {
+      let endpoint = "http://localhost:8393"
+      Async.Start <| async { 
+        do! Async.Sleep TimeInt._1s
+        let! __ = Http.get endpoint
+        return () }
+
+      let target = Http.receive endpoint
+      do! Poll.target target
+          |> Poll.untilSome
+          |> Poll.every _1s
+          |> Poll.timeout _10s
+          |> Poll.error "Polling for request failed"
     }
   ]

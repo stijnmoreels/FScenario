@@ -1,4 +1,3 @@
-open Fake.Core
 #load ".fake/build.fsx/intellisense.fsx"
 
 open Fake.Core
@@ -37,8 +36,11 @@ let solution = project.Name + ".sln"
 Target.create "Clean" <| fun _ ->
     !! "src/**/bin"
     ++ "src/**/obj"
+    ++ "tests/**/bin"
+    ++ "tests/**/obj"
     ++ "docs"
-    |> Shell.cleanDirs 
+    ++ "bin"
+    |> Shell.cleanDirs
 
 Target.create "Build" <| fun _ ->
     AssemblyInfoFile.createFSharp ("src/" + project.Name +  "/AssemblyInfo.fs")
@@ -69,8 +71,8 @@ Target.create "Tests" <| fun _ ->
     runTest "tests/FScenario.Tests/FScenario.Tests.fsproj"
 
 Target.create "Paket" <| fun _ ->
-    let templateFile = "src/FScenario/paket.template"
-    let referencesFile = "src/FScenario/paket.references"
+    let templateFile = "src" @@ project.Name @@ "paket.template"
+    let referencesFile = "src" @@ project.Name @@ "paket.references"
     PaketTemplate.create (fun defaults ->
         { defaults with 
             TemplateFilePath = Some templateFile
@@ -170,7 +172,7 @@ Target.create "Docs" <| fun _ ->
             OutputDirectory = docsOutput
             LayoutRoots = layoutRoots
             ProjectParameters  = ("root", root) :: info
-            Template = docTemplate } )
+            Template = docTemplate })
 
 Target.create "All" ignore
 

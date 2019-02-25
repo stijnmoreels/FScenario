@@ -145,7 +145,7 @@ module Item =
         if src = null then nullArg "src"
         if not <| exists dest then invalidArg "dest" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src dest)
         if not <| exists dest then invalidArg "src" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src src)
-        logger.LogInformation (LogEvent.io, sprintf "Replace '%s' with '%s'" dest src)
+        logger.LogTrace (LogEvent.io, sprintf "Replace '%s' with '%s'" dest src)
         File.Copy(src, dest, overwrite=true)
 
     let private copyToTemp item =
@@ -161,7 +161,7 @@ module Item =
         if src = null then nullArg "src"
         if dest = null then nullArg "dest"
         if not <| File.Exists src then invalidArg "src" (sprintf "Cannot copy file '%s' to '%s' because '%s' doesn't exists" src dest src)
-        logger.LogInformation (LogEvent.io, sprintf "Copy '%s' -> '%s'" src dest)
+        logger.LogTrace (LogEvent.io, sprintf "Copy '%s' -> '%s'" src dest)
         File.Copy (src, dest, overwrite=true)
 
     /// <summary>
@@ -173,10 +173,10 @@ module Item =
         if dest = null then nullArg "dest"
         if not <| File.Exists src then invalidArg "src" (sprintf "Cannot copy file '%s' to '%s' because '%s' doesn't exists" src dest src)
         let temp = copyToTemp src
-        logger.LogInformation (LogEvent.io, sprintf "Copy '%s' -> '%s'" src dest)
+        logger.LogTrace (LogEvent.io, sprintf "Copy '%s' -> '%s'" src dest)
         File.Copy (src, dest, overwrite=true)
         Disposable.create <| fun _ ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo, copy '%s' -> '%s'" src dest)
+            logger.LogTrace (LogEvent.io, sprintf "Undo, copy '%s' -> '%s'" src dest)
             if File.Exists dest then File.Delete dest
             File.Copy (temp, src, overwrite=true)
             File.Delete temp
@@ -191,10 +191,10 @@ module Item =
         if not <| exists dest then invalidArg "dest" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src dest)
         if not <| exists dest then invalidArg "src" (sprintf "Cannot replace '%s' with '%s' because '%s' doesn't exists" dest src src)
         let temp = copyToTemp dest
-        logger.LogInformation (LogEvent.io, sprintf "Replace '%s' with '%s'" dest src)
+        logger.LogTrace (LogEvent.io, sprintf "Replace '%s' with '%s'" dest src)
         File.Copy (src, dest, overwrite=true)
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo file replace '%s' with '%s'" dest src)
+            logger.LogTrace (LogEvent.io, sprintf "Undo file replace '%s' with '%s'" dest src)
             File.Copy (temp, dest, overwrite=true)
             File.Delete temp
 
@@ -218,11 +218,11 @@ module Item =
         if dest = null then nullArg "dest"
         if not <| exists src then invalidArg "src" (sprintf "Cannot move file '%s' to '%s' because '%s' doesn't exists" src dest src)
         let temp = copyToTemp src
-        logger.LogInformation (LogEvent.io, sprintf "Move '%s' -> '%s'" src dest)
+        logger.LogTrace (LogEvent.io, sprintf "Move '%s' -> '%s'" src dest)
         File.Copy (src, dest, overwrite=true)
         File.Delete src
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo, move '%s' -> '%s' back" src dest)
+            logger.LogTrace (LogEvent.io, sprintf "Undo, move '%s' -> '%s' back" src dest)
             if File.Exists dest then File.Delete dest
             File.Copy (temp, src, overwrite=true)
             File.Delete temp
@@ -233,7 +233,7 @@ module Item =
     [<CompiledName("Delete")>]
     let delete f =
         if f = null then nullArg "f"
-        logger.LogInformation (LogEvent.io, sprintf "Delete file '%s'" f)
+        logger.LogTrace (LogEvent.io, sprintf "Delete file '%s'" f)
         File.Delete f
     
     /// <summary>
@@ -251,10 +251,10 @@ module Item =
         if f = null then nullArg "f"
         if not <| exists f then invalidArg "f" (sprintf "Cannot delete '%s' because it doesn't exists" f)
         let temp = copyToTemp f
-        logger.LogInformation (LogEvent.io, sprintf "Delete '%s'" f)
+        logger.LogTrace (LogEvent.io, sprintf "Delete '%s'" f)
         File.Delete f
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo delete '%s'" f)
+            logger.LogTrace (LogEvent.io, sprintf "Undo delete '%s'" f)
             File.Copy (temp, f, overwrite=true)
             File.Delete temp
 
@@ -288,7 +288,19 @@ module Dir =
         if dir = null then nullArg "dir"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be queried for files because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
         let fs = Directory.GetFiles (dir , "*", SearchOption.AllDirectories)
-        logger.LogInformation (LogEvent.io, sprintf "Found %i files at directory '%s'" fs.Length dir)
+        logger.LogTrace (LogEvent.io, sprintf "Found %i files at directory '%s'" fs.Length dir)
+        fs
+
+    /// <summary>
+    /// Gets the names of the files (including their paths) in the specified directory that matches the specified search pattern (ex. '*.xml').
+    /// </summary>
+    [<CompiledName("Files")>]
+    let filesPattern pattern dir =
+        if dir = null then nullArg "dir"
+        if pattern  = null then nullArg "pattern"
+        if not <| exists dir then io (sprintf "Directory '%s' cannot be queried for files because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
+        let fs = Directory.GetFiles (dir, pattern, SearchOption.AllDirectories)
+        logger.LogTrace (LogEvent.io, sprintf "Found %i files at directory '%s' that matched '%s'" fs.Length dir pattern)
         fs
 
     /// <summary>
@@ -298,15 +310,22 @@ module Dir =
     let clean dir = 
         if dir = null then nullArg "path"
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
-        let fs = Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) 
+        let fs = files dir
         fs |> Seq.iter Item.delete
-        logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
+        logger.LogTrace (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
 
     /// <summary>
-    /// Copies a specified source directory to a destination directory path.
+    /// Deletes the files in the specified directory that matches the specified search pattern (ex. '*.xml').
     /// </summary>
-    [<CompiledName("Copy")>]
-    let copy src dest =
+    [<CompiledName("Clean")>]
+    let cleanPattern pattern dir =
+        if dir = null then nullArg "path"
+        if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
+        let fs = filesPattern pattern dir
+        fs |> Seq.iter Item.delete
+        logger.LogTrace (LogEvent.io, sprintf "Done cleaning %i files at directory '%s' that matched '%s'" fs.Length dir pattern)
+
+    let private copyRecursive src dest =
         if src = null then nullArg "src"
         if dest = null then nullArg "dest"
         if not <| Directory.Exists src then invalidArg "dest" (sprintf "Cannot copy directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
@@ -321,8 +340,15 @@ module Dir =
                 let next = destDir.CreateSubdirectory d.Name
                 copyRec d next)
 
-        logger.LogInformation (LogEvent.io, sprintf "Copy directory '%s' -> '%s'" src dest)
         copyRec (DirectoryInfo src) (DirectoryInfo dest)
+
+    /// <summary>
+    /// Copies a specified source directory to a destination directory path.
+    /// </summary>
+    [<CompiledName("Copy")>]
+    let copy src dest =
+        logger.LogTrace (LogEvent.io, sprintf "Copy directory '%s' -> '%s'" src dest)
+        copyRecursive src dest
 
     /// <summary>
     /// Ensure we have a directory at the specified directory path.
@@ -331,7 +357,7 @@ module Dir =
     let ensure dir = 
         if dir = null then nullArg "dir"
         Directory.CreateDirectory dir |> ignore
-        logger.LogInformation (LogEvent.io, sprintf "Ensure directory is created '%s'" dir)
+        logger.LogTrace (LogEvent.io, sprintf "Ensure directory is created '%s'" dir)
     
     /// <summary>
     /// Ensure we have a directory at the specified directory paths.
@@ -341,8 +367,8 @@ module Dir =
 
     let private copyToTemp dir =
         let temp = Path.GetTempPath() </> Path.GetDirectoryName dir + "-" + Guid.NewGuid().ToString()
-        ensure temp
-        copy dir temp
+        Directory.CreateDirectory temp |> ignore
+        copyRecursive dir temp
         temp
 
     /// <summary>
@@ -370,11 +396,26 @@ module Dir =
         if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
         let fs = Directory.GetFiles (dir, "*.*", SearchOption.AllDirectories) 
         fs |> Seq.iter Item.delete
-        logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
+        logger.LogTrace (LogEvent.io, sprintf "Done cleaning %i files at directory '%s'" fs.Length dir)
 
         let ds = Directory.GetDirectories(dir, "*", SearchOption.AllDirectories)
         ds |> Seq.iter delete
-        logger.LogInformation (LogEvent.io, sprintf "Done cleaning %i sub-directories at '%s'" ds.Length dir)
+        logger.LogTrace (LogEvent.io, sprintf "Done cleaning %i sub-directories at '%s'" ds.Length dir)
+
+    /// <summary>
+    /// Deletes the files that matches the specified pattern and folders that matches the specified pattern in the specified directory.
+    /// </summary>
+    [<CompiledName("CleanDelete")>]
+    let cleanDeletePattern filePattern dirPattern dir =
+        if dir = null then nullArg "path"
+        if not <| exists dir then io (sprintf "Directory '%s' cannot be cleaned because it does not exists, please make sure you reference an existing directory by first calling 'Dir.ensure' for example" dir)
+        let fs = Directory.GetFiles (dir, filePattern, SearchOption.AllDirectories) 
+        fs |> Seq.iter Item.delete
+        logger.LogTrace (LogEvent.io, sprintf "Done cleaning %i files at directory '%s' that matches '%s'" fs.Length dir filePattern)
+
+        let ds = Directory.GetDirectories(dir, dirPattern, SearchOption.AllDirectories)
+        ds |> Seq.iter delete
+        logger.LogTrace (LogEvent.io, sprintf "Done cleaning %i sub-directories at '%s' that matches '%s'" ds.Length dir dirPattern)
 
     /// <summary>
     /// Deletes the files in the specified directories.
@@ -411,7 +452,7 @@ module Dir =
         let temp = copyToTemp src
         copy src dest
         Disposable.create <| fun _ ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo, copy directory '%s' -> '%s' back" src dest)
+            logger.LogTrace (LogEvent.io, sprintf "Undo, copy directory '%s' -> '%s' back" src dest)
             if Directory.Exists dest then delete dest
             cleanDelete src
             copy temp src
@@ -425,7 +466,7 @@ module Dir =
         if src = null then nullArg "src"
         if dest = null then nullArg "dest"
         if not <| Directory.Exists src then invalidArg "src" (sprintf "Cannot move directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
-        logger.LogInformation (LogEvent.io, sprintf "Move directory '%s' -> '%s'" src dest)
+        logger.LogTrace (LogEvent.io, sprintf "Move directory '%s' -> '%s'" src dest)
         Directory.Move (src, dest)
     
     /// <summary>
@@ -436,11 +477,11 @@ module Dir =
         if src = null then nullArg "src"
         if dest = null then nullArg "dest"
         if not <| Directory.Exists src then invalidArg "src" (sprintf "Cannot move directory '%s' -> '%s' because '%s' doesn't exists" src dest src)
-        logger.LogInformation (LogEvent.io, sprintf "Move directory '%s' -> '%s'" src dest)
+        logger.LogTrace (LogEvent.io, sprintf "Move directory '%s' -> '%s'" src dest)
         let temp = copyToTemp src
         move src dest
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo, move directory '%s' -> '%s'" src dest)
+            logger.LogTrace (LogEvent.io, sprintf "Undo, move directory '%s' -> '%s'" src dest)
             if exists dest then delete dest
             ensure src
             cleanDelete src
@@ -457,6 +498,15 @@ module Dir =
         ensure dir; System.Disposable.create (fun () -> delete dir)
 
     /// <summary>
+    /// Sets the current environment directory at the specified path.
+    /// </summary>
+    [<CompiledName("SetCurrent")>]
+    let setCurrent dir =    
+        if dir = null then nullArg "dir"
+        ensure dir
+        Environment.CurrentDirectory <- dir
+
+    /// <summary>
     /// Sets the current environment directory at the specified path but revert this change after calling 'Dispose' on the returned disposable.
     /// </summary>
     [<CompiledName("SetCurrentUndo")>]
@@ -464,17 +514,17 @@ module Dir =
         if dir = null then nullArg "dir"
         ensure dir
         let original = Environment.CurrentDirectory
-        logger.LogInformation (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" original dir)
+        logger.LogTrace (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" original dir)
         Environment.CurrentDirectory <- dir
         Disposable.create (fun () -> 
-            logger.LogInformation (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" dir original)
+            logger.LogTrace (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" dir original)
             Environment.CurrentDirectory <- original)
 
     let private reduceDisposables f srcs = 
         Seq.map f srcs |> CompositeDisposable.Create :> IDisposable
 
     /// <summary>
-    /// Delets the files in the specified directory and revert the cleaning after the returned disposable gets disposed.
+    /// Deletes the files in the specified directory and revert the cleaning after the returned disposable gets disposed.
     /// </summary>
     [<CompiledName("CleanUndo")>]
     let cleanUndo dir =
@@ -504,7 +554,7 @@ module Dir =
         ensure dir
         let temp = copyToTemp dir
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo revert ensure directory '%s'" dir)
+            logger.LogTrace (LogEvent.io, sprintf "Undo revert ensure directory '%s'" dir)
             if alreadyThere then copy temp dir
             else delete dir
             delete temp
@@ -541,7 +591,7 @@ module Dir =
         clean dest
         copy src dest
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo revert replace directory '%s'" dest)
+            logger.LogTrace (LogEvent.io, sprintf "Undo revert replace directory '%s'" dest)
             ensure dest
             clean dest
             copy temp dest
@@ -557,7 +607,7 @@ module Dir =
         let temp = copyToTemp src
         delete src
         Disposable.create <| fun () ->
-            logger.LogInformation (LogEvent.io, sprintf "Undo revert delete directory '%s'" src)
+            logger.LogTrace (LogEvent.io, sprintf "Undo revert delete directory '%s'" src)
             ensure src
             clean src
             copy temp src

@@ -47,23 +47,22 @@ module HttpRoute =
     let DELETE ctx = onMethod HttpMethod.Delete ctx
     let OPTIONS ctx = onMethod HttpMethod.Options ctx
     let TRACE ctx = onMethod HttpMethod.Trace ctx
+    let any (_ : HttpContext) = true
 
-/// <summary>
 /// Wrapper representation of the ASP.NET request to have still access to the otherwise disposed resources in a safe and reliable manner.
-/// </summary>
 type HttpRequest (req : Microsoft.AspNetCore.Http.HttpRequest) =
     let vs = req.Body |> Stream.asAsyncVirtual
+    member x.Method = req.Method
     member x.Headers = req.GetTypedHeaders ()
     member x.Body : Stream = vs
     member x.ContentType = req.ContentType
     static member Create req = new HttpRequest (req)
+    static member method (x : HttpRequest) = x.Method
     static member body (x : HttpRequest) = x.Body
     static member contentType (x : HttpRequest) = x.ContentType
     static member headers (x : HttpRequest) = x.Headers 
 
-/// <summary>
 /// Wrapper representataion of the System.Net.HttpResponseMessage for easier access in a F#-friendly manner to the HTTP response resources.
-/// </summary>
 type HttpResponse (res : HttpResponseMessage) =
     member x.StatusCode = res.StatusCode
     member x.Headers = res.Headers
@@ -72,9 +71,7 @@ type HttpResponse (res : HttpResponseMessage) =
     static member Create res = new HttpResponse (res)
     interface IDisposable with member x.Dispose () = res.Dispose ()
 
-/// <summary>
 /// Provides functionality to test and host HTTP endpoints.
-/// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Http =
     let private client = new HttpClient ()
@@ -127,25 +124,19 @@ module Http =
              then Some req.QueryString.Value else None
              |> Option.defaultValue "")
 
-    /// <summary>
     /// Creates a handling function that adds a specified status code to the HTTP response.
-    /// </summary>
     let respondStatusCode (status : int) (ctx : HttpContext) = async {
         loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {status}", ctx.Request.Method, displayRequestUrl ctx.Request, status)
         ctx.Response.StatusCode <- status
         ctx.Response.Body.WriteByte 0uy }
 
-    /// <summary>
     /// Creates a handling function that adds a specified status code to the HTTP response.
-    /// </summary>
     let respondStatus (status : HttpStatusCode) (ctx : HttpContext) = async {
         loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {status}", ctx.Request.Method, displayRequestUrl ctx.Request, status)
         ctx.Response.StatusCode <- int status
         ctx.Response.Body.WriteByte 0uy }
 
-    /// <summary>
     /// Creates a handling function that adds a specified string content to the HTTP response.
-    /// </summary>
     let respondContentString (content : string) (ctx : HttpContext) = async {
         loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {content}", ctx.Request.Method, displayRequestUrl ctx.Request, content)
         ctx.Response.StatusCode <- 200
@@ -154,9 +145,7 @@ module Http =
         use ms = new MemoryStream (System.Text.Encoding.UTF8.GetBytes content)
         do! ms.CopyToAsync ctx.Response.Body |> Async.AwaitTask }
 
-    /// <summary>
     /// Creates a handling function that adds a specified generic HTTP content to the HTTP response.
-    /// </summary>
     let respondContent (content : HttpContent) (ctx : HttpContext) = async {
         let contentType = content.Headers.ContentType.MediaType
         loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {contentType}", ctx.Request.Method, displayRequestUrl ctx.Request, contentType)
@@ -165,9 +154,7 @@ module Http =
         ctx.Response.ContentType <- contentType
         do! content.CopyToAsync ctx.Response.Body |> Async.AwaitTask }
 
-    /// <summary>
     /// Creates a handling function that adds a specified stream content to the HTTP response.
-    /// </summary>
     let respondStream (stream : Stream) = respondContent (new StreamContent (stream))
 
     /// <summary>
@@ -212,8 +199,16 @@ module Http =
     /// </summary>
     /// <param name="url">The url on which the server should be hosted.</param>
     /// <param name="table">The routing table where each predicate is matched with a handler.</param>
-    let serverRoutes url table = 
+    let routes url table =
         serverRoutesWithCancellation url (Seq.map (fun (p, h : HttpHandler) -> p, (fun ctx _ -> h ctx)) table)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted.</param>
+    /// <param name="table">The routing table where each predicate is matched with a handler.</param>
+    [<Obsolete("Renamed to 'routes'")>]
+    let serverRoutes url table = routes url table
 
     /// <summary>
     /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
@@ -221,15 +216,23 @@ module Http =
     /// <param name="url">The url on which the server should be hosted.</param>
     /// <param name="predicate">The predicate function to filter out received requests.</param>
     /// <param name="handler">The handling function to handle the received request.</param>
-    let serverRoute url predicate handler = 
-        serverRoutes url [ predicate, handler ]
+    let route url predicate handler = routes url [ predicate, handler ]
+    
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified predicate holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted.</param>
+    /// <param name="predicate">The predicate function to filter out received requests.</param>
+    /// <param name="handler">The handling function to handle the received request.</param>
+    [<Obsolete("Renamed to 'route'")>]
+    let serverRoute url predicate handler = route url predicate handler
 
     /// <summary>
     /// Starts a HTTP server on the specified url, returning a successful 'OK' for received requests.
     /// </summary>  
     /// <param name="url">The url on which the server should be hosted.</param>
     let server url = 
-        serverRoutes url 
+        routes url 
             [ GET, respondStatus HttpStatusCode.OK
               POST, respondStatus HttpStatusCode.Accepted
               PUT, respondStatus HttpStatusCode.Accepted ]
@@ -247,7 +250,7 @@ module Http =
     /// <param name="handler">The response handler when the specified route gets chosen.</param>
     /// <param name="resultMapper">The mapping function from a request to a custom type to collect.</param>
     /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
-    let serverCollectCustom url route handler resultMapper resultsPredicate : HttpPollTarget<_> =
+    let collectCustom url route handler resultMapper resultsPredicate =
         let inbox = MailboxProcessor.Start <| fun agent ->
             let rec loop messages = async {
                 let! message = agent.Receive ()
@@ -273,14 +276,37 @@ module Http =
             return! inbox.PostAndAsyncReply Get }
 
     /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
+    /// collecting a series of received requests all mapped to a type via the specified mapper function until the specified results predicate succeeds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="handler">The response handler when the specified route gets chosen.</param>
+    /// <param name="resultMapper">The mapping function from a request to a custom type to collect.</param>
+    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    [<Obsolete("Renamed to 'collectCustom'")>]
+    let serverCollectCustom url route handler resultMapper resultsPredicate : HttpPollTarget<_> =
+        collectCustom url route handler resultMapper resultsPredicate
+
+    /// <summary>
     /// Starts a HTTP server on the specified url, receiving requests when the specified routing function holds, 
     /// collecting a series of received requests until the specified results predicate succeeds.
     /// </summary>
     /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
     /// <param name="route">The route/predicate where the server should collect requests.</param>
     /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
-    let serverCollect url route resultsPredicate =
-        serverCollectCustom url route (respondStatusCode 202) HttpRequest.Create resultsPredicate
+    let collect url route resultsPredicate =
+        collectCustom url route (respondStatusCode 202) HttpRequest.Create resultsPredicate
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving requests when the specified routing function holds, 
+    /// collecting a series of received requests until the specified results predicate succeeds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    [<Obsolete("Renamed to 'collect'")>]
+    let serverCollect url route resultsPredicate = collect url route resultsPredicate
 
     /// <summary>
     /// Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.
@@ -288,11 +314,30 @@ module Http =
     /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost: 8080').</param>
     /// <param name="route">The route/predicate where the server should collect requests.</param>
     /// <param name="count">The amount of requests that should be collected.</param>
-    let serverCollectCount url route count =
-        serverCollect url route (fun xs -> 
+    let collectCount url route count =
+        collect url route (fun xs -> 
             let l = List.length xs
             loggerServer.LogInformation(LogEvent.http, "Collect received request at {url} ({current}/{length})", url, l, count) 
             l = count)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost: 8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="count">The amount of requests that should be collected.</param>
+    [<Obsolete("Renamed to 'collectCount'")>]
+    let serverCollectCount url route count = collectCount url route count
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving a single request for any kind of routing.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080/').</param>
+    let receive url : HttpPollTarget<_> = 
+        let target = collectCount url any 1
+        fun () -> async {
+            let! xs = target ()
+            return xs |> List.tryHead }
 
     type private AgentSimulationMessage<'a> =
         | GetHandler of AsyncReplyChannel<'a>
@@ -303,7 +348,7 @@ module Http =
     /// </summary>
     /// <param name="url">The url on which the server should be hosted (ex. http://localhost:8080).</param>
     /// <param name="table">The routing table that matches a routing function with a handling function.</param>
-    let serverSimulates url table =
+    let simulates url table =
         let createAgent handlers = MailboxProcessor.Start <| fun agent -> 
             let rec loop count = async {
                 let! msg = agent.Receive ()
@@ -332,9 +377,26 @@ module Http =
     /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
     /// </summary>
     /// <param name="url">The url on which the server should be hosted (ex. http://localhost:8080).</param>
+    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    [<Obsolete("Renamed to 'simulates'")>]
+    let serverSimulates url table = simulates url table
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. http://localhost:8080).</param>
     /// <param name="route">The routing predicate that identifies which kind of HTTP request that must be simulated.</param>
     /// <param name="handlers">The HTTP request handlers that are executed in sequence for each received HTTP request.</param>
-    let serverSimulate url route handlers = serverSimulates url [ route, handlers ]
+    let simulate url route handlers = simulates url [ route, handlers ]
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. http://localhost:8080).</param>
+    /// <param name="route">The routing predicate that identifies which kind of HTTP request that must be simulated.</param>
+    /// <param name="handlers">The HTTP request handlers that are executed in sequence for each received HTTP request.</param>
+    [<Obsolete("Renamed to 'simulate'")>]
+    let serverSimulate url route handlers = simulate url route handlers
 
 [<AutoOpen>]
 module HttpContent =

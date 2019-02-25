@@ -1,9 +1,9 @@
 ﻿(*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin"
-#r "FScenario.dll"
+#r "../../src/FScenario/bin/Release/netstandard2.0/FScenario.dll"
 #r "../../packages/NETStandard.Library/build/netstandard2.0/ref/netstandard.dll"
+module Test =
 
 (**
 FScenario

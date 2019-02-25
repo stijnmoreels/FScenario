@@ -186,46 +186,30 @@ type HttpRoute =
 /// Provides functionality to test and host HTTP endpoints.
 /// </summary>
 type Http =
-    /// <summary>
     /// Sends a HTTP GET request to the specified uri.
-    /// </summary>
     static member Get (uri : string) = Http.get uri |> Async.StartAsTask
     
-    /// <summary>
     /// Sends a HTTP POST request with a content to the specified uri.
-    /// </summary>
     static member Post (uri : string) content = Http.post uri content |> Async.StartAsTask
     
-    /// <summary>
     /// Sends a HTTP PUT request with a content to the specified uri.
-    /// </summary>
     static member Put (uri : string) content = Http.put uri content |> Async.StartAsTask
 
     static member private RespondFunc f = Func<Microsoft.AspNetCore.Http.HttpContext, Task> (fun ctx -> f ctx |> Async.StartAsTask :> Task)
 
-    /// <summary>
     /// Creates a handling function that adds a specified status code to the HTTP response.
-    /// </summary>
     static member RespondStatus (status) = Http.RespondFunc (Http.respondStatus status)
 
-    /// <summary>
     /// Creates a handling function that adds a specified status code to the HTTP response.
-    /// </summary>
     static member RespondStatus (statusCode) = Http.RespondFunc (Http.respondStatusCode statusCode)
 
-    /// <summary>
     /// Creates a handling function that adds a specified generic HTTP content to the HTTP response.
-    /// </summary>
     static member Respond (content) = Http.RespondFunc (Http.respondContent content)
 
-    /// <summary>
     /// Creates a handling function that adds a specified string content to the HTTP response.
-    /// </summary>
     static member RespondContent (contentString) = Http.RespondFunc (Http.respondContentString contentString )
 
-    /// <summary>
     /// Creates a handling function that adds a specified stream content to the HTTP response.
-    /// </summary>
     static member RespondContent (contentStream) = Http.RespondFunc (Http.respondStream contentStream)
 
     /// <summary>
@@ -243,7 +227,7 @@ type Http =
     static member Server (url, predicate : Func<_, _>, handler : Func<_, _>) =
         if predicate = null then nullArg "predicate"
         if handler = null then nullArg "handler" 
-        Http.serverRoute url predicate.Invoke (handler.Invoke >> Async.AwaitTask)
+        Http.route url predicate.Invoke (handler.Invoke >> Async.AwaitTask)
 
     /// <summary>
     /// Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.
@@ -253,7 +237,7 @@ type Http =
     /// <param name="count">The amount of requests that should be collected.</param>
     static member ServerCollect (url, route : Func<_, _>, count) : Func<Task<HttpRequest array>> =
         if route = null then nullArg "route"
-        let f = Http.serverCollectCount url route.Invoke count
+        let f = Http.collectCount url route.Invoke count
         Func<_> (fun () -> async {
             let! xs = f ()
             return Array.ofList xs } |> Async.StartAsTask)
@@ -268,7 +252,7 @@ type Http =
     static member ServerCollect (url, route : Func<_, _>, resultsPredicate : Func<_, _> ) =
         if route = null then nullArg "route"
         if resultsPredicate = null then nullArg "resultsPredicate"
-        let f = Http.serverCollect url route.Invoke (Array.ofList >> resultsPredicate.Invoke)
+        let f = Http.collect url route.Invoke (Array.ofList >> resultsPredicate.Invoke)
         Func<_> (fun () -> async {
             let! xs = f ()
             return Array.ofList xs } |> Async.StartAsTask)
@@ -292,10 +276,26 @@ type Http =
        if handler = null then nullArg "handler"
        if resultMapper = null then nullArg "resultMapper"
        if resultsPredicate = null then nullArg "resultsPredicate"
-       let f = Http.serverCollectCustom url route.Invoke (handler.Invoke >> Async.AwaitTask) resultMapper.Invoke (List.toArray >> resultsPredicate.Invoke)
+       let f = Http.collectCustom url route.Invoke (handler.Invoke >> Async.AwaitTask) resultMapper.Invoke (List.toArray >> resultsPredicate.Invoke)
        Func<_> (fun () -> async { 
            let! xs = f ()
-           return Array.ofList xs  }  |> Async.StartAsTask)
+           return Array.ofList xs } |> Async.StartAsTask)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving a single request for any kind of routing.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080/).</param>
+    static member Receive (url, ?interval, ?timeout) = 
+        if url = null then nullArg "url"
+        async {
+            let f = Http.receive url
+            let! (x : _ option) =
+                Poll.target f
+                |> Poll.untilSome
+                |> Poll.every (defaultArg interval _1s)
+                |> Poll.timeout (defaultArg timeout _30s)
+                |> Poll.errorf "No request received on '%s'" url
+            return x.Value } |> Async.StartAsTask
 
     /// <summary>
     /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
@@ -309,7 +309,7 @@ type Http =
           [<ParamArray>] handlers : Func<_, Task> array) =
         if route = null then nullArg "route"
         if handlers = null then nullArg "handlers"
-        Http.serverSimulate url route.Invoke (handlers |> List.ofArray |> List.map (fun f -> f.Invoke >> Async.AwaitTask))
+        Http.simulate url route.Invoke (handlers |> List.ofArray |> List.map (fun f -> f.Invoke >> Async.AwaitTask))
 
     /// <summary>
     /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
@@ -325,7 +325,7 @@ type Http =
         |> List.map (fun vt -> 
             let (route, handler) = vt.ToTuple()
             route.Invoke, [ handler.Invoke >> Async.AwaitTask ])
-        |> Http.serverSimulates url
+        |> Http.simulates url
 
     /// <summary>
     /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
@@ -343,7 +343,7 @@ type Http =
             route.Invoke, 
             handlers |> List.ofSeq 
                      |> List.map (fun h -> h.Invoke >> Async.AwaitTask))
-        |> Http.serverSimulates url
+        |> Http.simulates url
 
 /// <summary>
 /// Exposing functions to write reliable polling functions for a testable target.
@@ -356,18 +356,21 @@ type Poll =
     /// <param name="filter">A filtering function to specify the required result of the polling.</param>
     [<Extension>]
     static member Until (poll, filter : Func<'a, bool>) = { poll with Filter = filter.Invoke }
+    
     /// <summary>
     /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
     /// </summary>
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     [<Extension>]
     static member Every (poll, interval : TimeSpan) = { poll with Interval = interval }
+    
     /// <summary>
     /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
     /// </summary>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     [<Extension>]
     static member For (poll, timeout : TimeSpan) = { poll with Timeout = timeout }
+    
     /// <summary>
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
@@ -376,6 +379,7 @@ type Poll =
     static member Error (poll, errorMessage : string) = 
         if errorMessage = null then nullArg "errorMessage"
         { poll with ErrorMessage = errorMessage }
+    
     /// <summary>
     /// Adds a custom error message with string formatting to show when the polling has been time out.
     /// </summary>
@@ -385,6 +389,39 @@ type Poll =
     static member Error (poll, errorMessage, [<ParamArray>] args) = 
         if errorMessage = null then nullArg "errorMessage"
         { poll with ErrorMessage = String.Format(errorMessage, args) }
+    
+    /// Switch to another polling function when the first one fails with a `TimeoutException`.
+    [<Extension>]
+    static member OrElse (poll, other) =
+        Poll.orElse other poll
+
+    /// Returns a constant value when the polling function fails with a `TimeoutException`.
+    [<Extension>]
+    static member OrElse (poll, value) =
+        Poll.orElseValue value poll
+
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    [<Extension>]
+    static member OrElse (poll, getValue : Func<Task<_>>) =
+        let f = getValue.Invoke >> Async.AwaitTask
+        Poll.orElseWith f poll
+
+    /// <summary>
+    /// Runs the asynchronous computation and await its result
+    /// </summary>
+    /// <param name="cancellation">The cancellation token associated with this computatino.</param>
+    
+    [<Extension>]
+    static member Synchronously (poll, ?cancellation) =
+        cancellation
+        |> Option.map (Poll.syncCancel poll)
+        |> Option.defaultWith (fun () -> Poll.sync poll)
+
+    /// Converts the polling sequence to a asynchronous task computation.
+    /// Note that this can be avoided beceause the polling function can be directly awaited.
+    [<Extension>]
+    static member ToTask (poll) =
+        Poll.toAsync poll |> Async.StartAsTask
 
     /// <summary>
     /// Creates a polling function that polls at a specified file path.
@@ -449,30 +486,52 @@ type Poll =
     static member UntilNotEqual (poll, other) =
         Poll.untilNotEqual other poll
 
-    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be equal to <c>true</c>.
+    [<Extension>]
+    static member UntilTrue (poll) =
+        Poll.untilTrue poll
+
+    /// Adds a filtering function to specify that the required result of the polling should be equal to <c>false</c>.
+    [<Extension>]
+    static member UntilFalse (poll) =
+        Poll.untilFalse poll
+
+    /// Adds a filtering function to specify that the required result of the polling should be an empty sequence.
+    [<Extension>]
+    static member UntilEmpty (poll : PollAsync<IEnumerable<_>>) =
+        Poll.untilEmpty poll
+
+    /// Adds a filtering function to specify that the required result of the polling should be an empty sequence.
+    [<Extension>]
+    static member UntilEmpty (poll : PollAsync<_ array>) =
+        Poll.untilEmpty poll
+
+    /// Adds a filtering function to specify that the required result of the polling should be an empty sequence.
+    [<Extension>]
+    static member UntilEmpty (poll : PollAsync<ICollection<_>>) =
+        Poll.untilEmpty poll
+
+    /// Adds a filtering function to specify that the required result of the polling should be an empty sequence.
+    [<Extension>]
+    static member UntilEmpty (poll : PollAsync<IList<_>>) =
+        Poll.untilEmpty poll
+
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-    /// </summary>
     [<Extension>]
     static member UntilAny (poll : PollAsync<IEnumerable<_>>) =
         Poll.untilAny poll
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-    /// </summary>
     [<Extension>]
     static member UntilAny (poll : PollAsync<_ array>) =
         Poll.untilAny poll
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-    /// </summary>
     [<Extension>]
     static member UntilAny (poll : PollAsync<ICollection<_>>) =
         Poll.untilAny poll
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-    /// </summary>
     [<Extension>]
     static member UntilAny (poll : PollAsync<IList<_>>) =
         Poll.untilAny poll
@@ -513,9 +572,7 @@ type Poll =
         if predicate = null then nullArg "predicate"
         Poll.untilExists predicate.Invoke poll
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
-    /// </summary>
     [<Extension>]
     static member UntilContains (poll : PollAsync<IEnumerable<_>>, value) =
         Poll.untilContains value poll

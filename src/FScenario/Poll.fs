@@ -8,18 +8,14 @@ open Microsoft.Extensions.Logging
 open Polly
 open Polly.Timeout
 
-/// <summary>
 /// Type representing the required values to run a polling execution.
-/// </summary>
 type PollAsync<'a> =
     { PollFunc : (unit -> Async<'a>)
       Filter : ('a -> bool)
       Interval : TimeSpan
       Timeout : TimeSpan
       ErrorMessage : string } with
-      /// <summary>
       /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-      /// </summary>
       static member internal Create f = 
         { PollFunc = f
           Filter = fun _ -> true
@@ -27,41 +23,29 @@ type PollAsync<'a> =
           Timeout = _30s
           ErrorMessage = "Polling doesn't result in any values" }
 
-/// <summary>
 /// Exposing functions to write reliable polling functions for a testable target.
-/// </summary>
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Poll =
     let private logger = Log.logger<PollAsync<obj>> ()
 
-    /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-    /// </summary>
     let target f = PollAsync<_>.Create f
     
-    /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-    /// </summary>
-    let targetSync f = PollAsync<_>.Create (f >> async.Return)
+    let targetSync f = target (f >> async.Return)
 
-    /// <summary>
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
-    /// </summary>
-    let targets fs = PollAsync<_>.Create (fun () -> async { 
+    let targets fs = target (fun () -> async { 
         return! Seq.map (fun f -> f ()) fs
                 |> Async.Choice })
 
-    /// <summary>
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
-    /// </summary>
     let target2 f1 f2 = targets [ f1; f2 ]
 
-    /// <summary>
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
-    /// </summary>
     let target3 f1 f2 f3 = targets [ f1; f2; f3 ]
 
     /// <summary>
@@ -114,54 +98,43 @@ module Poll =
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     let until predicate poll = { poll with Filter = predicate }
 
-    /// <summary>
     /// Adds a filtering function to to specify that the required result should be equal to the specified value.
-    /// </summary>
     let untilEqual x poll = { poll with Filter = (=) x }
 
-    /// <summary>
     /// Adds a filtering function to to specify that the required result should not be equal to the specified value.
-    /// </summary>
     let untilNotEqual x poll = { poll with Filter = (<>) x }
 
-    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be an empty sequence.
+    let untilEmpty poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.isEmpty xs }
+
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-    /// </summary>
     let untilAny poll = { poll with Filter = fun (xs : #seq<'a>) -> not <| Seq.isEmpty xs}
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
-    /// </summary>
     let untilContains x poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.contains x xs }
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
-    /// </summary>
     let untilExists f poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.exists f xs }
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
-    /// </summary>
     let untilLength length poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.length xs = length }
 
-    /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be equal to `true`.
+    let untilTrue poll = { poll with Filter = (=) true }
+
+    /// Adds a filtering function to specify that the required result of the polling should be equal to `false`.
+    let untilFalse poll = { poll with Filter = (=) false }
+
     /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option.
-    /// </summary>
     let untilSome poll = { poll with Filter = Option.isSome }
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option, where `x` is a specified value.
-    /// </summary>
     let untilSomeValue x poll = { poll with Filter = (=) (Some x) }
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result.
-    /// </summary>
     let untilOk poll = { poll with Filter = function Ok _ -> true | _ -> false }
 
-    /// <summary>
     /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result, where `x` is a specified value.
-    /// </summary>
     let untilOkValue x poll = { poll with Filter = function Ok y -> x = y | _ -> false }
 
     /// <summary>
@@ -203,6 +176,7 @@ module Poll =
             Policy.TimeoutAsync(timeout : TimeSpan)
                   .WrapAsync(
                       Policy.HandleResult(resultPredicate=Func<_, _> (not << predicate))
+                            .Or<exn>()
                             .WaitAndRetryForeverAsync(Func<_, _> (fun _ -> interval)))
                   .ExecuteAndCaptureAsync(Func<Task<_>> (fun () -> 
                       pollFunc () |> Async.StartAsTask))
@@ -217,6 +191,34 @@ module Poll =
                return Unchecked.defaultof<_> }
 
     let internal untilRecord (a : PollAsync<_>) = untilCustom a.PollFunc a.Filter a.Interval a.Timeout a.ErrorMessage
+
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    let orElseWith f poll = async {
+        try return! untilRecord poll
+        with
+        | :? TimeoutException as ex ->
+            logger.LogError ex.Message
+            return! f ()
+        | ex -> raise ex; return Unchecked.defaultof<_> }
+
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    let orElseAsync a poll = orElseWith (fun () -> a) poll
+
+    /// Returns a constant value when the polling function fails with a `TimeoutException`.
+    let orElseValue x poll = orElseWith (fun () -> async.Return x) poll
+
+    /// Switch to another polling function when the first one fails with a `TimeoutException`.
+    let orElse other poll = orElseWith (fun () -> untilRecord other) poll
+
+    /// Runs the asynchronous computation and await its result
+    let sync x = untilRecord x |> Async.RunSynchronously
+
+    /// Runs the asynchronous computation and await its result
+    let syncCancel x ct = untilRecord x |> fun a -> Async.RunSynchronously (a, cancellationToken=ct)
+
+    /// Converts the polling function directly to an asynchronous computation.
+    /// Note that this can be avoided by using the polling function directly in an asynchronous computation expression.
+    let toAsync x = untilRecord x
 
     /// <summary>
     /// Poll at a given target using a filtering function every second for 5 seconds.
@@ -385,74 +387,60 @@ module Poll =
 [<AutoOpen>]
 module PollBuilder =
     type PollBuilder () =
-        /// <summary>
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-        /// </summary>
         [<CustomOperation("target")>] 
         member __.Target (state, f) = { state with PollFunc = f }
-        /// <summary>
+        /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation 
+        /// whose result is 'Some x' for a period of time until either the predicate succeeds or the expression times out.
+        [<CustomOperation("targets")>]
+        member __.Targets (state, fs) = 
+            { state with PollFunc = fun () -> async { return! Seq.map (fun f -> f ()) fs |> Async.Choice } }
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-        /// </summary>
         [<CustomOperation("targetSync")>] 
         member __.TargetSync (state, f) = { state with PollFunc = f >> async.Return }
-        /// <summary>
         /// Adds a filtering function to speicfy the required result of the polling.
-        /// </summary>
         [<CustomOperation("until")>] 
         member __.Until (state, predicate) = Poll.until predicate state
-        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be a empty sequence.
+        [<CustomOperation("untilEmpty")>]
+        member __.UntilEmpty (state) = Poll.untilEmpty state
         /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-        /// </summary>
         [<CustomOperation("untilAny")>] 
         member __.UntilAny (state) = Poll.untilAny state
-        /// <summary>
         /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
-        /// </summary>
         [<CustomOperation("untilLength")>] 
         member __.UntilLength (state, length) = Poll.untilLength length state
-        /// <summary>
         /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
-        /// </summary>
         [<CustomOperation("untilAny")>] 
         member __.UntilContains (state, value) = Poll.untilContains value state
-        /// <summary>
+        /// Adds a filtering function to specify that the required result of the polling should be equal to `true`.
+        [<CustomOperation("untilTrue")>]
+        member __.UntilTrue (state) = Poll.untilTrue
+        /// Adds a filtering function to specify that the result of the polling should be equal to `false`.
+        [<CustomOperation("untilFalse")>]
+        member __.UntilFalse (state) = Poll.untilFalse state
         /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result.
-        /// </summary>
         [<CustomOperation("untilOk")>] 
         member __.UntilOk (state) = Poll.untilOk state 
-        /// <summary>
         /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result, where `x` is a specified value.
-        /// </summary>
         [<CustomOperation("untilOkValue")>] 
         member __.UntilOkValue (state, value) = Poll.untilOkValue value state 
-        /// <summary>
         /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option.
-        /// </summary>
         [<CustomOperation("untilSome")>] 
         member __.UntilSome (state) = Poll.untilSome state 
-        /// <summary>
         /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option, where `x` is a specified value.
-        /// </summary>
         [<CustomOperation("untilSomeValue")>] 
         member __.UntilSomeValue (state, value) = Poll.untilSomeValue value state 
-        /// <summary>
         /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
-        /// </summary>
         [<CustomOperation("every")>]
         member __.Every (state, interval) = Poll.every interval state
-        /// <summary>
         /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
-        /// </summary>
         [<CustomOperation("timeout")>]
         member __.Timeout (state, timeout) = Poll.timeout timeout state
-        /// <summary>
         /// Adds a custom error message to show when the polling has been time out.
-        /// </summary>
         [<CustomOperation("error")>]
         member __.Error(state, message) = Poll.error message state
-        /// <summary>
         /// Adds a custom error message with string formatting to show when the polling has been time out.
-        /// </summary>
         [<CustomOperation("errorf")>]
         member __.ErrorFormat(state, message, args) = Poll.errorf message args state
         member __.Yield (_) = 
