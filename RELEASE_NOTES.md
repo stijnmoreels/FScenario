@@ -27,3 +27,12 @@ Initial release
   - `Http.simulate(s)` for simulating a series of HTTP responses for the same hosted HTTP server (ex. for testing retryable operations)
 - Adding IO operations:
   - `Dir.move(Undo)`, `Item.move(Undo)` for moving directories/files with and reverting on disposal
+
+### 1.5.0
+
+- Add polling shortcuts:
+  - `Poll.untilEmpty` for shortcutting sequence filters
+  - `Poll.untilTrue` & `Poll.untilFalse` for shortcutting boolean targets
+- Add HTTP shortcut `Http.receive` for simple receival of a single HTTP request
+- Add polling alternatives with `Poll.orElse`, `Poll.orElseWith`, `Poll.orElseAsync` and `Poll.orElseValue` when a polling sequence times-out
+- Make the remaining C# HTTP server calls (ex. `Http.Serverxxx`) obsolete by removing the `Server` prefix
