@@ -235,9 +235,34 @@ type Http =
     /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost: 8080').</param>
     /// <param name="route">The route/predicate where the server should collect requests.</param>
     /// <param name="count">The amount of requests that should be collected.</param>
-    static member ServerCollect (url, route : Func<_, _>, count) : Func<Task<HttpRequest array>> =
+    static member Collect (url, route : Func<_, _>, count) : Func<Task<HttpRequest array>> =
         if route = null then nullArg "route"
         let f = Http.collectCount url route.Invoke count
+        Func<_> (fun () -> async {
+            let! xs = f ()
+            return Array.ofList xs } |> Async.StartAsTask)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving an specified amout of requests when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost: 8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="count">The amount of requests that should be collected.</param>
+    [<Obsolete("Renamed to 'Collect'")>]
+    static member ServerCollect (url, route : Func<_, _>, count : int) : Func<Task<HttpRequest array>> =
+        Http.Collect (url, route, count)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, receiving requests when the specified routing function holds, 
+    /// collecting a series of received requests until the specified results predicate succeeds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    static member Collect (url, route : Func<_, _>, resultsPredicate : Func<_, _> ) =
+        if route = null then nullArg "route"
+        if resultsPredicate = null then nullArg "resultsPredicate"
+        let f = Http.collect url route.Invoke (Array.ofList >> resultsPredicate.Invoke)
         Func<_> (fun () -> async {
             let! xs = f ()
             return Array.ofList xs } |> Async.StartAsTask)
@@ -249,13 +274,9 @@ type Http =
     /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
     /// <param name="route">The route/predicate where the server should collect requests.</param>
     /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    [<Obsolete("Renamed to 'Collect'")>]
     static member ServerCollect (url, route : Func<_, _>, resultsPredicate : Func<_, _> ) =
-        if route = null then nullArg "route"
-        if resultsPredicate = null then nullArg "resultsPredicate"
-        let f = Http.collect url route.Invoke (Array.ofList >> resultsPredicate.Invoke)
-        Func<_> (fun () -> async {
-            let! xs = f ()
-            return Array.ofList xs } |> Async.StartAsTask)
+        Http.Collect (url, route, resultsPredicate)
 
     /// <summary>
     /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
@@ -266,7 +287,7 @@ type Http =
     /// <param name="handler">The response handler when the specified route gets chosen.</param>
     /// <param name="resultMapper">The mapping function from a request to a custom type to collect.</param>
     /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
-    static member ServerCollect 
+    static member Collect 
         ( url, 
           route : Func<_, _>, 
           handler : Func<_, _>, 
@@ -280,6 +301,24 @@ type Http =
        Func<_> (fun () -> async { 
            let! xs = f ()
            return Array.ofList xs } |> Async.StartAsTask)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, handling the received request with the specified handler when the specified route holds,
+    /// collecting a series of received requests all mapped to a type via the specified mapper function until the specified results predicate succeeds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
+    /// <param name="route">The route/predicate where the server should collect requests.</param>
+    /// <param name="handler">The response handler when the specified route gets chosen.</param>
+    /// <param name="resultMapper">The mapping function from a request to a custom type to collect.</param>
+    /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
+    [<Obsolete("Renamed to 'Collect'")>]
+    static member ServerCollect 
+        ( url, 
+          route : Func<_, _>, 
+          handler : Func<_, _>, 
+          resultMapper : Func<_, _>, 
+          resultsPredicate : Func<_, _> ) =
+       Http.Collect (url, route, handler, resultMapper, resultsPredicate)
 
     /// <summary>
     /// Starts a HTTP server on the specified url, receiving a single request for any kind of routing.
@@ -303,7 +342,7 @@ type Http =
     /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
     /// <param name="route">The routing predicate that identifies which kind of HTTP request that must be simulated.</param>
     /// <param name="handlers">The HTTP request handlers that are executed in sequence for each received HTTP request.</param>
-    static member ServerSimulate
+    static member Simulate
         ( url,
           route : Func<_, _>,
           [<ParamArray>] handlers : Func<_, Task> array) =
@@ -315,8 +354,21 @@ type Http =
     /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
     /// </summary>
     /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
-    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    /// <param name="route">The routing predicate that identifies which kind of HTTP request that must be simulated.</param>
+    /// <param name="handlers">The HTTP request handlers that are executed in sequence for each received HTTP request.</param>
+    [<Obsolete("Renamed to 'Simulate'")>]
     static member ServerSimulate
+        ( url,
+          route : Func<_, _>,
+          [<ParamArray>] handlers : Func<_, Task> array) =
+        Http.Simulate (url, route, handlers)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
+    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    static member Simulate
         ( url,
           [<ParamArray>] table : (ValueTuple<Func<_, _>, Func<_, Task>>) array) =
         if table = null then nullArg "table"
@@ -332,7 +384,18 @@ type Http =
     /// </summary>
     /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
     /// <param name="table">The routing table that matches a routing function with a handling function.</param>
-    static member ServerSimulate
+    [<Obsolete("Renamed to 'Simulate'")>]
+    static member ServerSimulate 
+        ( url,
+          [<ParamArray>] table : (ValueTuple<Func<_, _>, Func<_, Task>>) array) = 
+        Http.Simulate (url, table)
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
+    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    static member Simulate 
         ( url,
           [<ParamArray>] table : (ValueTuple<Func<_, _>, IEnumerable<Func<_, Task>>>) array) =
         if table = null then nullArg "table"
@@ -344,6 +407,15 @@ type Http =
             handlers |> List.ofSeq 
                      |> List.map (fun h -> h.Invoke >> Async.AwaitTask))
         |> Http.simulates url
+
+    /// <summary>
+    /// Starts a HTTP server on the specified url, simulating a series of respond messages when the specified routing function holds.
+    /// </summary>
+    /// <param name="url">The url on which the server should be hosted (ex. `http://localhost:8080`</param>
+    /// <param name="table">The routing table that matches a routing function with a handling function.</param>
+    [<Obsolete("Renamed to 'Simulate'")>]
+    static member ServerSimulate (url, [<ParamArray>] table : (ValueTuple<Func<_, _>, IEnumerable<Func<_, Task>>>) array) = 
+        Http.Simulate (url, table)
 
 /// <summary>
 /// Exposing functions to write reliable polling functions for a testable target.
@@ -378,7 +450,7 @@ type Poll =
     [<Extension>]
     static member Error (poll, errorMessage : string) = 
         if errorMessage = null then nullArg "errorMessage"
-        { poll with ErrorMessage = errorMessage }
+        { poll with Message = errorMessage }
     
     /// <summary>
     /// Adds a custom error message with string formatting to show when the polling has been time out.
@@ -388,7 +460,7 @@ type Poll =
     [<Extension>]
     static member Error (poll, errorMessage, [<ParamArray>] args) = 
         if errorMessage = null then nullArg "errorMessage"
-        { poll with ErrorMessage = String.Format(errorMessage, args) }
+        { poll with Message = String.Format(errorMessage, args) }
     
     /// Switch to another polling function when the first one fails with a `TimeoutException`.
     [<Extension>]
@@ -410,7 +482,6 @@ type Poll =
     /// Runs the asynchronous computation and await its result
     /// </summary>
     /// <param name="cancellation">The cancellation token associated with this computatino.</param>
-    
     [<Extension>]
     static member Synchronously (poll, ?cancellation) =
         cancellation

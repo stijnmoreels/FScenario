@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Divergic.Logging.Xunit;
 using System.Linq;
 using System.Net;
-using FScenario;
 
 namespace FScenario.CSharp
 {
@@ -119,7 +118,7 @@ namespace FScenario.CSharp
                 SendDelayedRequest(),
                 SendDelayedRequest());
 
-            Func<Task<HttpRequest[]>> target = Http.ServerCollect(url, HttpRoute.POST, 3);
+            Func<Task<HttpRequest[]>> target = Http.Collect(url, HttpRoute.POST, 3);
             HttpRequest[] requests =
                 await Poll.Target(target)
                           .UntilCount(3)
@@ -136,7 +135,7 @@ namespace FScenario.CSharp
         public async Task Http_Server_Simulates_2_Failures()
         {
             const string url = "http://localhost:9088";
-            using (Http.ServerSimulate(
+            using (Http.Simulate(
                     url,
                     HttpRoute.GET,
                     Http.RespondStatus(HttpStatusCode.BadRequest),
@@ -145,6 +144,22 @@ namespace FScenario.CSharp
             {
                 await Poll.UntilHttpOkEvery1sFor5s(url);
             }
+        }
+
+        [Fact]
+        public async Task Switch_To_Another_Polling_When_First_Fails()
+        {
+            int actual = await Poll.Target(() => 0).UntilEqual(1).OrElse(2);
+            Assert.Equal(2, actual);
+        }
+
+        [Fact]
+        public async Task Fails_When_No_Value_Is_Present_After_Polling()
+        {
+            await Assert.ThrowsAsync<TimeoutException>(
+                () => Poll.Target(Enumerable.Empty<int>)
+                          .UntilAny()
+                          .ToTask());
         }
     }
 }

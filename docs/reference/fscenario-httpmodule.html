@@ -106,8 +106,8 @@ collecting a series of received requests until the specified results predicate s
             collectCustom(...)
           </code>
           <div class="tip" id="41">
-            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; handler:HttpHandler -&gt; resultMapper:((type) -&gt; &#39;?8579) -&gt; resultsPredicate:(&#39;?8579 list -&gt; bool) -&gt; unit -&gt; Async&lt;&#39;?8579 list&gt;<br />
-                          <strong>Type parameters:</strong> '?8579                      </div>
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; handler:HttpHandler -&gt; resultMapper:((type) -&gt; &#39;a) -&gt; resultsPredicate:(&#39;a list -&gt; bool) -&gt; unit -&gt; Async&lt;&#39;a list&gt;<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
                       <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L253-253" class="github-link">

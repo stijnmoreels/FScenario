@@ -10,18 +10,22 @@ open Polly.Timeout
 
 /// Type representing the required values to run a polling execution.
 type PollAsync<'a> =
-    { PollFunc : (unit -> Async<'a>)
+    { CallTarget : (unit -> Async<'a>)
       Filter : ('a -> bool)
       Interval : TimeSpan
       Timeout : TimeSpan
-      ErrorMessage : string } with
+      Message : string
+      Alternative : PollAsync<'a> option } with
       /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
       static member internal Create f = 
-        { PollFunc = f
+        { CallTarget = f
           Filter = fun _ -> true
           Interval = _5s
           Timeout = _30s
-          ErrorMessage = "Polling doesn't result in any values" }
+          Message = "Polling doesn't result in any values"
+          Alternative = None }
+      member internal this.Apply f =
+        f this.CallTarget this.Filter this.Interval this.Timeout this.Message this.Alternative
 
 /// Exposing functions to write reliable polling functions for a testable target.
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -153,14 +157,26 @@ module Poll =
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    let error errorMessage poll = { poll with ErrorMessage = errorMessage }
+    let error errorMessage poll = { poll with Message = errorMessage }
 
     /// <summary>
     /// Adds a custom error message with string formatting to show when the polling has been time out.
     /// </summary>
     /// <param name="errorMessage">A custom error message with string formatting to show when the polling has been time out. </param>
     /// <param name="args">The formatting arguments to use as inputs for the string formatting message.</param>
-    let errorf errorMessage args poll = { poll with ErrorMessage = sprintf errorMessage args }
+    let errorf errorMessage args poll = { poll with Message = sprintf errorMessage args }
+
+    /// Switch to another polling function when the first one fails with a `TimeoutException`.
+    let orElse other poll = { poll with Alternative = Some other }
+
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    let orElseWith f poll = orElse (target f) poll
+
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    let orElseAsync a poll = orElseWith (fun () -> a) poll
+
+    /// Returns a constant value when the polling function fails with a `TimeoutException`.
+    let orElseValue x poll = orElseWith (fun () -> async.Return x) poll
 
     /// <summary>
     /// Poll at a given target using a filtering function for a period of time until either the predicate succeeds or the expression times out.
@@ -171,7 +187,7 @@ module Poll =
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
     /// <returns>An asynchronous expression that polls periodically for a result that matches the specified predicate.</returns>
-    let untilCustom pollFunc predicate interval timeout errorMessage = async {
+    let rec untilCustomRec pollFunc predicate interval timeout errorMessage alternative = async {
         let! result = 
             Policy.TimeoutAsync(timeout : TimeSpan)
                   .WrapAsync(
@@ -186,29 +202,26 @@ module Poll =
         | OutcomeType.Successful -> 
             return result.Result
         | _ -> match result.FinalException with
-               | :? TimeoutRejectedException -> raise (TimeoutException errorMessage)
+               | :? TimeoutRejectedException -> 
+                    match alternative with
+                    | Some (other : PollAsync<_>) -> return! other.Apply untilCustomRec
+                    | None -> raise (TimeoutException errorMessage)
+                              return Unchecked.defaultof<_>
                | _ -> raise result.FinalException
-               return Unchecked.defaultof<_> }
+                      return Unchecked.defaultof<_> }
 
-    let internal untilRecord (a : PollAsync<_>) = untilCustom a.PollFunc a.Filter a.Interval a.Timeout a.ErrorMessage
+    /// <summary>
+    /// Poll at a given target using a filtering function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
+    /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
+    /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
+    /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
+    /// <returns>An asynchronous expression that polls periodically for a result that matches the specified predicate.</returns>
+    let untilCustom pollFunc predicate interval timeout errorMessage = untilCustomRec pollFunc predicate interval timeout errorMessage None
 
-    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
-    let orElseWith f poll = async {
-        try return! untilRecord poll
-        with
-        | :? TimeoutException as ex ->
-            logger.LogError ex.Message
-            return! f ()
-        | ex -> raise ex; return Unchecked.defaultof<_> }
-
-    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
-    let orElseAsync a poll = orElseWith (fun () -> a) poll
-
-    /// Returns a constant value when the polling function fails with a `TimeoutException`.
-    let orElseValue x poll = orElseWith (fun () -> async.Return x) poll
-
-    /// Switch to another polling function when the first one fails with a `TimeoutException`.
-    let orElse other poll = orElseWith (fun () -> untilRecord other) poll
+    let internal untilRecord (a : PollAsync<_>) = a.Apply untilCustomRec
 
     /// Runs the asynchronous computation and await its result
     let sync x = untilRecord x |> Async.RunSynchronously
@@ -389,15 +402,15 @@ module PollBuilder =
     type PollBuilder () =
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
         [<CustomOperation("target")>] 
-        member __.Target (state, f) = { state with PollFunc = f }
+        member __.Target (state, f) = { state with CallTarget = f }
         /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation 
         /// whose result is 'Some x' for a period of time until either the predicate succeeds or the expression times out.
         [<CustomOperation("targets")>]
         member __.Targets (state, fs) = 
-            { state with PollFunc = fun () -> async { return! Seq.map (fun f -> f ()) fs |> Async.Choice } }
+            { state with CallTarget = fun () -> async { return! Seq.map (fun f -> f ()) fs |> Async.Choice } }
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
         [<CustomOperation("targetSync")>] 
-        member __.TargetSync (state, f) = { state with PollFunc = f >> async.Return }
+        member __.TargetSync (state, f) = { state with CallTarget = f >> async.Return }
         /// Adds a filtering function to speicfy the required result of the polling.
         [<CustomOperation("until")>] 
         member __.Until (state, predicate) = Poll.until predicate state
@@ -444,11 +457,7 @@ module PollBuilder =
         [<CustomOperation("errorf")>]
         member __.ErrorFormat(state, message, args) = Poll.errorf message args state
         member __.Yield (_) = 
-            { PollFunc = (fun () -> async.Return Unchecked.defaultof<_>)
-              Filter = (fun _ -> true)
-              Interval = _5s
-              Timeout = _30s
-              ErrorMessage = "Polling doesn't result in in any values" }
+            PollAsync<_>.Create (fun () -> async.Return Unchecked.defaultof<_>)
 
     type AsyncBuilder with
         member __.Bind (a : PollAsync<'a>, f : 'a -> Async<'b>) = async {
