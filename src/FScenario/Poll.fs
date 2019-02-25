@@ -403,6 +403,14 @@ module PollBuilder =
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
         [<CustomOperation("target")>] 
         member __.Target (state, f) = { state with CallTarget = f }
+        /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
+        /// for a period of time until either the predicate succeeds or the expression times out.
+        [<CustomOperation("target2")>]
+        member __.Target2 (state, f1, f2) = __.Targets (state, [ f1; f2 ])
+        /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
+        /// for a period of time until either the predicate succeeds or the expression times out.
+        [<CustomOperation("target3")>]
+        member __.Target3 (state, f1, f2, f3) = __.Targets (state, [ f1; f2; f3 ])
         /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation 
         /// whose result is 'Some x' for a period of time until either the predicate succeeds or the expression times out.
         [<CustomOperation("targets")>]
@@ -424,8 +432,11 @@ module PollBuilder =
         [<CustomOperation("untilLength")>] 
         member __.UntilLength (state, length) = Poll.untilLength length state
         /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
-        [<CustomOperation("untilAny")>] 
+        [<CustomOperation("untilContains")>] 
         member __.UntilContains (state, value) = Poll.untilContains value state
+        /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
+        [<CustomOperation("untilExists")>]
+        member __.UntilExists (state, predicate) = Poll.untilExists predicate state
         /// Adds a filtering function to specify that the required result of the polling should be equal to `true`.
         [<CustomOperation("untilTrue")>]
         member __.UntilTrue (state) = Poll.untilTrue
@@ -456,6 +467,18 @@ module PollBuilder =
         /// Adds a custom error message with string formatting to show when the polling has been time out.
         [<CustomOperation("errorf")>]
         member __.ErrorFormat(state, message, args) = Poll.errorf message args state
+        /// Switch to another polling function when the first one fails with a `TimeoutException`.
+        [<CustomOperation("orElse")>]
+        member __.OrElse (state, other) = Poll.orElse other state
+        /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+        [<CustomOperation("orElseWith")>]
+        member __.OrElseWith (state, other) = Poll.orElseWith other state
+        /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+        [<CustomOperation("orElseAsync")>]
+        member __.OrElseAsync (state, other) = Poll.orElseAsync other state
+        /// Returns a constant value when the polling function fails with a `TimeoutException`.
+        [<CustomOperation("orElseValue")>]
+        member __.OrElseValue (state, other) = Poll.orElseValue other state
         member __.Yield (_) = 
             PollAsync<_>.Create (fun () -> async.Return Unchecked.defaultof<_>)
 
