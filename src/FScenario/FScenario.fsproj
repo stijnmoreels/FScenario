@@ -23,7 +23,6 @@
     </Compile>
     <Compile Include="Log.fs" />
     <Compile Include="IO.fs" />
-    <Compile Include="IO_Obsolete.fs" />
     <Compile Include="Http.fs" />
     <Compile Include="Poll.fs" />
     <Compile Include="App.fs" />
