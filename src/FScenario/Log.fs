@@ -14,7 +14,8 @@ type Logger private (level : LogLevel, writeMessage : LogLevel -> EventId -> obj
         member this.Log (l, id, state, ex, formatter) =
             if not <| (this :> ILogger).IsEnabled l then ()
             let msg = 
-                Some (formatter.Invoke (state, ex))
+                Option.ofObj formatter
+                |> Option.map (fun f -> f.Invoke (state, ex))
                 |> Option.filter ((<>) nullFormatted)
             writeMessage l id state msg ex
 
@@ -36,7 +37,7 @@ type Logger private (level : LogLevel, writeMessage : LogLevel -> EventId -> obj
 type SimpleConsoleLoggerProvider () =
     interface ILoggerProvider with
         member __.CreateLogger (category) = 
-            let writeMessage = fun msg args -> Console.WriteLine (msg, args)
+            let writeMessage = fun msg args -> try Console.WriteLine (msg, args) with __ -> ()
             Logger.Create (category, Action<_, _> writeMessage) :> ILogger
         member __.Dispose () = ()
 
