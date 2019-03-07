@@ -43,9 +43,9 @@ module Item =
         if not <| File.Exists f2 then invalidArg "f2" (sprintf "Cannot check for equal hashed file content because file: '%s' doesn't exists" f2)
         use fs1 = File.OpenRead f1
         use fs2 = File.OpenRead f2
-        use md5 = MD5.Create ()
-        let expected = md5.ComputeHash fs1
-        let actual = md5.ComputeHash fs2
+        use sha256 = SHA256.Create ()
+        let expected = sha256.ComputeHash fs1
+        let actual = sha256.ComputeHash fs2
         expected = actual
 
     /// <summary>
@@ -56,8 +56,8 @@ module Item =
         if f = null then nullArg "f"
         if not <| File.Exists f then invalidArg "f" (sprintf "Cannot check for equal hashed file content because file: '%s' doesn't exists" f)
         use fs = File.OpenRead f
-        use md5 = MD5.Create ()
-        md5.ComputeHash fs
+        use sha256 = SHA256.Create ()
+        sha256.ComputeHash fs
 
     /// <summary>
     /// Creates a file at the given file path the size of the specified value in the specified metric system.

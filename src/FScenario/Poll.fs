@@ -69,9 +69,9 @@ module Poll =
     /// </summary>
     /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     let http_get url = target (fun () -> async {
-        logger.LogInformation (LogEvent.http, "Poll GET {url} -> ...", (url : string))
+        logger.LogTrace (LogEvent.http, "Poll GET {url} -> ...", (url : string))
         let! r = Http.get url
-        logger.LogInformation (LogEvent.http, "Poll GET {url} -> {status}", url, r.StatusCode)
+        logger.LogTrace (LogEvent.http, "Poll GET {url} -> {status}", url, r.StatusCode)
         return r })
 
     /// <summary>
@@ -80,9 +80,9 @@ module Poll =
     /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     /// <param name="content">The content that must be sent with the HTTP request.</param>
     let http_post url (content : Http.HttpContent) = target (fun () -> async {
-        logger.LogInformation (LogEvent.http, "Poll POST {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
+        logger.LogTrace (LogEvent.http, "Poll POST {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
         let! r = Http.post url content
-        logger.LogInformation (LogEvent.http, "Poll POST {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
+        logger.LogTrace (LogEvent.http, "Poll POST {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
         return r })
 
     /// <summary>
@@ -91,55 +91,86 @@ module Poll =
     /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     /// <param name="content">The content that must be sent with the HTTP request.</param>
     let http_put url (content : Http.HttpContent) = target (fun () -> async {
-        logger.LogInformation (LogEvent.http, "Poll PUT {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
+        logger.LogTrace (LogEvent.http, "Poll PUT {url} {contentType} -> ...", (url : string), content.Headers.ContentType.MediaType)
         let! r = Http.put url content
-        logger.LogInformation (LogEvent.http, "Poll PUT {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
+        logger.LogTrace (LogEvent.http, "Poll PUT {url} {contentType} -> {status}", url, r.StatusCode, content.Headers.ContentType.MediaType)
         return r })
+
+    /// Map and filter the target function to another type while providing a new alternative for the polling function.
+    let mapFilterAlt mapper filter alternative (poll : PollAsync<_>) =
+        { CallTarget = fun () -> async { 
+            let! x = poll.CallTarget ()
+            return mapper x }
+          Filter = filter
+          Interval = poll.Interval
+          Timeout = poll.Timeout
+          Alternative = alternative
+          Message = poll.Message }
+
+    /// Map and filter the target function to another type by removing the alternative from the polling function.
+    /// Note that values set during previously called `Poll.orElse...` functions will be ignored
+    let mapFilter mapper filter poll =
+        mapFilterAlt mapper filter None poll
+
+    /// Maps the target function to another type by removing the filtering and alternative from the polling function.
+    /// Note that values set during previously called `Poll.until` and/or `Poll.orElse...` functions will be ignored
+    let map f poll = 
+        mapFilter f (fun _ -> true) poll
+
+    /// Maps the target function by updating the target after the calling.
+    /// Can be used when the called target needs some extra mapping before the filtering should happen. 
+    let mapTarget f poll =
+        { poll with 
+            CallTarget = fun () -> async { 
+                let! x = poll.CallTarget ()
+                return f x } }
+
+    let private untilAnd predicate poll = { poll with Filter = fun x -> poll.Filter x && predicate x }
 
     /// <summary>
     /// Adds a filtering function to specify the required result of the polling.
     /// </summary>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
-    let until predicate poll = { poll with Filter = predicate }
+    let until predicate poll = untilAnd predicate poll
 
     /// Adds a filtering function to to specify that the required result should be equal to the specified value.
-    let untilEqual x poll = { poll with Filter = (=) x }
+    let untilEqual x poll = untilAnd ((=) x) poll
 
     /// Adds a filtering function to to specify that the required result should not be equal to the specified value.
-    let untilNotEqual x poll = { poll with Filter = (<>) x }
+    let untilNotEqual x poll = untilAnd ((<>) x) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be an empty sequence.
-    let untilEmpty poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.isEmpty xs }
+    let untilEmpty poll = untilAnd (fun (xs : #seq<'a>) -> Seq.isEmpty xs) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a non-empty sequence.
-    let untilAny poll = { poll with Filter = fun (xs : #seq<'a>) -> not <| Seq.isEmpty xs}
+    let untilAny poll = untilAnd (fun (xs : #seq<'a>) -> not <| Seq.isEmpty xs) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a sequence containing the specified value.
-    let untilContains x poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.contains x xs }
+    let untilContains x poll = untilAnd (fun (xs : #seq<'a>) -> Seq.contains x xs) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a sequence where any element satisfies the specified predicate.
-    let untilExists f poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.exists f xs }
+    let untilExists f poll = untilAnd (fun (xs : #seq<'a>) -> Seq.exists f xs) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a sequence of a specified length.
-    let untilLength length poll = { poll with Filter = fun (xs : #seq<'a>) -> Seq.length xs = length }
+    let untilLength length poll = untilAnd (fun (xs : #seq<'a>) -> Seq.length xs = length) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be equal to `true`.
-    let untilTrue poll = { poll with Filter = (=) true }
+    let untilTrue poll = untilAnd ((=) true) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be equal to `false`.
-    let untilFalse poll = { poll with Filter = (=) false }
+    let untilFalse poll = untilAnd ((=) false) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option.
-    let untilSome poll = { poll with Filter = Option.isSome }
+    let untilSome poll = untilAnd Option.isSome poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a `Some x` option, where `x` is a specified value.
-    let untilSomeValue x poll = { poll with Filter = (=) (Some x) }
+    let untilSomeValue x poll = untilAnd ((=) (Some x)) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result.
-    let untilOk poll = { poll with Filter = function Ok _ -> true | _ -> false }
+    let untilOk poll = untilAnd (function Ok _ -> true | _ -> false) poll
 
     /// Adds a filtering function to specify that the required result of the polling should be a `Ok x` result, where `x` is a specified value.
-    let untilOkValue x poll = { poll with Filter = function Ok y -> x = y | _ -> false }
+    let untilOkValue x poll = untilAnd (function Ok y -> x = y | _ -> false ) poll
 
     /// <summary>
     /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
@@ -204,7 +235,9 @@ module Poll =
         | _ -> match result.FinalException with
                | :? TimeoutRejectedException -> 
                     match alternative with
-                    | Some (other : PollAsync<_>) -> return! other.Apply untilCustomRec
+                    | Some (other : PollAsync<_>) -> 
+                        logger.LogError (LogEvent.poll, errorMessage)
+                        return! other.Apply untilCustomRec
                     | None -> raise (TimeoutException errorMessage)
                               return Unchecked.defaultof<_>
                | _ -> raise result.FinalException
@@ -270,7 +303,7 @@ module Poll =
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
     let untilFile (filePath : string) predicate interval timeout errorMessage =
         untilCustom 
-            (fun () -> async { logger.LogInformation(LogEvent.io, "Poll at file {path}", filePath); return FileInfo filePath }) 
+            (fun () -> async { logger.LogTrace(LogEvent.io, "Poll at file {path}", filePath); return FileInfo filePath }) 
             (fun f -> f.Exists && predicate f) interval timeout errorMessage
 
     /// <summary>
@@ -281,7 +314,7 @@ module Poll =
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     let untilFileExists (filePath : string) interval timeout =
         untilCustom 
-              (fun () -> async { logger.LogInformation(LogEvent.io, "Poll at file {path}", filePath); return FileInfo filePath }) 
+              (fun () -> async { logger.LogTrace(LogEvent.io, "Poll at file {path}", filePath); return FileInfo filePath }) 
               (fun f -> f.Exists) 
               interval timeout 
               (sprintf "File '%s' is not present after polling (every %A, timeout %A)" filePath interval timeout)
@@ -314,7 +347,7 @@ module Poll =
     let untilFiles (dirPath : string) predicate interval timeout errorMessage =
         untilCustom (fun () -> async { 
             let fs = (DirectoryInfo dirPath).GetFiles ()
-            logger.LogInformation (LogEvent.io, "Poll at directory {dirPath} for files, found {length}", dirPath, fs.Length)
+            logger.LogTrace (LogEvent.io, "Poll at directory {dirPath} for files, found {length}", dirPath, fs.Length)
             return fs }) predicate interval timeout errorMessage
 
     /// <summary>
@@ -353,13 +386,13 @@ module Poll =
     let untilHttpOk url interval timeout =
         untilCustom 
             (fun () -> async {
-                logger.LogInformation (LogEvent.http, "Poll GET {url} -> ...", (url : string))
+                logger.LogTrace (LogEvent.http, "Poll GET {url} -> ...", (url : string))
                 let! r = Http.get url
-                logger.LogInformation (LogEvent.http, "Poll GET {url} -> {status}", url, r.StatusCode)
+                logger.LogTrace (LogEvent.http, "Poll GET {url} -> {status}", url, r.StatusCode)
                 return r }) 
             (fun r ->   
                 let ok = r.StatusCode = OK
-                logger.LogInformation(LogEvent.http, "Poll GET {url} -> {ok}", url, if ok then "= OK" else "<> OK, but " + string r.StatusCode)
+                logger.LogTrace(LogEvent.http, "Poll GET {url} -> {ok}", url, if ok then "= OK" else "<> OK, but " + string r.StatusCode)
                 ok) 
             interval 
             timeout 

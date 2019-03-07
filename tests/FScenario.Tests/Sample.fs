@@ -8,6 +8,10 @@ open System.Net.Http
 open Expecto
 open FScenario
 
+do Log.factory 
+   |> Log.addSimpleConsole
+   |> ignore
+
 [<Tests>]
 let directory_tests =
   testList "directory tests" [
@@ -233,9 +237,18 @@ let poll_tests =
     testCaseAsync "should switch over to another polling function when the first one fails" <| async {
       let! x =
         Poll.targetSync (fun () -> 0)
-        |> Poll.untilEqual 1
-        |> Poll.orElseValue 2
-      Expect.equal x 2 "Should switch over to default value"
+        |> Poll.map string
+        |> Poll.untilEqual "1"
+        |> Poll.orElseValue "2"
+      Expect.equal x "2" "Should switch over to default value"
+    }
+
+    testCaseAsync "should combine several 'Poll.until' functions instead of overriding previous" <| async {
+      let! x = 
+        Poll.targetSync (fun () -> 0) 
+        |> Poll.untilEqual 0
+        |> Poll.until (fun x -> x < 1)
+      Expect.equal x 0 "Should not override previous 'Poll.until'"
     }
   ]
 

@@ -7,6 +7,8 @@ open FScenario
 open FScenario.Poll
 open System.Runtime.CompilerServices
 open System.Collections.Generic
+open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Logging.Internal
 
 [<Extension>]
 type DirectoryEx =
@@ -462,6 +464,35 @@ type Poll =
         if errorMessage = null then nullArg "errorMessage"
         { poll with Message = String.Format(errorMessage, args) }
     
+    /// Maps the target function to another type by removing the filtering and alternative from the polling function. 
+    /// Note that values set during previously called `.Until()` and/or `.OrElse..`. functions will be ignored
+    [<Extension>]
+    static member Select (poll, selection : Func<_, _>) =
+        if selection = null then nullArg "selection"
+        Poll.map selection.Invoke poll
+
+    /// Map and filter the target function to another type by removing the alternative from the polling function.
+    /// Note that values set during previously called `.OrElse...` functions will be ignored
+    [<Extension>]
+    static member Select (poll, selection : Func<_, _>, predicate : Func<_, _>) =
+        if selection = null then nullArg "selection"
+        if predicate = null then nullArg "predicate"
+        Poll.mapFilter selection.Invoke predicate.Invoke poll
+
+    /// Maps the target function by updating the target after the calling.
+    /// Can be used when the called target needs some extra mapping before the filtering should happen. 
+    [<Extension>]
+    static member Select (poll, selection : Func<_, _>) =
+        if selection = null then nullArg "selection"
+        Poll.mapTarget selection.Invoke poll
+
+    /// Maps the target function by updating the target after the calling.
+    /// Can be used when the called target needs some extra mapping before the filtering should happen. 
+    [<Extension>]
+    static member Select (poll, addition : Action<_>) =
+        if addition = null then nullArg "selection"
+        Poll.mapTarget addition.Invoke poll
+
     /// Switch to another polling function when the first one fails with a `TimeoutException`.
     [<Extension>]
     static member OrElse (poll, other) =
@@ -911,3 +942,4 @@ type Poll =
     static member UntilHttpOkEvery5sFor30s (url) =
         if url = null then nullArg "url"
         Poll.untilHttpOkEvery5sFor30s url |> Async.StartAsTask :> Task
+    

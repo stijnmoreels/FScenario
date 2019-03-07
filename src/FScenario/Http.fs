@@ -83,9 +83,9 @@ module Http =
     /// </summary>
     /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     let get (url : string) = async {
-        loggerClient.LogInformation(LogEvent.http, "GET -> {uri}", url)
+        loggerClient.LogTrace(LogEvent.http, "GET -> {uri}", url)
         let! res = client.GetAsync (url : string) |> Async.AwaitTask
-        loggerClient.LogInformation(LogEvent.http, "{status} <- GET {uri}", res.StatusCode, url)
+        loggerClient.LogTrace(LogEvent.http, "{status} <- GET {uri}", res.StatusCode, url)
         return HttpResponse.Create res }
 
     /// <summary>
@@ -94,9 +94,9 @@ module Http =
     /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     /// <param name="content">The content that must be sent with the HTTP request.</param>
     let post (url : string) content = async {
-        loggerClient.LogInformation(LogEvent.http, "POST -> {uri}", url)
+        loggerClient.LogTrace(LogEvent.http, "POST -> {uri}", url)
         let! (res : HttpResponseMessage) = client.PostAsync((url : string), content) |> Async.AwaitTask
-        loggerClient.LogInformation(LogEvent.http, "{status} <- POST {uri}", res.StatusCode, url)
+        loggerClient.LogTrace(LogEvent.http, "{status} <- POST {uri}", res.StatusCode, url)
         return HttpResponse.Create res }
 
     /// <summary>
@@ -105,9 +105,9 @@ module Http =
     /// <param name="url">The endpoint on which the HTTP request should be sent.</param>
     /// <param name="content">The content that must be sent with the HTTP request.</param>
     let put (url : string) content = async {
-        loggerClient.LogInformation(LogEvent.http, "PUT -> {uri}", url)
+        loggerClient.LogTrace(LogEvent.http, "PUT -> {uri}", url)
         let! (res : HttpResponseMessage) = client.PutAsync((url : string), content) |> Async.AwaitTask
-        loggerClient.LogInformation(LogEvent.http, "{status} <- PUT {uri}", res.StatusCode, url)
+        loggerClient.LogTrace(LogEvent.http, "{status} <- PUT {uri}", res.StatusCode, url)
         return HttpResponse.Create res }
 
     let private displayRequestUrl (req : Microsoft.AspNetCore.Http.HttpRequest) =
@@ -126,19 +126,19 @@ module Http =
 
     /// Creates a handling function that adds a specified status code to the HTTP response.
     let respondStatusCode (status : int) (ctx : HttpContext) = async {
-        loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {status}", ctx.Request.Method, displayRequestUrl ctx.Request, status)
+        loggerServer.LogTrace (LogEvent.http, "{method} {uri} -> {status}", ctx.Request.Method, displayRequestUrl ctx.Request, status)
         ctx.Response.StatusCode <- status
         ctx.Response.Body.WriteByte 0uy }
 
     /// Creates a handling function that adds a specified status code to the HTTP response.
     let respondStatus (status : HttpStatusCode) (ctx : HttpContext) = async {
-        loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {status}", ctx.Request.Method, displayRequestUrl ctx.Request, status)
+        loggerServer.LogTrace (LogEvent.http, "{method} {uri} -> {status}", ctx.Request.Method, displayRequestUrl ctx.Request, status)
         ctx.Response.StatusCode <- int status
         ctx.Response.Body.WriteByte 0uy }
 
     /// Creates a handling function that adds a specified string content to the HTTP response.
     let respondContentString (content : string) (ctx : HttpContext) = async {
-        loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {content}", ctx.Request.Method, displayRequestUrl ctx.Request, content)
+        loggerServer.LogTrace (LogEvent.http, "{method} {uri} -> {content}", ctx.Request.Method, displayRequestUrl ctx.Request, content)
         ctx.Response.StatusCode <- 200
         ctx.Response.ContentType <- "text/plain"
         ctx.Response.ContentLength <- Nullable <| int64 content.Length
@@ -148,7 +148,7 @@ module Http =
     /// Creates a handling function that adds a specified generic HTTP content to the HTTP response.
     let respondContent (content : HttpContent) (ctx : HttpContext) = async {
         let contentType = content.Headers.ContentType.MediaType
-        loggerServer.LogInformation (LogEvent.http, "{method} {uri} -> {contentType}", ctx.Request.Method, displayRequestUrl ctx.Request, contentType)
+        loggerServer.LogTrace (LogEvent.http, "{method} {uri} -> {contentType}", ctx.Request.Method, displayRequestUrl ctx.Request, contentType)
         ctx.Response.StatusCode <- 200
         use _ = content
         ctx.Response.ContentType <- contentType
@@ -180,7 +180,7 @@ module Http =
                 custom app ct))
             .Build()
         
-        loggerServer.LogInformation(LogEvent.http, "Start HTTP server at {url}", url)
+        loggerServer.LogTrace(LogEvent.http, "Start HTTP server at {url}", url)
         Async.Start (host.RunAsync ct.Token |> Async.AwaitTask, ct.Token)
         Disposable.create (fun () -> 
             host.StopAsync () |> Async.AwaitTask |> Async.RunSynchronously
@@ -191,7 +191,7 @@ module Http =
             for (route : HttpRouter, handler) in table do
                     app.MapWhen (Func<_, _> route, Action<_> (fun x -> 
                         x.Run(RequestDelegate (fun ctx -> 
-                            loggerServer.LogInformation(LogEvent.http, "Receive at '{uri}' <- {method}", url, ctx.Request.Method)
+                            loggerServer.LogTrace(LogEvent.http, "Receive at '{uri}' <- {method}", url, ctx.Request.Method)
                             handler ctx ct |> Async.StartAsTask :> Task)))) |> ignore
 
     /// <summary>
@@ -257,7 +257,7 @@ module Http =
                 match message with
                 | Add (str, ct) ->
                     let messages = str :: messages
-                    loggerServer.LogInformation (LogEvent.http, "Collect received request, collected: {length}", messages.Length)
+                    loggerServer.LogTrace (LogEvent.http, "Collect received request, collected: {length}", messages.Length)
                     if resultsPredicate messages 
                     then ct.Cancel (); return ()
                     return! loop messages
@@ -295,7 +295,7 @@ module Http =
     /// <param name="url">The url on which the server should be hosted (ex. 'http://localhost:8080').</param>
     /// <param name="route">The route/predicate where the server should collect requests.</param>
     /// <param name="resultsPredicate">The filtering function that determines when the collected requests are complete.</param>
-    let collect url route resultsPredicate =
+    let collect url route resultsPredicate : HttpPollTarget<_> =
         collectCustom url route (respondStatusCode 202) HttpRequest.Create resultsPredicate
 
     /// <summary>
@@ -317,7 +317,7 @@ module Http =
     let collectCount url route count =
         collect url route (fun xs -> 
             let l = List.length xs
-            loggerServer.LogInformation(LogEvent.http, "Collect received request at {url} ({current}/{length})", url, l, count) 
+            loggerServer.LogTrace(LogEvent.http, "Collect received request at {url} ({current}/{length})", url, l, count) 
             l = count)
 
     /// <summary>
@@ -358,7 +358,7 @@ module Http =
                     let length = List.length handlers
                     let next = if count >= length then 0 else count
                     
-                    loggerServer.LogInformation(LogEvent.http, "Simulate next response at {url} ({current}/{length})", url, next + 1, length)
+                    loggerServer.LogTrace(LogEvent.http, "Simulate next response at {url} ({current}/{length})", url, next + 1, length)
                     let handler : HttpHandler = handlers.[next]
                     reply.Reply handler
                     return! loop (next + 1) }

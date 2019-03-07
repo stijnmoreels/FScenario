@@ -2,14 +2,49 @@ namespace FScenario
 
 open System
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Logging.Internal
 open Microsoft.Extensions.DependencyInjection
-open Microsoft.Extensions.Logging
+
+/// Simple logger implementation to provide quick access to the way messages are logged
+type Logger private (level : LogLevel, writeMessage : LogLevel -> EventId -> obj -> string option -> exn -> unit) =
+    let nullFormatted = FormattedLogValues(null, null).ToString()
+    interface ILogger with
+        member __.IsEnabled (l) = if level = LogLevel.None then false else l <= level
+        member __.BeginScope (state) = Disposable.create id
+        member this.Log (l, id, state, ex, formatter) =
+            if not <| (this :> ILogger).IsEnabled l then ()
+            let msg = 
+                Some (formatter.Invoke (state, ex))
+                |> Option.filter ((<>) nullFormatted)
+            writeMessage l id state msg ex
+
+    /// <summary>
+    /// Creates a simple logger implementation with a name, minimum level and function to write the log message to.
+    /// </summary>
+    /// <param name="name">The name of the logger which gets appended to the log message.</param>
+    /// <param name="writeMessage">The function to where the log message gets sent to.</param>
+    /// <param name="level"></param>
+    static member Create (name : string, writeMessage : Action<string, obj []>, ?level : LogLevel) =
+        let format = "{1} [{2}]: {3}"
+        Logger (
+            defaultArg level LogLevel.Critical, 
+            fun l id state msg ex -> 
+                let args = [| name :> obj; l :> obj; id.Id :> obj; Option.defaultValue ex.Message msg :> obj |]
+                writeMessage.Invoke (format, args))
+
+/// Logger provider that writes messages directly to the console.
+type SimpleConsoleLoggerProvider () =
+    interface ILoggerProvider with
+        member __.CreateLogger (category) = 
+            let writeMessage = fun msg args -> Console.WriteLine (msg, args)
+            Logger.Create (category, Action<_, _> writeMessage) :> ILogger
+        member __.Dispose () = ()
 
 module LogEvent =
 
     [<CompiledName("Poll")>]
     let poll = EventId (2001, "Polling at target")
-    [<CompiledName("File")>] 
+    [<CompiledName("IO")>] 
     let io = EventId (2002, "IO (file system) related")
     
     [<CompiledName("Http")>] 
@@ -22,16 +57,19 @@ module LogEvent =
 
 /// Exposing logging functionality that is used throughout the test suite components.
 module Log =
-    let private serviceCollection = 
-        (new ServiceCollection())
-            .AddLogging(Action<_> (fun builder -> 
-                builder.AddConsole(Action<_> (fun options -> 
-                    options.DisableColors <- false
-                    options.IncludeScopes <- false)) |> ignore))
+    let private serviceCollection = new ServiceCollection()
 
     /// Gets the logging factory to add custom logging implementations.
     [<CompiledName("Factory")>]
     let factory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>()
+
+    /// Adds logger provider to logger factory.
+    [<CompiledName("AddProvider")>]
+    let addProvider provider (factory : ILoggerFactory) = factory.AddProvider provider; factory
+
+    /// Adds simple console logger provider to logger factory.
+    [<CompiledName("AddSimpleConsoleProvider")>]
+    let addSimpleConsole factory = addProvider (new SimpleConsoleLoggerProvider ()) factory
 
     // Creates a logger implementation with the configured logging factory.
     [<CompiledName("Logger")>]
