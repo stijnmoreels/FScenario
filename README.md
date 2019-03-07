@@ -78,6 +78,6 @@ With full C# support!
 Poll.Target(() => Task.FromResult(Dir.Files("my-dir")))
     .Until(fs => fs.Length == 3)
     .Every(TimeSpans._1s)
-    .For(TimeSpans._10s
+    .For(TimeSpans._10s)
     .Error("Directory 'my-dir' should have 3 files);
 ```
