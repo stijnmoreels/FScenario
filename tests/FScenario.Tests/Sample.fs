@@ -8,10 +8,6 @@ open System.Net.Http
 open Expecto
 open FScenario
 
-do Log.factory 
-   |> Log.addSimpleConsole
-   |> ignore
-
 [<Tests>]
 let directory_tests =
   testList "directory tests" [

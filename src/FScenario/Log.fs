@@ -61,15 +61,13 @@ module Log =
 
     /// Gets the logging factory to add custom logging implementations.
     [<CompiledName("Factory")>]
-    let factory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>()
-
-    /// Adds logger provider to logger factory.
-    [<CompiledName("AddProvider")>]
-    let addProvider provider (factory : ILoggerFactory) = factory.AddProvider provider; factory
-
-    /// Adds simple console logger provider to logger factory.
-    [<CompiledName("AddSimpleConsoleProvider")>]
-    let addSimpleConsole factory = addProvider (new SimpleConsoleLoggerProvider ()) factory
+    let factory = 
+        let x = 
+            serviceCollection
+                .BuildServiceProvider()
+                .GetService<ILoggerFactory>()
+        x.AddProvider (new SimpleConsoleLoggerProvider ())
+        x
 
     // Creates a logger implementation with the configured logging factory.
     [<CompiledName("Logger")>]
