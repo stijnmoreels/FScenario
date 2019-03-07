@@ -57,17 +57,18 @@ module LogEvent =
 
 /// Exposing logging functionality that is used throughout the test suite components.
 module Log =
-    let private serviceCollection = new ServiceCollection()
+    let private serviceCollection = 
+        (new ServiceCollection())
+            .AddLogging(Action<_> (fun (b : ILoggingBuilder) -> 
+                b.AddProvider (new SimpleConsoleLoggerProvider ()) 
+                |> ignore))
 
     /// Gets the logging factory to add custom logging implementations.
     [<CompiledName("Factory")>]
     let factory = 
-        let x = 
-            serviceCollection
-                .BuildServiceProvider()
-                .GetService<ILoggerFactory>()
-        x.AddProvider (new SimpleConsoleLoggerProvider ())
-        x
+        serviceCollection
+            .BuildServiceProvider()
+            .GetService<ILoggerFactory>()
 
     // Creates a logger implementation with the configured logging factory.
     [<CompiledName("Logger")>]
