@@ -30,8 +30,18 @@ type Logger private (level : LogLevel, writeMessage : LogLevel -> EventId -> obj
         Logger (
             defaultArg level LogLevel.Critical, 
             fun l id state msg ex -> 
-                let args = [| name :> obj; l :> obj; id.Id :> obj; Option.defaultValue ex.Message msg :> obj |]
-                writeMessage.Invoke (format, args))
+                let args = 
+                    [ name :> obj; l :> obj
+                      id.Id :> obj ]
+                
+                let args =
+                    Option.ofObj ex
+                    |> Option.map (fun x -> x.Message)
+                    |> Option.orElse msg
+                    |> Option.map (fun x -> x :> obj :: args)
+                    |> Option.defaultValue args
+
+                writeMessage.Invoke (format, Array.ofList args))
 
 /// Logger provider that writes messages directly to the console.
 type SimpleConsoleLoggerProvider () =
