@@ -65,7 +65,7 @@
             collect url route resultsPredicate
           </code>
           <div class="tip" id="39">
-            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; resultsPredicate:(HttpRequest list -&gt; bool) -&gt; unit -&gt; Async&lt;HttpRequest list&gt;<br />
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; resultsPredicate:(HttpRequest list -&gt; bool) -&gt; HttpPollTarget&lt;HttpRequest list&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
@@ -86,7 +86,7 @@ collecting a series of received requests until the specified results predicate s
             collectCount url route count
           </code>
           <div class="tip" id="40">
-            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; count:int -&gt; unit -&gt; Async&lt;HttpRequest list&gt;<br />
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; count:int -&gt; HttpPollTarget&lt;HttpRequest list&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
@@ -106,8 +106,8 @@ collecting a series of received requests until the specified results predicate s
             collectCustom(...)
           </code>
           <div class="tip" id="41">
-            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; handler:HttpHandler -&gt; resultMapper:((type) -&gt; &#39;a) -&gt; resultsPredicate:(&#39;a list -&gt; bool) -&gt; unit -&gt; Async&lt;&#39;a list&gt;<br />
-                          <strong>Type parameters:</strong> 'a                      </div>
+            <strong>Signature:</strong> url:string -&gt; route:HttpRouter -&gt; handler:HttpHandler -&gt; resultMapper:((type) -&gt; &#39;c) -&gt; resultsPredicate:(&#39;c list -&gt; bool) -&gt; unit -&gt; Async&lt;&#39;c list&gt;<br />
+                          <strong>Type parameters:</strong> 'c                      </div>
         </td>
         <td class="xmldoc">
                       <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L253-253" class="github-link">

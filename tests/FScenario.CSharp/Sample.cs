@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Divergic.Logging.Xunit;
 using System.Linq;
 using System.Net;
+using Microsoft.FSharp.Core;
 
 namespace FScenario.CSharp
 {

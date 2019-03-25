@@ -36,3 +36,10 @@ Initial release
 - Add HTTP shortcut `Http.receive` for simple receival of a single HTTP request
 - Add polling alternatives with `Poll.orElse`, `Poll.orElseWith`, `Poll.orElseAsync` and `Poll.orElseValue` when a polling sequence times-out
 - Make the remaining C# HTTP server calls (ex. `Http.Serverxxx`) obsolete by removing the `Server` prefix
+
+### 2.0.0
+
+- Add logging builder to have an alternative approach on logging by introducing several custom operations
+- Add cancallation and creation options to `.ToTask` extension method for more configurable control on polling C#
+- Restructure the logging functionality by adding a new custom simple logger instead of relying on a specific NuGet package
+- Remove obsolete IO functions

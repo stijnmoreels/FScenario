@@ -99,3 +99,80 @@ module Log =
 
     /// Writes a critical log message.
     let critical m (l : ILogger) = l.LogCritical m
+
+type LogBuilder internal (l : ILogger) =
+    [<CustomOperation("trace")>]
+    member __.Trace (_, msg) = l.LogTrace (msg)
+    [<CustomOperation("tracef")>]
+    member __.TraceF (_, msg, args) = l.LogTrace (msg, args)
+    [<CustomOperation("tracef_event")>]
+    member __.TraceF_Event (_, id, msg, args) = l.LogTrace ((id : EventId), msg, args)
+    [<CustomOperation("tracef_ex")>]
+    member __.TraceF_Ex (_, ex, msg, args) = l.LogTrace ((ex : exn), msg, args)
+    [<CustomOperation("tracef_ex_event")>]
+    member __.TraceF_Ex_Event (_, id, ex, msg, args) = l.LogTrace (id, ex, msg, args)
+    
+    [<CustomOperation("debug")>]
+    member __.Debug (_, msg) = l.LogDebug (msg)
+    [<CustomOperation("debugf")>]
+    member __.DebugF (_, msg, args) = l.LogDebug (msg, args)
+    [<CustomOperation("debugf_event")>]
+    member __.DebugF_Event (_, id, msg, args) = l.LogDebug ((id : EventId), msg, args)
+    [<CustomOperation("debugf_ex")>]
+    member __.DebugF_Ex (_, ex, msg, args) = l.LogDebug ((ex : exn), msg, args)
+    [<CustomOperation("debugf_ex_event")>]
+    member __.DebugF_Ex_Event (_, id, ex, msg, args) = l.LogDebug (id, ex, msg, args)
+
+    [<CustomOperation("warn")>]
+    member __.Warn (_, msg) = l.LogWarning (msg)
+    [<CustomOperation("warnf")>]
+    member __.WarnF (_, msg, args) = l.LogWarning (msg, args)
+    [<CustomOperation("warnf_event")>]
+    member __.WarnF_Event (_, id, msg, args) = l.LogWarning ((id : EventId), msg, args)
+    [<CustomOperation("warnf_ex")>]
+    member __.WarnF_Ex (_, ex, msg, args) = l.LogWarning ((ex : exn), msg, args)
+    [<CustomOperation("warnf_ex_event")>]
+    member __.WarnF_Ex_Event (_, id, ex, msg, args) = l.LogWarning (id, ex, msg, args)
+
+    [<CustomOperation("info")>]
+    member __.Info (_, msg) = l.LogInformation (msg)
+    [<CustomOperation("infof")>]
+    member __.InfoF (_, msg, args) = l.LogInformation (msg, args)
+    [<CustomOperation("infof_event")>]
+    member __.InfoF_Event (_, id, msg, args) = l.LogInformation ((id : EventId), msg, args)
+    [<CustomOperation("infof_ex")>]
+    member __.InfoF_Ex (_, ex, msg, args) = l.LogInformation ((ex : exn), msg, args)
+    [<CustomOperation("infof_ex_event")>]
+    member __.InfoF_Ex_Event (_, id, ex, msg, args) = l.LogInformation (id, ex, msg, args)
+
+    [<CustomOperation("error")>]
+    member __.Error (_, msg) = l.LogError (msg)
+    [<CustomOperation("errorf")>]
+    member __.ErrorF (_, msg, args) = l.LogError (msg, args)
+    [<CustomOperation("errorf_event")>]
+    member __.ErrorF_Event (_, id, msg, args) = l.LogError ((id : EventId), msg, args)
+    [<CustomOperation("errorf_ex")>]
+    member __.ErrorlF_Ex (_, ex, msg, args) = l.LogError ((ex : exn), msg, args)
+    [<CustomOperation("errorf_ex_event")>]
+    member __.ErrorF_Ex_Event (_, id, ex, msg, args) = l.LogError(id, ex, msg, args)
+
+    [<CustomOperation("critical")>]
+    member __.Critical (_, msg) = l.LogCritical (msg)
+    [<CustomOperation("criticalf")>]
+    member __.CriticalF (_, msg, args) = l.LogCritical (msg, args)
+    [<CustomOperation("criticalf_event")>]
+    member __.CriticalF_Event (_, id, msg, args) = l.LogCritical ((id : EventId), msg, args)
+    [<CustomOperation("criticalf_ex")>]
+    member __.CriticalF_Ex (_, ex, msg, args) = l.LogCritical ((ex : exn), msg, args)
+    [<CustomOperation("criticalf_ex_event")>]
+    member __.CriticalF_Ex_Event (_, id, ex, msg, args) = l.LogCritical(id, ex, msg, args)
+
+    member __.Yield x = x
+    member __.For (xs, f) = for x in xs do f x
+    member __.For (xs, f) = f xs
+    member __.Bind (x, f) = f x
+    member __.Return x = x
+
+[<AutoOpen>]
+module LogBuilder =
+    let log<'a> = LogBuilder (Log.logger<'a> ())
