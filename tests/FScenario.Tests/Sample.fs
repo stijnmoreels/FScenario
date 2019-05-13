@@ -223,12 +223,18 @@ let poll_tests =
      }
     
     testCase "should fail when polling doesn't result in expected value" <| fun _ ->
-      Expect.throwsT<TimeoutException> (fun () ->
-        Poll.targetSync (fun () -> false)
-        |> Poll.untilTrue
-        |> Poll.toAsync
-        |> Async.Ignore
-        |> Async.RunSynchronously) "Polling for non-value should result in an exception"
+      Expect.throwsC (fun () ->
+          poll { targetSync (fun () -> false)
+                 untilTrue
+                 incrementSec id 
+                 timeout _5s
+                 error "target should be 'true'" }
+            |> Poll.toAsync
+            |> Async.Ignore
+            |> Async.RunSynchronously)
+        (fun ex -> 
+            Expect.stringContains ex.Message "target should be 'true'" "exception should contain expected error title"
+            Expect.stringContains ex.Message "[Fail]" "exception should contain specific predicate error message")
 
     testCaseAsync "should switch over to another polling function when the first one fails" <| async {
       let! x =
@@ -236,15 +242,47 @@ let poll_tests =
         |> Poll.map string
         |> Poll.untilEqual "1"
         |> Poll.orElseValue "2"
-      Expect.equal x "2" "Should switch over to default value"
+        |> Poll.timeout _1s
+      Expect.equal x "2" "should switch over to default value"
     }
 
     testCaseAsync "should combine several 'Poll.until' functions instead of overriding previous" <| async {
       let! x = 
         Poll.targetSync (fun () -> 0) 
         |> Poll.untilEqual 0
-        |> Poll.until (fun x -> x < 1)
-      Expect.equal x 0 "Should not override previous 'Poll.until'"
+        |> Poll.untilDesc (fun x -> x < 1, "should be less than 1")
+      Expect.equal x 0 "should not override previous 'Poll.until'"
+    }
+
+    testCaseAsync "should retry immediate" <| async {
+      let! x =
+        Poll.targetSync (fun () -> 0) 
+        |> Poll.increment1s
+      Expect.equal x 0 "should have immediate value"
+    }
+
+    testCaseAsync "should retry exponential" <| async {
+      let mutable x = 0
+      let! x =
+        Poll.targetSync (fun () -> x <- x + 1; x)
+        |> Poll.untilEqual 2
+        |> Poll.exponential _1s Sec
+      Expect.equal x 2 "should have exponential value"
+    }
+
+    testCaseAsync "should poll for sequence length" <| async {
+      let xs = System.Collections.Generic.List<_> ()
+      let! actual = 
+        poll { targetSyncLog (fun l -> log<int> {
+                  info "log for sequence length"
+                  xs.Add 0 
+                  return xs })
+               map Seq.toList
+               untilContains 0
+               untilExists (fun x -> x = 0)
+               untilLength 3
+               immediate }
+      Expect.equal actual [0; 0; 0] "should be equal to list of 3 zero's"
     }
   ]
 

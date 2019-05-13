@@ -10,6 +10,8 @@ using Divergic.Logging.Xunit;
 using System.Linq;
 using System.Net;
 using Microsoft.FSharp.Core;
+using static System.TimeMetric;
+using static System.TimeSpans;
 
 namespace FScenario.CSharp
 {
@@ -61,8 +63,8 @@ namespace FScenario.CSharp
                 var files =
                     await Poll.Target(() => Dir.Files("multiple"))
                               .UntilCount(3)
-                              .Every(TimeSpans._1s)
-                              .For(TimeSpans._5s)
+                              .Every(_1s)
+                              .For(_5s)
                               .Error("Directory 'multiple' should have {0} files", 3);
 
                 Assert.True(
@@ -103,13 +105,13 @@ namespace FScenario.CSharp
         public async Task Http_Server_Collects_3_Received_Requests()
         {
             const string url = "http://localhost:9089";
-            const string expected = "This should be received 3 times!";
+            const string content = "This should be received 3 times!";
             Task SendDelayedRequest()
             {
                 return Task.Run(async () =>
                 {
                     await Task.Delay(2000);
-                    await Http.Post(url, new StringContent(expected));
+                    await Http.Post(url, new StringContent(content));
                 });
             }
 
@@ -123,13 +125,13 @@ namespace FScenario.CSharp
             HttpRequest[] requests =
                 await Poll.Target(target)
                           .UntilCount(3)
-                          .Every(TimeSpans._1s)
-                          .For(TimeSpans._10s)
+                          .Every(_1s)
+                          .For(_10s)
                           .Error("HTTP collect should collect {0} requests", 3);
 
-            string[] expecteds = Enumerable.Repeat(expected, 3).ToArray();
-            string[] actuals = requests.Select(r => r.Body.ReadAsString()).ToArray();
-            Assert.Equal(expecteds, actuals);
+            string[] expected = Enumerable.Repeat(content, 3).ToArray();
+            string[] actual = requests.Select(r => r.Body.ReadAsString()).ToArray();
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -161,6 +163,15 @@ namespace FScenario.CSharp
                 () => Poll.Target(Enumerable.Empty<int>)
                           .UntilAny()
                           .ToTask());
+        }
+
+        [Fact]
+        public async Task Until_Type()
+        {
+            await Poll.Target(() => "something to cast to string")
+                      .Select(x => (object) x)
+                      .Increment(x => x, TimeSpan.Zero, Sec)
+                      .UntilType<string>();
         }
     }
 }

@@ -1,16 +1,19 @@
 ﻿namespace FScenario
 
 open System
-open System.IO
-open System.Threading.Tasks
-open FScenario
-open FScenario.Poll
-open System.Runtime.CompilerServices
 open System.Collections.Generic
+open System.IO
+open System.Runtime.CompilerServices
+open System.Threading.Tasks
+
 open Microsoft.Extensions.Logging
-open Microsoft.Extensions.Logging.Internal
+
+open FScenario
+
+#nowarn "9001"
 
 [<Extension>]
+[<CompilerMessage(message = "Not desinged for F#", messageNumber = 9001, IsHidden = true)>]
 type DirectoryEx =
     /// <summary>
     /// Deletes the files in the specified directory.
@@ -123,6 +126,7 @@ type DirectoryEx =
         DirectoryInfo.disposable dir 
 
 [<Extension>]
+[<CompilerMessage(message = "Not desinged for F#", messageNumber = 9001, IsHidden = true)>]
 type FileEx =
     /// <summary>
     /// Gets the hash value of a given file contents.
@@ -168,6 +172,7 @@ type FileEx =
     static member MoveUndo (src, dest) = FileInfo.moveUndo src dest
 
 /// Representation of HTTP methods that are defined as predicates.
+[<CompilerMessage(message = "Not desinged for F#", messageNumber = 9001, IsHidden = true)>]
 type HttpRoute =
 
     static member private methodFunc m = Func<Microsoft.AspNetCore.Http.HttpContext, bool> m
@@ -187,6 +192,7 @@ type HttpRoute =
 /// <summary>
 /// Provides functionality to test and host HTTP endpoints.
 /// </summary>
+[<CompilerMessage(message = "Not desinged for F#", messageNumber = 9001, IsHidden = true)>]
 type Http =
     /// Sends a HTTP GET request to the specified uri.
     static member Get (uri : string) = Http.get uri |> Async.StartAsTask
@@ -351,36 +357,186 @@ type Http =
 /// Exposing functions to write reliable polling functions for a testable target.
 /// </summary>
 [<Extension>]
+[<CompilerMessage(message = "Not desinged for F#", messageNumber = 9001, IsHidden = true)>]
 type Poll =
     /// <summary>
     /// Adds a filtering function to speicfy the required result of the polling.
     /// </summary>
     /// <param name="filter">A filtering function to specify the required result of the polling.</param>
     [<Extension>]
-    static member Until (poll, filter : Func<'a, bool>) = { poll with Filter = filter.Invoke }
+    static member Until (poll, filter : Func<'a, bool>) = 
+        if filter = null then nullArg "filter"
+        Poll.until filter.Invoke poll
     
+    /// <summary>
+    /// Adds a filtering function to speicfy the required result of the polling.
+    /// </summary>
+    /// <param name="filter">A filtering function to specify the required result of the polling together with a specific description of the filter that gets shown in the exception when the polling times-out.</param>
+    [<Extension>]
+    static member Until (poll, filter : Func<'a, ValueTuple<bool, string>>) =
+        if filter = null then nullArg "filter"
+        Poll.untilDesc (fun x -> (filter.Invoke x).ToTuple()) poll
+
+    /// <summary>
+    /// Adds a filtering function to speicfy the required result of the polling.
+    /// </summary>
+    /// <param name="filter">A filtering function to specify the required result of the polling.</param>
+    [<Extension>]
+    static member Until (poll, filter : Func<ILogger, 'a, bool>) =
+        if filter = null then nullArg "filter"
+        Poll.untilLog (fun l x -> filter.Invoke (l, x)) poll
+    
+    /// <summary>
+    /// Adds a filtering function to speicfy the required result of the polling.
+    /// </summary>
+    /// <param name="filter">A filtering function to specify the required result of the polling.</param>
+    [<Extension>]
+    static member Until (poll, filter : Func<ILogger, 'a, ValueTuple<bool, string>>) =
+        if filter = null then nullArg "filter"
+        Poll.untilDescLog (fun l x -> (filter.Invoke (l, x)).ToTuple()) poll
+
     /// <summary>
     /// Adds a time period representing the interval in which the polling should happen to the polling sequence.
     /// </summary>
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     [<Extension>]
-    static member Every (poll, interval : TimeSpan) = { poll with Interval = interval }
-    
+    static member Every (poll, interval : TimeSpan) = Poll.every interval poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets calculated with an index, in which the polling should happen during the polling sequence.
+    /// </summary>
+    /// <param name="calculateInterval">The function that calculates the next polling interval.</param>
+    [<Extension>]
+    static member Every (poll, calculateInterval : Func<_, _>) =
+        if calculateInterval = null then nullArg "calculateInterval"
+        Poll.everyCustom calculateInterval.Invoke poll
+
+    /// <summary>
+    /// Adds an immediate time period representing the interval in which the polling should happen.
+    /// </summary>
+    [<Extension>]
+    static member Immediate (poll) =
+        Poll.immediate poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets ramdomly calculated with an inclusive minimum and exclusive maximum within a specified time range.
+    /// </summary>
+    /// <param name="inclusiveMin">The inclusive minimum to chose a random interval.</param>
+    /// <param name="inclusiveMax">The inclusive maximum to chose a random interval.</param>
+    /// <param name="metrix">The time unit in which the randomized interval must be picked.</param>
+    [<Extension>]
+    static member Random (poll, inclusiveMin, inclusiveMax, metric) =
+        Poll.random inclusiveMin inclusiveMax metric poll
+
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets ramdomly calculated with an inclusive minimum and exclusive maximum within a specified time range.
+    /// </summary>
+    /// <param name="inclusiveMin">The inclusive minimum to chose a random interval.</param>
+    /// <param name="inclusiveMax">The inclusive maximum to chose a random interval.</param>
+    [<Extension>]
+    static member RandomSec (poll, inclusiveMin, inclusiveMax) =
+        Poll.randomSec inclusiveMin inclusiveMax poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets ramdomly calculated with an inclusive minimum and exclusive maximum within a specified time range.
+    /// </summary>
+    /// <param name="inclusiveMin">The inclusive minimum to chose a random interval.</param>
+    /// <param name="inclusiveMax">The inclusive maximum to chose a random interval.</param>
+    [<Extension>]
+    static member RandomMin (poll, inclusveMin, inclusiveMax) =
+        Poll.randomMin inclusveMin inclusiveMax poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets incrementally calculated.
+    /// </summary>
+    /// <param name="getNext">The addition function that returns the next interval for a given retry index.</param>
+    /// <param name="metric">The time unit in which the incremental interval should be picked.</param>
+    /// <param name="start">The initial interval before the interval gets increased.</param>
+    [<Extension>]
+    static member Increment (poll, (getNext : Func<_, _>), start, metric) =
+        if getNext = null then nullArg "getNext"
+        Poll.increment getNext.Invoke start metric poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets calculated in the time unit of seconds.
+    /// </summary>
+    /// <param name="getNext">The addition function that returns the next interval for a given retry index.</param>
+    [<Extension>]
+    static member IncrementSec (poll, (getNext : Func<_, _>)) =
+        if getNext = null then nullArg "getNext"
+        Poll.incrementSec getNext.Invoke poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets calculated in the time unit of minutes.
+    /// </summary>
+    /// <param name="getNext">The addition function that returns the next interval for a given retry index.</param>
+    [<Extension>]
+    static member IncrementMin (poll, (getNext : Func<_, _>)) =
+        if getNext = null then nullArg "getNext"
+        Poll.incrementMin getNext.Invoke poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets increased with 1 second each retry.
+    /// </summary>
+    [<Extension>]
+    static member Increment1s (poll) =
+        Poll.increment1s poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets increased with 3 seconds each retry.
+    /// </summary>
+    [<Extension>]
+    static member Increment3s (poll) =
+        Poll.increment3s poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets increased with 5 seconds each retry.
+    /// </summary>
+    [<Extension>]
+    static member Increment5s (poll) =
+        Poll.increment5s poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets increased exponentially in which the polling should happen during the polling sequence.
+    /// </summary>
+    /// <param name="metric">The time metric unit in which the exponential increasement of the interval should happen.</param>
+    /// <param name="startInterval">The initial interval to add the additional exponentially calculated interval to.</param>
+    [<Extension>]
+    static member Exponential (poll, metric, startInterval) =
+        Poll.exponential metric startInterval poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets increased exponentially in which the polling should happen during the polling sequence.
+    /// </summary>
+    /// <param name="startInterval">The initial interval to add the additional exponentially calculated interval to.</param>
+    [<Extension>]
+    static member ExponentialSec (poll, startInterval) =
+        Poll.exponentialSec startInterval poll
+
+    /// <summary>
+    /// Adds a time period representing the interval that gets increased exponentially in which the polling should happen during the polling sequence.
+    /// </summary>
+    /// <param name="startInterval">The initial interval to add the additional exponentially calculated interval to.</param>
+    [<Extension>]
+    static member ExponentialMin (poll, startInterval) =
+        Poll.exponentialMin startInterval poll
+
     /// <summary>
     /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
     /// </summary>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     [<Extension>]
-    static member For (poll, timeout : TimeSpan) = { poll with Timeout = timeout }
+    static member For (poll, timeout : TimeSpan) = Poll.timeout timeout poll
     
     /// <summary>
     /// Adds a custom error message to show when the polling has been time out.
     /// </summary>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
     [<Extension>]
-    static member Error (poll, errorMessage : string) = 
-        if errorMessage = null then nullArg "errorMessage"
-        { poll with Message = errorMessage }
+    static member Error (poll, message : string) = 
+        if message = null then nullArg "errorMessage"
+        Poll.error message poll
     
     /// <summary>
     /// Adds a custom error message with string formatting to show when the polling has been time out.
@@ -388,19 +544,21 @@ type Poll =
     /// <param name="errorMessage">A custom error message with string formatting to show when the polling has been time out. </param>
     /// <param name="args">The formatting arguments to use as inputs for the string formatting message.</param>
     [<Extension>]
-    static member Error (poll, errorMessage, [<ParamArray>] args) = 
-        if errorMessage = null then nullArg "errorMessage"
-        { poll with Message = String.Format(errorMessage, args) }
+    static member Error (poll, message, [<ParamArray>] args) = 
+        if message = null then nullArg "errorMessage"
+        Poll.error (String.Format (message, args)) poll
     
+
+
     /// Maps the target function to another type by removing the filtering and alternative from the polling function. 
-    /// Note that values set during previously called `.Until()` and/or `.OrElse..`. functions will be ignored
+    /// Note that values set during previously called `Poll.until` and/or `Poll.orElse... and/or `Poll.error...` functions will be ignored
     [<Extension>]
     static member Select (poll, selection : Func<_, _>) =
         if selection = null then nullArg "selection"
         Poll.map selection.Invoke poll
 
     /// Map and filter the target function to another type by removing the alternative from the polling function.
-    /// Note that values set during previously called `.OrElse...` functions will be ignored
+    /// Note that values set during previously called `Poll.orElse...` and/or `Poll.error..` functions will be ignored
     [<Extension>]
     static member Select (poll, selection : Func<_, _>, predicate : Func<_, _>) =
         if selection = null then nullArg "selection"
@@ -419,7 +577,7 @@ type Poll =
     [<Extension>]
     static member Select (poll, addition : Action<_>) =
         if addition = null then nullArg "selection"
-        Poll.mapTarget addition.Invoke poll
+        Poll.mapTarget (fun x -> addition.Invoke x; x) poll
 
     /// Switch to another polling function when the first one fails with a `TimeoutException`.
     [<Extension>]
@@ -434,6 +592,7 @@ type Poll =
     /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
     [<Extension>]
     static member OrElse (poll, getValue : Func<Task<_>>) =
+        if getValue = null then nullArg "getValue"
         let f = getValue.Invoke >> Async.AwaitTask
         Poll.orElseWith f poll
 
@@ -451,13 +610,13 @@ type Poll =
     /// Note that this can be avoided beceause the polling function can be directly awaited.
     [<Extension>]
     static member ToTask (poll) =
-        Poll.ToTask (poll, Unchecked.defaultof<Threading.CancellationToken>, Unchecked.defaultof<TaskCreationOptions>)
+        Poll.toAsync poll |> Async.StartAsTask
 
     /// Converts the polling sequence to a asynchronous task computation.
     /// Note that this can be avoided beceause the polling function can be directly awaited.
     [<Extension>]
     static member ToTask (poll, cancellation) =
-        Poll.ToTask (poll, cancellation, Unchecked.defaultof<TaskCreationOptions>)
+        Poll.toAsync poll |> fun a -> Async.StartAsTask (a, cancellationToken=cancellation)
 
     /// Converts the polling sequence to a asynchronous task computation.
     /// Note that this can be avoided beceause the polling function can be directly awaited.
@@ -510,6 +669,7 @@ type Poll =
     [<Extension>]
     static member HttpPut (endpoint, content) =
         if endpoint = null then nullArg "endpoint"
+        if content = null then nullArg "content"
         Poll.http_put endpoint content
 
     /// <summary>
@@ -676,6 +836,13 @@ type Poll =
         Poll.untilLength length poll
     
     /// <summary>
+    /// Adds a filtering function to specify that the required result of the polling should be of a specified type.
+    /// </summary>
+    [<Extension>]
+    static member UntilType<'T> (poll) =
+        Poll.untilType<'T> poll
+
+    /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
@@ -683,20 +850,87 @@ type Poll =
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
+    [<Obsolete("Use 'Poll.Custom' instead")>]
     static member Target ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, bool>), interval, timeout, errorMessage) =
         if pollFunc = null then nullArg "pollFunc"
-        let filter = if predicate = null then (fun _ -> true) else predicate.Invoke
-        let message = if errorMessage = null then "Polling doesn't result in any values" else errorMessage
-        untilCustom (pollFunc.Invoke >> Async.AwaitTask) filter interval timeout message |> Async.StartAsTask
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.customRec
+            (fun _ -> pollFunc.Invoke () |> Async.AwaitTask) 
+            [ fun _ x -> predicate.Invoke x, None ]
+            (fun _ -> interval)
+            timeout 
+            (fun _ -> errorMessage)
+            None
+            (Log.logger<PollAsync<'a>> ())
+        |> Async.StartAsTask
 
+    /// <summary>
+    /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
+    /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
+    /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
+    /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
+    static member Custom ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, ValueTuple<bool, string>>), interval, timeout, errorMessage) =
+        if pollFunc = null then nullArg "pollFunc"
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.custom
+            (fun _ -> pollFunc.Invoke () |> Async.AwaitTask) 
+            (fun _ x -> predicate.Invoke(x).ToTuple()) 
+            (fun _ -> interval)
+            timeout 
+            (fun _ -> errorMessage)
+            (Log.logger<PollAsync<'a>> ())
+        |> Async.StartAsTask
+
+    /// <summary>
+    /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
+    /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
+    /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
+    /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
+    /// <param name="logger">The logger used during the polling sequence.</param>
+    static member Custom 
+        ( (pollFunc : Func<ILogger, Task<'a>>), 
+          (predicate : Func<ILogger, 'a, ValueTuple<bool, string>>), 
+          (getInterval : Func<int, TimeSpan>), 
+          timeout : TimeSpan, 
+          errorMessage : string, 
+          logger : ILogger) : Task<'a> =
+        if pollFunc = null then nullArg "pollFunc"
+        if predicate = null then nullArg "predicate"
+        if getInterval = null then nullArg "getInterval"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.customRec
+            (pollFunc.Invoke >> Async.AwaitTask) 
+            [ fun l x -> let r, d = predicate.Invoke(l, x).ToTuple() in r, Some d ]
+            (fun x -> getInterval.Invoke x)
+            timeout 
+            (fun _ -> errorMessage) 
+            None
+            logger 
+        |> Async.StartAsTask
+        
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     static member Target ((pollFunc : Func<Task<'a>>)) =
         if pollFunc = null then nullArg "pollFunc"
-        PollAsync<'a>.Create(fun () -> pollFunc.Invoke () |> Async.AwaitTask)
+        Poll.targetLog (fun l -> pollFunc.Invoke () |> Async.AwaitTask)
     
+    /// <summary>
+    /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    static member Target ((pollFunc : Func<ILogger, Task<'a>>)) =
+        if pollFunc = null then nullArg "pollFunc"
+        Poll.targetLog (fun l -> pollFunc.Invoke l |> Async.AwaitTask)
 
     /// <summary>
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
@@ -704,8 +938,16 @@ type Poll =
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     static member Target ((pollFunc : Func<_>)) =
         if pollFunc = null then nullArg "pollFunc"
-        PollAsync<_>.Create(fun () -> async { return pollFunc.Invoke () })
+        Poll.targetSync pollFunc.Invoke
     
+    /// <summary>
+    /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    static member Target ((pollFunc : Func<ILogger, _>)) =
+        if pollFunc = null then nullArg "pollFunc"
+        Poll.targetSyncLog pollFunc.Invoke
+
     /// <summary>
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
@@ -713,8 +955,20 @@ type Poll =
     /// <param name="pollFuncs">A series of functions to poll on a target, these function will be called in parallel once every interval.</param>
     static member Targets ([<ParamArray>] pollFuncs : Func<Task<'a>> array) =
         if pollFuncs = null then nullArg "pollFuncs"
-        PollAsync<_>.Create <| fun () ->
-            Task.WhenAny(pollFuncs |> Array.map (fun f -> f.Invoke ())) 
+        PollAsync<_>.Create <| fun _ ->
+            Task.WhenAny(pollFuncs |> Array.map (fun f -> f.Invoke ()))
+            |> Async.AwaitTask 
+            |> fun x -> async.Bind(x, Async.AwaitTask)
+
+    /// <summary>
+    /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
+    /// for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFuncs">A series of functions to poll on a target, these function will be called in parallel once every interval.</param>
+    static member Targets ([<ParamArray>] pollFuncs : Func<ILogger, Task<'a>> array) =
+        if pollFuncs = null then nullArg "pollFuncs"
+        PollAsync<_>.Create <| fun l ->
+            Task.WhenAny(pollFuncs |> Array.map (fun f -> f.Invoke l))
             |> Async.AwaitTask 
             |> fun x -> async.Bind(x, Async.AwaitTask)
 
@@ -722,9 +976,19 @@ type Poll =
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     /// </summary>
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    [<Obsolete("Use 'Poll.Target'")>]
     static member Until ((pollFunc : Func<Task<_>>)) =
         if pollFunc = null then nullArg "pollFunc"
-        PollAsync<_>.Create(pollFunc.Invoke >> Async.AwaitTask)
+        PollAsync<_>.Create(fun _ -> pollFunc.Invoke () |> Async.AwaitTask)
+
+    /// <summary>
+    /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
+    /// </summary>
+    /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
+    [<Obsolete("Use 'Poll.Target'")>]
+    static member Until ((pollFunc : Func<ILogger, Task<_>>)) =
+        if pollFunc = null then nullArg "pollFunc"
+        PollAsync<_>.Create(fun l -> pollFunc.Invoke l |> Async.AwaitTask)
 
     /// <summary>
     /// Poll at a given target using a filtering function every second for 5 seconds.
@@ -732,9 +996,17 @@ type Poll =
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilEvery1sFor5s (pollFunc, predicate, errorMessage) =
+    static member UntilEvery1sFor5s ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, bool>), (errorMessage : string)) : Task<'a> =
         if pollFunc = null then nullArg "pollFunc"
-        Poll.Target(pollFunc, predicate, _1s, _5s, errorMessage)
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.target (pollFunc.Invoke >> Async.AwaitTask)
+        |> Poll.until predicate.Invoke
+        |> Poll.every _1s
+        |> Poll.timeout _5s
+        |> Poll.error errorMessage
+        |> Poll.toAsync
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given target using a filtering function every second for 10 seconds.
@@ -742,9 +1014,17 @@ type Poll =
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilEvery1sFor10s (pollFunc, predicate, errorMessage) =
+    static member UntilEvery1sFor10s ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, bool>), (errorMessage : string)) : Task<'a> =
         if pollFunc = null then nullArg "pollFunc"
-        Poll.Target(pollFunc, predicate, _1s, _10s, errorMessage)
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.target (pollFunc.Invoke >> Async.AwaitTask)
+        |> Poll.until predicate.Invoke
+        |> Poll.every _1s
+        |> Poll.timeout _10s
+        |> Poll.error errorMessage
+        |> Poll.toAsync
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given target using a filtering function every 5 second for 30 seconds.
@@ -752,8 +1032,17 @@ type Poll =
     /// <param name="pollFunc">A function to poll on a target, this function will be called once every interval.</param>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilEvery5sFor30s (pollFunc, predicate, errorMessage) =
-        Poll.Target(pollFunc, predicate, _5s, _30s, errorMessage)
+    static member UntilEvery5sFor30s ((pollFunc : Func<Task<'a>>), (predicate : Func<'a, bool>), (errorMessage : string)) : Task<'a> =
+        if pollFunc = null then nullArg "pollFunc"
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.target (pollFunc.Invoke >> Async.AwaitTask)
+        |> Poll.until predicate.Invoke
+        |> Poll.every _5s
+        |> Poll.timeout _10s
+        |> Poll.error errorMessage
+        |> Poll.toAsync
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given file path using a filtering function for a period of time until either the predicate succeeds or the expression times out.
@@ -763,11 +1052,17 @@ type Poll =
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilFile (filePath, (predicate : Func<IO.FileInfo, bool>), interval, timeout, errorMessage) =
+    static member UntilFile 
+        ( (filePath : string), 
+          (predicate : Func<IO.FileInfo, bool>), 
+          (interval : TimeSpan), 
+          (timeout : TimeSpan), 
+          (errorMessage : string) ) : Task<IO.FileInfo> =
         if filePath = null then nullArg "filePath"
-        let filter = if predicate = null then (fun _ -> true) else predicate.Invoke
-        let message = if errorMessage = null then sprintf "Polling at path: '%s' doesn't result in any file" filePath else errorMessage
-        untilFile filePath filter interval timeout message |> Async.StartAsTask
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.untilFile filePath predicate.Invoke interval timeout errorMessage 
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given file path for a period of time until either the predicate succeeds or the expression times out.
@@ -775,33 +1070,33 @@ type Poll =
     /// <param name="filePath">The file path at which the polling should run to look for the existence of the file.</param>
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
-    static member UntilFileExists (filePath, interval, timeout) =
+    static member UntilFileExists ((filePath : string), (interval : TimeSpan), (timeout : TimeSpan)) : Task<IO.FileInfo> =
         if filePath = null then nullArg "filePath"
-        untilFileExists filePath interval timeout |> Async.StartAsTask
+        Poll.untilFileExists filePath interval timeout |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given file path until the file exists ever second for 5 seconds.
     /// </summary>
     /// <param name="filePath">The file path at which the polling should run to look for the existence of the file.</param>
-    static member UntilFileExistsEvery1sFor5s filePath = 
+    static member UntilFileExistsEvery1sFor5s (filePath : string) = 
         if filePath = null then nullArg "filePath"
-        untilFileExistsEvery1sFor5s filePath |> Async.StartAsTask
+        Poll.untilFileExistsEvery1sFor5s filePath |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given file path until the file exists ever second for 10 seconds.
     /// </summary>
     /// <param name="filePath">The file path at which the polling should run to look for the existence of the file.</param>
-    static member UntilFileExistsEvery1sFor10s filePath = 
+    static member UntilFileExistsEvery1sFor10s (filePath : string) = 
         if filePath = null then nullArg "filePath"
-        untilFileExistsEvery1sFor10s filePath |> Async.StartAsTask
+        Poll.untilFileExistsEvery1sFor10s filePath |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given file path until the file exists ever 5 seconds for 30 seconds.
     /// </summary>
     /// <param name="filePath">The file path at which the polling should run to look for the existence of the file.</param>
-    static member UntilFileExistsEvery5sFor30s filePath = 
+    static member UntilFileExistsEvery5sFor30s (filePath : string) = 
         if filePath = null then nullArg "filePath"
-        untilFileExistsEvery5sFor30s filePath |> Async.StartAsTask
+        Poll.untilFileExistsEvery5sFor30s filePath |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given directory path for a period of time until either the predicate succeeds or the expression times out.
@@ -810,11 +1105,16 @@ type Poll =
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilFiles (dirPath, (predicate : Func<FileInfo[], bool>), interval, timeout, errorMessage) =
+    static member UntilFiles 
+        ( (dirPath : string), 
+          (predicate : Func<FileInfo[], bool>), 
+          (interval : TimeSpan), 
+          (timeout : TimeSpan), 
+          (errorMessage : string) ) =
         if dirPath = null then nullArg "dirPath"
-        let filter = if predicate = null then (fun _ -> true) else predicate.Invoke
-        let message = if errorMessage = null then sprintf "Polling at path: '%s' doesn't result in any files" dirPath else errorMessage
-        untilFiles dirPath filter interval timeout message |> Async.StartAsTask
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.untilFiles dirPath predicate.Invoke interval timeout errorMessage |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given directory path every second for 5 seconds.
@@ -822,9 +1122,12 @@ type Poll =
     /// <param name="dirPath">The directory path at which the polling should run to look for the existence of the file.</param>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilFilesEvery1sFor5s (dirPath, predicate, errorMessage) =
+    static member UntilFilesEvery1sFor5s ((dirPath : string), (predicate : Func<FileInfo[], bool>), (errorMessage : string)) =
         if dirPath = null then nullArg "dirPath"
-        Poll.UntilFiles(dirPath, predicate, _1s, _5s, errorMessage)
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.untilFilesEvery1sFor5s dirPath predicate.Invoke errorMessage
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given directory path every second for 10 seconds.
@@ -832,9 +1135,12 @@ type Poll =
     /// <param name="dirPath">The directory path at which the polling should run to look for the existence of the file.</param>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilFilesEvery1sFor10s (dirPath, predicate, errorMessage) =
+    static member UntilFilesEvery1sFor10s ((dirPath : string), (predicate : Func<FileInfo[], bool>), (errorMessage : string)) =
         if dirPath = null then nullArg "dirPath"
-        Poll.UntilFiles(dirPath, predicate, _1s, _10s, errorMessage)
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.untilFilesEvery1sFor10s dirPath predicate.Invoke errorMessage
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given directory path every 5 seconds for 30 seconds.
@@ -842,9 +1148,12 @@ type Poll =
     /// <param name="dirPath">The directory path at which the polling should run to look for the existence of the file.</param>
     /// <param name="predicate">A filtering function to specify the required result of the polling.</param>
     /// <param name="errorMessage">A custom error message to show when the polling has been time out. </param>
-    static member UntilFilesEvery5sFor30s (dirPath, predicate, errorMessage) =
+    static member UntilFilesEvery5sFor30s ((dirPath : string), (predicate : Func<FileInfo[], bool>), (errorMessage : string)) =
         if dirPath = null then nullArg "dirPath"
-        Poll.UntilFiles(dirPath, predicate, _5s, _30s, errorMessage)
+        if predicate = null then nullArg "predicate"
+        if errorMessage = null then nullArg "errorMessage"
+        Poll.untilFilesEvery5sFor30s dirPath predicate.Invoke errorMessage
+        |> Async.StartAsTask
 
     /// <summary>
     /// Poll at a given HTTP endpoint by sending GET requests every specified interval until either the target response with OK or the expression times out.
@@ -852,7 +1161,7 @@ type Poll =
     /// <param name="url">The HTTP url to which the GET requests should be sent.</param>
     /// <param name="interval">A time period representing the interval in which the polling should happen.</param>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
-    static member UntilHttpOk (url, interval, timeout) = 
+    static member UntilHttpOk ((url : string), (interval : TimeSpan), (timeout : TimeSpan)) = 
         if url = null then nullArg "url"
         Poll.untilHttpOk url interval timeout |> Async.StartAsTask :> Task
 
@@ -861,7 +1170,7 @@ type Poll =
     /// or the expression times out after 5 seconds.
     /// </summary>
     /// <param name="url">The HTTP url to which the GET requests should be sent.</param>
-    static member UntilHttpOkEvery1sFor5s (url) =
+    static member UntilHttpOkEvery1sFor5s (url : string) =
         if url = null then nullArg "url"
         Poll.untilHttpOkEvery1sFor5s url |> Async.StartAsTask :> Task
 
@@ -870,7 +1179,7 @@ type Poll =
     /// or the expression times out after 10 seconds.
     /// </summary>
     /// <param name="url">The HTTP url to which the GET requests should be sent.</param>
-    static member UntilHttpOkEvery1sFor10s (url) =
+    static member UntilHttpOkEvery1sFor10s (url : string) =
         if url = null then nullArg "url"
         Poll.untilHttpOkEvery1sFor10s url |> Async.StartAsTask :> Task
 
@@ -879,7 +1188,7 @@ type Poll =
     /// or the expression times out after 30 seconds.
     /// </summary>
     /// <param name="url">The HTTP url to which the GET requests should be sent.</param>
-    static member UntilHttpOkEvery5sFor30s (url) =
+    static member UntilHttpOkEvery5sFor30s (url : string) =
         if url = null then nullArg "url"
         Poll.untilHttpOkEvery5sFor30s url |> Async.StartAsTask :> Task
     
