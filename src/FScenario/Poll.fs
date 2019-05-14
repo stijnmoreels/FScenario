@@ -16,7 +16,7 @@ open System.Collections.Concurrent
 
 /// Type representing the required values to run a polling execution.
 type PollAsync<'a> =
-    { CallTarget : (ILogger -> Async<'a>)
+    { CallTarget : ILogger -> Async<'a>
       Filters : (ILogger -> 'a -> bool * string option) list
       GetInterval : int -> TimeSpan
       Timeout : TimeSpan

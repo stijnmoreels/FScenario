@@ -96,9 +96,7 @@ Target.create "Paket" <| fun _ ->
             Dependencies = 
                 Paket.getDependenciesForReferencesFile referencesFile
                 |> Array.map (fun (package, version) -> PaketDependency (package, GreaterOrEqual (Version version)))
-                |> List.ofArray
-                // Apperently the FSharp.Core >= 4.5.4 package isn't added this way (`Paket.getDependenciesForReferencesFile`).
-                |> fun xs -> PaketDependency ("FSharp.Core", GreaterOrEqual (Version "4.5.4")) :: xs })
+                |> List.ofArray })
 
     Paket.pack (fun defaults ->
         { defaults with
