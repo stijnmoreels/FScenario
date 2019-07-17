@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Divergic.Logging.Xunit;
 using System.Linq;
 using System.Net;
-using Microsoft.FSharp.Core;
 using static System.TimeMetric;
 using static System.TimeSpans;
 
