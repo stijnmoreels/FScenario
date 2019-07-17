@@ -6,8 +6,20 @@ open Microsoft.Extensions.Logging
 open FScenario
 open System.IO.Compression
 
+/// Adding quick access to hashing functionality.
+module Hash =
+    open System.Security.Cryptography
+
+    /// Determines if two streams are equal based on hashing (SHA256) their contents.
+    let equal (str1 : Stream) (str2 : Stream) =
+        use sha256 = SHA256.Create ()
+        let expected = sha256.ComputeHash str1
+        let actual = sha256.ComputeHash str2
+        expected = actual
+
+/// Adding operators related to IO.
 [<AutoOpen>]
-module IOExtensions =
+module IOOperators =
     let internal io x = raise (IOException x)
 
     /// <summary>
@@ -33,7 +45,7 @@ module Item =
     let at path = FileInfo path
 
     /// <summary>
-    /// Determines if two files are equal by hashing (MD5) their contents.
+    /// Determines if two files are equal by hashing (SHA256) their contents.
     /// </summary>
     [<CompiledName("HashEqual")>]
     let hashEqual f1 f2 =
@@ -43,10 +55,7 @@ module Item =
         if not <| File.Exists f2 then invalidArg "f2" (sprintf "Cannot check for equal hashed file content because file: '%s' doesn't exists" f2)
         use fs1 = File.OpenRead f1
         use fs2 = File.OpenRead f2
-        use sha256 = SHA256.Create ()
-        let expected = sha256.ComputeHash fs1
-        let actual = sha256.ComputeHash fs2
-        expected = actual
+        Hash.equal fs1 fs2
 
     /// <summary>
     /// Gets the hash value of a given file contents.

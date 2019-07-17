@@ -102,6 +102,19 @@ Add polling shortcuts:
 <li>Restructure the logging functionality by adding a new custom simple logger instead of relying on a specific NuGet package</li>
 <li>Remove obsolete IO functions</li>
 </ul>
+<h3><a name="2-5-0" class="anchor" href="#2-5-0">2.5.0</a></h3>
+<ul>
+<li>
+Add polling interval approaches:
+<ul>
+<li><code>Poll.exponential</code> for running polling sequences with an interval that gets increased exponentially</li>
+<li><code>Poll.increment</code> for running polling sequences with an interval that gets increased manually</li>
+<li><code>Poll.random</code> for running polling sequences with an random interval that gets configured with min/max</li>
+<li><code>Poll.immediate</code> for running polling sequences without any interval between them</li>
+</ul>
+</li>
+<li>Add predicate descriptions to define custom and built-in error messages to show to quickly find out which of the predicates failed and which ran successfully (<code>[Ok]</code> and <code>[Fail]</code> prefix in message of <code>TimeoutException</code>)</li>
+</ul>
 
 
         </div>

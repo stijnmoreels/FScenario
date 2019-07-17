@@ -9,7 +9,7 @@ open Fake.Core.TargetOperators
 open Fake.DotNet.PaketTemplate
 open Fake.DotNet.FSFormatting
 
-type Projet =
+type Project =
     { Name : string
       Summary : string
       Description : string list

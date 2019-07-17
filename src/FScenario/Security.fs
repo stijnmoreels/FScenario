@@ -9,8 +9,10 @@ module Certificate =
     /// by removing them from the store and disposing them when the returned disposable gets disposed.
     let store name location certs =
         let s = new X509Store ((name : StoreName), (location : StoreLocation))
-        List.iter (fun (c : X509Certificate2) -> s.Add c) certs
+        for c in certs do s.Add c
 
         Disposable.create <| fun () ->
-            using s (fun s -> 
-                Seq.iter (fun c -> s.Remove c; c.Dispose ()) certs)
+            using (fun (s : X509Store) -> 
+              for c in certs do
+                s.Remove c
+                c.Dispose ()) s

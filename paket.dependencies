@@ -10,6 +10,7 @@ nuget Microsoft.Extensions.Logging.Console
 github stijnmoreels/System Time.fs
 github stijnmoreels/System Disposable.fs
 github stijnmoreels/System.IO VirtualStream.fs
+github stijnmoreels/System Prelude.fs
 
 // [ FAKE GROUP ]
 group Build

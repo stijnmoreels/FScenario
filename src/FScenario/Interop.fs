@@ -596,6 +596,12 @@ type Poll =
         let f = getValue.Invoke >> Async.AwaitTask
         Poll.orElseWith f poll
 
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    [<Extension>]
+    static member OrElse (poll, getValue : Func<_>) =
+        if getValue = null then nullArg "getValue"
+        Poll.orElseSync getValue.Invoke poll
+
     /// <summary>
     /// Runs the asynchronous computation and await its result
     /// </summary>

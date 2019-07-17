@@ -7,20 +7,24 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="paket.references" />
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="..\..\paket-files\stijnmoreels\System\Disposable.fs">
-      <Paket>True</Paket>
-      <Link>Disposable.fs</Link>
-    </Compile>
     <Compile Include="..\..\paket-files\stijnmoreels\System\Time.fs">
       <Paket>True</Paket>
       <Link>Time.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\stijnmoreels\System\Disposable.fs">
+      <Paket>True</Paket>
+      <Link>Disposable.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\stijnmoreels\System.IO\VirtualStream.fs">
       <Paket>True</Paket>
       <Link>VirtualStream.fs</Link>
     </Compile>
+    <Compile Include="..\..\paket-files\stijnmoreels\System\Prelude.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Prelude.fs</Link>
+    </Compile>
+    <None Include="paket.references" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="IO.fs" />
     <Compile Include="Http.fs" />

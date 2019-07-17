@@ -56,15 +56,35 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '166', 166)" onmouseover="showTip(event, '166', 166)">
+          <code onmouseout="hideTip(event, '181', 181)" onmouseover="showTip(event, '181', 181)">
+            add d state
+          </code>
+          <div class="tip" id="181">
+            <strong>Signature:</strong> d:(type) -&gt; state:CompositeDisposable -&gt; CompositeDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L180-180" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a disposable instance to the composite disposable</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '182', 182)" onmouseover="showTip(event, '182', 182)">
             compose(ds)
           </code>
-          <div class="tip" id="166">
+          <div class="tip" id="182">
             <strong>Signature:</strong> ds:seq&lt;(type)&gt; -&gt; CompositeDisposable<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L65-65" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L155-155" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -76,15 +96,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '167', 167)" onmouseover="showTip(event, '167', 167)">
+          <code onmouseout="hideTip(event, '183', 183)" onmouseover="showTip(event, '183', 183)">
             compose2 d1 d2
           </code>
-          <div class="tip" id="167">
+          <div class="tip" id="183">
             <strong>Signature:</strong> d1:(type) -&gt; d2:(type) -&gt; (type)<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L55-55" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L145-145" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -96,15 +116,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '168', 168)" onmouseover="showTip(event, '168', 168)">
+          <code onmouseout="hideTip(event, '184', 184)" onmouseover="showTip(event, '184', 184)">
             create(f)
           </code>
-          <div class="tip" id="168">
+          <div class="tip" id="184">
             <strong>Signature:</strong> f:(unit -&gt; unit) -&gt; (type)<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L43-43" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L124-124" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -116,15 +136,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '169', 169)" onmouseover="showTip(event, '169', 169)">
+          <code onmouseout="hideTip(event, '185', 185)" onmouseover="showTip(event, '185', 185)">
             Create(f)
           </code>
-          <div class="tip" id="169">
+          <div class="tip" id="185">
             <strong>Signature:</strong> f:(type) -&gt; (type)<br />
-                                  </div>
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompilerMessage(&quot;Not desinged for F#&quot;, 9001, IsHidden = true)&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L48-48" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L227-227" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -136,20 +160,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '170', 170)" onmouseover="showTip(event, '170', 170)">
-            undoable doFunc undoFunc
+          <code onmouseout="hideTip(event, '186', 186)" onmouseover="showTip(event, '186', 186)">
+            createAsync(f)
           </code>
-          <div class="tip" id="170">
-            <strong>Signature:</strong> doFunc:(unit -&gt; unit) -&gt; undoFunc:(unit -&gt; unit) -&gt; (type)<br />
+          <div class="tip" id="186">
+            <strong>Signature:</strong> f:(unit -&gt; Async&lt;unit&gt;) -&gt; IAsyncDisposableFSharp<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L74-74" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L132-132" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Creates a undoable operation by first running the specified <paramref cref="doFunc"/>
-and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.</p>
+          <p>Creates a  implementation that runs the specified function when disposed.</p>
 
 
         </td>
@@ -157,20 +180,295 @@ and running the other specified <paramref cref="undoFunc"/> when the returned di
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '171', 171)" onmouseover="showTip(event, '171', 171)">
-            Undoable doFunc undoFunc
+          <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
+            CreateAsync(f)
           </code>
-          <div class="tip" id="171">
-            <strong>Signature:</strong> doFunc:(type) -&gt; undoFunc:(type) -&gt; (type)<br />
-                                  </div>
+          <div class="tip" id="187">
+            <strong>Signature:</strong> f:(type) -&gt; IAsyncDisposable<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompilerMessage(&quot;Not desinged for F#&quot;, 9001, IsHidden = true)&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L80-80" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L235-235" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Creates a undoable operation by first running the specified <paramref cref="doFunc"/>
-and running the other specified <paramref cref="undoFunc"/> when the returned disposable gets disposed.</p>
+          <p>Creates a  implementation that runs the specified function when disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
+            dispose(d)
+          </code>
+          <div class="tip" id="188">
+            <strong>Signature:</strong> d:(type) -&gt; unit<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L216-216" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Runs the '<code>Dispose</code> of the given disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
+            disposeAsync(d)
+          </code>
+          <div class="tip" id="189">
+            <strong>Signature:</strong> d:IAsyncDisposableFSharp -&gt; Async&lt;unit&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L220-220" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Runs the <code>DisposeAsync</code> of the given disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
+            empty
+          </code>
+          <div class="tip" id="190">
+            <strong>Signature:</strong> (type)<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L140-140" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a disposable without any functionality</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '191', 191)" onmouseover="showTip(event, '191', 191)">
+            run(state)
+          </code>
+          <div class="tip" id="191">
+            <strong>Signature:</strong> state:ILifetimeDisposable -&gt; unit<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L208-208" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Runs the <code>Setup</code> of the given lifetime disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
+            runAsync(state)
+          </code>
+          <div class="tip" id="192">
+            <strong>Signature:</strong> state:ILifetimeAsyncDisposableFSharp -&gt; Async&lt;unit&gt;<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L212-212" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Runs the <code>SetupAsync</code> of the given lifetime disposable</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '193', 193)" onmouseover="showTip(event, '193', 193)">
+            setup f state
+          </code>
+          <div class="tip" id="193">
+            <strong>Signature:</strong> f:(unit -&gt; unit) -&gt; state:CompositeDisposable -&gt; CompositeDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L186-186" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a setup function to the composite disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
+            setupAsync f state
+          </code>
+          <div class="tip" id="194">
+            <strong>Signature:</strong> f:(unit -&gt; Async&lt;unit&gt;) -&gt; state:CompositeDisposable -&gt; CompositeDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L192-192" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a setup function to the composite disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
+            tearDown f state
+          </code>
+          <div class="tip" id="195">
+            <strong>Signature:</strong> f:(unit -&gt; unit) -&gt; state:CompositeDisposable -&gt; CompositeDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L198-198" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a function that runs when the <code>Dispose</code> is called on the composite disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
+            tearDownAsync f state
+          </code>
+          <div class="tip" id="196">
+            <strong>Signature:</strong> f:(unit -&gt; Async&lt;unit&gt;) -&gt; state:CompositeDisposable -&gt; CompositeDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L204-204" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a function that runs when the <code>Dispose</code> is called on the composite disposable.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
+            undoable doFunc undoFunc
+          </code>
+          <div class="tip" id="197">
+            <strong>Signature:</strong> doFunc:(unit -&gt; unit) -&gt; undoFunc:(unit -&gt; unit) -&gt; ILifetimeDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L161-161" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a undoable operation by first running the specified<br />
+and running the other specified  when the returned disposable gets disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
+            Undoable doFunc undoFunc
+          </code>
+          <div class="tip" id="198">
+            <strong>Signature:</strong> doFunc:(type) -&gt; undoFunc:(type) -&gt; ILifetimeDisposable<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompilerMessage(&quot;Not desinged for F#&quot;, 9001, IsHidden = true)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L254-254" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a undoable operation by first running the specified<br />
+and running the other specified  when the returned disposable gets disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
+            undoableAsync doFunc undoFunc
+          </code>
+          <div class="tip" id="199">
+            <strong>Signature:</strong> doFunc:(unit -&gt; Async&lt;unit&gt;) -&gt; undoFunc:(unit -&gt; Async&lt;unit&gt;) -&gt; ILifetimeAsyncDisposableFSharp<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L170-170" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a undoable operation by first running the specified<br />
+and running the other specified  when the returned disposable gets disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
+            UndoableAsync doFunc undoFunc
+          </code>
+          <div class="tip" id="200">
+            <strong>Signature:</strong> doFunc:(type) -&gt; undoFunc:(type) -&gt; ILifetimeAsyncDisposable<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompilerMessage(&quot;Not desinged for F#&quot;, 9001, IsHidden = true)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L264-264" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates a undoable operation by first running the specified<br />
+and running the other specified  when the returned disposable gets disposed.</p>
 
 
         </td>

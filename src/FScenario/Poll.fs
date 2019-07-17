@@ -361,6 +361,9 @@ module Poll =
     let orElseWith f poll = orElse (target f) poll
 
     /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
+    let orElseSync f poll = orElseWith (fun () -> async { return f () }) poll
+
+    /// Returns a evaluated value when the polling function fails with a `TimeoutException`.
     let orElseAsync a poll = orElseWith (fun () -> a) poll
 
     /// Returns a constant value when the polling function fails with a `TimeoutException`.

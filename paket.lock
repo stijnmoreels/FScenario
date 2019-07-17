@@ -706,8 +706,9 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81)) (< portable-net45+win8+wp8+wpa81)
 GITHUB
   remote: stijnmoreels/System
-    Disposable.fs (ea431e4aa2482b3667db5e886047ddd174d0bd5d)
-    Time.fs (ea431e4aa2482b3667db5e886047ddd174d0bd5d)
+    Disposable.fs (a78a63146cfc21f2fed1fa34b5b1ecbf4ca91cb8)
+    Prelude.fs (a78a63146cfc21f2fed1fa34b5b1ecbf4ca91cb8)
+    Time.fs (a78a63146cfc21f2fed1fa34b5b1ecbf4ca91cb8)
   remote: stijnmoreels/System.IO
     VirtualStream.fs (4fdcce148dbb52378628c796e095e4e24c867f9f)
 GROUP Build

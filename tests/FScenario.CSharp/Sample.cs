@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Diagnostics;
 using System.Net.Http;
@@ -172,6 +173,64 @@ namespace FScenario.CSharp
                       .Select(x => (object) x)
                       .Increment(x => x, TimeSpan.Zero, Sec)
                       .UntilType<string>();
+        }
+
+        [Fact]
+        public async Task Composite_Disposable_Combines_All()
+        {
+            var setupBag = new ConcurrentBag<int>();
+            var tearDownBag = new ConcurrentBag<int>();
+
+            ILifetimeAsyncDisposable compose = Disposable.Compose(
+                Disposable.Create(() => tearDownBag.Add(0)),
+                Disposable.CreateAsync(() => { tearDownBag.Add(0); return Task.CompletedTask; }),
+                Disposable.Undoable(() => setupBag.Add(0), () => tearDownBag.Add(0)),
+                Disposable.UndoableAsync(() => { setupBag.Add(0); return Task.CompletedTask; }, () => { tearDownBag.Add(0); return Task.CompletedTask; }));
+
+            compose.Setup();
+            await compose.SetupAsync();
+            await compose.DisposeAsync();
+            compose.Dispose();
+
+            Assert.Equal(2 * 2, setupBag.Count);
+            Assert.Equal(2 * 4, tearDownBag.Count);
+        }
+
+        [Fact]
+        public async Task Composite_Disposable_Runs_All_Disposes_Even_When_Ones_Faulted()
+        {
+            var setupBag = new ConcurrentBag<int>();
+
+            ILifetimeAsyncDisposable composite = Disposable.Compose(
+                Disposable.Create(() => setupBag.Add(0)),
+                Disposable.CreateAsync(() => throw new InvalidOperationException("Test exception")),
+                Disposable.Undoable(() => { }, () => setupBag.Add(0)));
+
+            var aggregate = await Assert.ThrowsAsync<AggregateException>(() => composite.DisposeAsync());
+
+            Assert.Collection(
+                aggregate.InnerExceptions, 
+                ex => Assert.IsType<InvalidOperationException>(ex));
+            Assert.Equal(2, setupBag.Count);
+        }
+
+        [Fact]
+        public async Task Composite_Disposable_Runs_All_Setups_Even_When_Ones_Faulted()
+        {
+            var setupBag = new ConcurrentBag<int>();
+
+            ILifetimeAsyncDisposable composite = 
+                Disposable.Compose()
+                          .AddSetup(() => setupBag.Add(0))
+                          .AddSetupAsync(() => throw new InvalidOperationException("Test exception"))
+                          .AddSetup(() => setupBag.Add(0));
+
+            var aggregate = await Assert.ThrowsAsync<AggregateException>(() => composite.SetupAsync());
+
+            Assert.Collection(
+                aggregate.InnerExceptions, 
+                ex => Assert.IsType<InvalidOperationException>(ex));
+            Assert.Equal(2, setupBag.Count);
         }
     }
 }

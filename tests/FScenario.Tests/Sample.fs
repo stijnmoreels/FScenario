@@ -273,7 +273,7 @@ let poll_tests =
     testCaseAsync "should poll for sequence length" <| async {
       let xs = System.Collections.Generic.List<_> ()
       let! actual = 
-        poll { targetSyncLog (fun l -> log<int> {
+        poll { targetSync (fun _ -> log<int> {
                   info "log for sequence length"
                   xs.Add 0 
                   return xs })
@@ -350,7 +350,7 @@ let http_tests =
         Http.respondStatus BadRequest
         Http.respondStatus OK ]
       
-      use __ = Http.simulate endpoint GET simulation
+      use _ = Http.simulate endpoint GET simulation
       do! Poll.untilHttpOkEvery1sFor5s endpoint
     }
 
@@ -358,7 +358,7 @@ let http_tests =
       let endpoint = "http://localhost:8393"
       Async.Start <| async { 
         do! Async.Sleep TimeInt._1s
-        let! __ = Http.get endpoint
+        let! _ = Http.get endpoint
         return () }
 
       let target = Http.receive endpoint

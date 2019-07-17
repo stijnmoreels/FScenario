@@ -1,12 +1,12 @@
 namespace FScenario
 
 open System
-open System.Collections.Generic
 open System.IO
 open System.Net
 open System.Net.Http
 open System.Threading
 open System.Threading.Tasks
+
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
@@ -52,22 +52,22 @@ module HttpRoute =
 /// Wrapper representation of the ASP.NET request to have still access to the otherwise disposed resources in a safe and reliable manner.
 type HttpRequest (req : Microsoft.AspNetCore.Http.HttpRequest) =
     let vs = req.Body |> Stream.asAsyncVirtual
-    member x.Method = req.Method
-    member x.Headers = req.GetTypedHeaders ()
-    member x.Body : Stream = vs
-    member x.ContentType = req.ContentType
+    member __.Method = req.Method
+    member __.Headers = req.GetTypedHeaders ()
+    member __.Body : Stream = vs
+    member __.ContentType = req.ContentType
     static member Create req = new HttpRequest (req)
     static member method (x : HttpRequest) = x.Method
     static member body (x : HttpRequest) = x.Body
     static member contentType (x : HttpRequest) = x.ContentType
-    static member headers (x : HttpRequest) = x.Headers 
+    static member headers (x : HttpRequest) = x.Headers
 
 /// Wrapper representataion of the System.Net.HttpResponseMessage for easier access in a F#-friendly manner to the HTTP response resources.
 type HttpResponse (res : HttpResponseMessage) =
-    member x.StatusCode = res.StatusCode
-    member x.Headers = res.Headers
-    member x.Content = res.Content
-    member x.ContentType = res.Content.Headers.ContentType.MediaType
+    member __.StatusCode = res.StatusCode
+    member __.Headers = res.Headers
+    member __.Content = res.Content
+    member __.ContentType = res.Content.Headers.ContentType.MediaType
     static member Create res = new HttpResponse (res)
     interface IDisposable with member x.Dispose () = res.Dispose ()
 
@@ -398,6 +398,11 @@ module Http =
     [<Obsolete("Renamed to 'simulate'")>]
     let serverSimulate url route handlers = simulate url route handlers
 
+namespace System.Net.Http
+
+open System.Collections.Generic
+
+/// Add more F# friendly access to the `HttpContent` type.
 [<AutoOpen>]
 module HttpContent =
     type HttpContent with
@@ -434,17 +439,27 @@ module Stream =
         let bs = asByteArray str
         System.Text.Encoding.UTF8.GetString bs
 
+/// Adding C# friendly access to `Stream` types.
 [<Extension>]
 type StreamEx =
     [<Extension>]
-    static member ReadAsByteArray (str : Stream) = Stream.asByteArray str
+    static member ReadAsByteArray (str : Stream) = 
+        if str = null then nullArg "str"
+        Stream.asByteArray str
     [<Extension>]
-    static member ReadAsString (str : Stream) = Stream.asString str
+    static member ReadAsString (str : Stream) = 
+        if str = null then nullArg "str"
+        Stream.asString str
 
+namespace FScenario
+
+open System.IO
+
+open FScenario
+
+/// Add F# friendly access to `HttpRequest` type.
 [<AutoOpen>]
 module HttpRequestExtensions =
-    open FScenario
-    
     let (|String|_|) (r : HttpRequest) = Some (Stream.asString r.Body)
     let (|ByteArray|_|) (r : HttpRequest) = Some (Stream.asByteArray r.Body)
 
@@ -452,10 +467,9 @@ module HttpRequestExtensions =
         static member readAsString (r : HttpRequest) = Stream.asString r.Body
         static member readAsByteArray (r : HttpRequest) = Stream.asByteArray r.Body
 
+/// Add more F# friendly access to the `HttpResponse` type.
 [<AutoOpen>]
 module HttpResponseExtensions =
-    open FScenario
-
     type HttpResponse with
         member x.ReadAsStream () = x.Content.ReadAsStreamAsync () |> Async.AwaitTask
         member x.ReadAsString () = x.Content.ReadAsStringAsync () |> Async.AwaitTask

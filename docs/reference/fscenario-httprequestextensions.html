@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>PollBuilder - FScenario</title>
+    <title>HttpRequestExtensions - FScenario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Stijn Moreels"/>
@@ -36,7 +36,7 @@
 
 
 
-<h1>PollBuilder</h1>
+<h1>HttpRequestExtensions</h1>
 <p>
   <span>Namespace: FScenario</span><br />
         <span>
@@ -46,38 +46,12 @@
       </span>
 </p>
 <div class="xmldoc">
-<p>Computation Expression builder for the  type.</p>
+<p>Add F# friendly access to <a href="fscenario-httprequest.html" title="HttpRequest"><code>HttpRequest</code></a> type.</p>
 
 </div>
 
 <!-- Render nested types and modules, if there are any -->
 
-  <h3>Functions and values</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Function or value</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '176', 176)" onmouseover="showTip(event, '176', 176)">
-            poll
-          </code>
-          <div class="tip" id="176">
-            <strong>Signature:</strong> PollBuilder<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L827-827" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
   <h3>Type extensions</h3>
   <table class="table table-bordered member-list">
     <thead>
@@ -87,58 +61,85 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '177', 177)" onmouseover="showTip(event, '177', 177)">
-            x.Bind(a, f)
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            HttpRequest.readAsByteArray(r)
           </code>
-          <div class="tip" id="177">
-            <strong>Signature:</strong> (a:PollAsync&lt;&#39;a&gt; * f:(&#39;a -&gt; Async&lt;&#39;b&gt;)) -&gt; Async&lt;&#39;b&gt;<br />
-                          <strong>Type parameters:</strong> 'a, 'b                      </div>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> r:HttpRequest -&gt; byte []<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L814-814" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L468-468" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
-              <p>CompiledName: <code>AsyncBuilder.Bind</code></p>
+              <p>CompiledName: <code>HttpRequest.readAsByteArray.Static</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '178', 178)" onmouseover="showTip(event, '178', 178)">
-            x.Bind(a, f)
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+            HttpRequest.readAsString(r)
           </code>
-          <div class="tip" id="178">
-            <strong>Signature:</strong> (a:PollAsync&lt;&#39;a&gt; * f:(unit -&gt; Async&lt;unit&gt;)) -&gt; Async&lt;unit&gt;<br />
-                          <strong>Type parameters:</strong> 'a                      </div>
+          <div class="tip" id="59">
+            <strong>Signature:</strong> r:HttpRequest -&gt; string<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L818-818" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L467-467" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
-              <p>CompiledName: <code>AsyncBuilder.Bind</code></p>
+              <p>CompiledName: <code>HttpRequest.readAsString.Static</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            ( |ByteArray|_| )(r)
+          </code>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> r:HttpRequest -&gt; byte [] option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L464-464" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>|ByteArray|_|</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '179', 179)" onmouseover="showTip(event, '179', 179)">
-            x.ReturnFrom(a)
+          <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
+            ( |String|_| )(r)
           </code>
-          <div class="tip" id="179">
-            <strong>Signature:</strong> a:PollAsync&lt;&#39;a&gt; -&gt; Async&lt;&#39;a&gt;<br />
-                          <strong>Type parameters:</strong> 'a                      </div>
+          <div class="tip" id="61">
+            <strong>Signature:</strong> r:HttpRequest -&gt; string option<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Poll.fs#L822-822" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L463-463" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
-              <p>CompiledName: <code>AsyncBuilder.ReturnFrom</code></p>
+              <p>CompiledName: <code>|String|_|</code></p>
         </td>
       </tr>
     </tbody>
