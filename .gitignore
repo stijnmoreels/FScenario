@@ -170,6 +170,9 @@ $RECYCLE.BIN/
 # NuGet Packages Directory
 packages/
 
+# VSCode
+.ionide/
+
 # Test results produced by build
 TestResults.xml
 

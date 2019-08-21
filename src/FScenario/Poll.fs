@@ -1,6 +1,7 @@
 ﻿namespace FScenario
 
 open System
+open System.Collections.Concurrent
 open System.IO
 open System.Net
 open System.Threading.Tasks
@@ -12,7 +13,6 @@ open FSharp.Core
 
 open Polly
 open Polly.Timeout
-open System.Collections.Concurrent
 
 /// Type representing the required values to run a polling execution.
 type PollAsync<'a> =
@@ -391,9 +391,8 @@ module Poll =
                         predicates
                         |> List.mapi (fun i f -> 
                             let res, descOpt = f logger x
-                            descOpt
-                            |> Option.map ((+) (if res then "[Ok] " else "[Fail] "))
-                            |> Option.iter (fun desc -> ctx.AddOrUpdate("predicate" + string i, desc, Func<_, _, _> (fun _ _ -> desc)) |> ignore)
+                            descOpt |> Option.map ((+) (if res then "[Ok] " else "[Fail] "))
+                                    |> Option.iter (fun desc -> ctx.AddOrUpdate("predicate" + string i, desc, Func<_, _, _> (fun _ _ -> desc)) |> ignore)
                             not res)
                         |> List.contains true))
                             .Or<exn>()
@@ -527,12 +526,12 @@ module Poll =
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
     let untilFileExists (filePath : string) interval timeout =
         custom 
-              (fun l -> async { l.LogTrace(LogEvent.io, "Poll at file {path}", filePath); return FileInfo filePath }) 
-              (fun l f -> f.Exists, sprintf "File '%s' exists" f.FullName)
-              (fun _ -> interval) 
-              timeout 
-              (fun _ -> sprintf "File '%s' is not present after polling (every %A, timeout %A)" filePath interval timeout)
-              (Log.logger<PollAsync<obj>> ())
+            (fun l -> async { l.LogTrace(LogEvent.io, "Poll at file {path}", filePath); return FileInfo filePath }) 
+            (fun l f -> f.Exists, sprintf "File '%s' exists" f.FullName)
+            (fun _ -> interval) 
+            timeout 
+            (fun _ -> sprintf "File '%s' is not present after polling (every %A, timeout %A)" filePath interval timeout)
+            (Log.logger<PollAsync<obj>> ())
 
     /// <summary>
     /// Poll at a given file path until the file exists ever second for 5 seconds.

@@ -7,6 +7,7 @@ open System.Net.Http
 
 open Expecto
 open FScenario
+open System.Collections.Concurrent
 
 [<Tests>]
 let directory_tests =
@@ -223,15 +224,15 @@ let poll_tests =
      }
     
     testCase "should fail when polling doesn't result in expected value" <| fun _ ->
-      Expect.throwsC (fun () ->
-          poll { targetSync (fun () -> false)
-                 untilTrue
-                 incrementSec id 
-                 timeout _5s
-                 error "target should be 'true'" }
-            |> Poll.toAsync
-            |> Async.Ignore
-            |> Async.RunSynchronously)
+      Expect.throwsC (fun () -> 
+        poll { targetSync (fun () -> false)
+               untilTrue
+               incrementSec id 
+               timeout _5s
+               error "target should be 'true'" }
+        |> Poll.toAsync
+        |> Async.Ignore
+        |> Async.RunSynchronously)
         (fun ex -> 
             Expect.stringContains ex.Message "target should be 'true'" "exception should contain expected error title"
             Expect.stringContains ex.Message "[Fail]" "exception should contain specific predicate error message")
@@ -368,4 +369,28 @@ let http_tests =
           |> Poll.timeout _10s
           |> Poll.error "Polling for request failed"
     }
+  ]
+
+[<Tests>]
+let disposable_tests =
+  testList "disposable tests" [
+    testCaseAsync "composite disposable dispose all" <| async {
+      let setupBag = ConcurrentBag ()
+      let tearDownBag = ConcurrentBag ()
+      let dis = disposable {
+        setup (fun () -> setupBag.Add 0)
+        setupAsync (fun () -> async { setupBag.Add 0 })
+        tearDown (fun () -> tearDownBag.Add 0)
+        tearDownAsync (fun () -> async { tearDownBag.Add 0 })
+        undoable (fun () -> setupBag.Add 0) (fun () -> tearDownBag.Add 0)
+        undoableAsync (fun () -> async { setupBag.Add 0 }) (fun () -> async { tearDownBag.Add 0 }) }
+      
+      Disposable.run dis
+      Expect.equal 4 setupBag.Count "sync setup should happen 4 times"
+      do! Disposable.runAsync dis
+      Expect.equal 8 setupBag.Count "async setup should happen 4 times"
+      Disposable.dispose dis
+      Expect.equal 4 tearDownBag.Count "sync tear down should happen 4 times"
+      do! Disposable.disposeAsync dis
+      Expect.equal 8 tearDownBag.Count "async tear down should happen 4 times" }
   ]
