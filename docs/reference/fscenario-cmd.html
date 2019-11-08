@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>HttpRequestExtensions - FScenario</title>
+    <title>Cmd - FScenario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Stijn Moreels"/>
@@ -36,110 +36,71 @@
 
 
 
-<h1>HttpRequestExtensions</h1>
+<h1>Cmd</h1>
 <p>
   <span>Namespace: FScenario</span><br />
-        <span>
-          Attributes:<br />
-[&lt;AutoOpen&gt;]<br />
-          
-      </span>
-</p>
+  </p>
 <div class="xmldoc">
-<p>Add F# friendly access to <a href="fscenario-httprequest.html" title="HttpRequest"><code>HttpRequest</code></a> type.</p>
+<p>Command line operations in the current environment.</p>
 
 </div>
 
 <!-- Render nested types and modules, if there are any -->
 
-  <h3>Type extensions</h3>
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Type extension</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
-            HttpRequest.readAsByteArray(r)
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
+            run(cmd)
           </code>
-          <div class="tip" id="71">
-            <strong>Signature:</strong> r:HttpRequest -&gt; byte []<br />
-                                  </div>
+          <div class="tip" id="8">
+            <strong>Signature:</strong> cmd:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Run&quot;)&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L472-472" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L100-100" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-              <p>CompiledName: <code>HttpRequest.readAsByteArray.Static</code></p>
+          <p>Run a single command on the current environment.</p>
+
+
+              <p>CompiledName: <code>Run</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
-            HttpRequest.readAsString(r)
+          <code onmouseout="hideTip(event, '9', 9)" onmouseover="showTip(event, '9', 9)">
+            runArgs cmd args
           </code>
-          <div class="tip" id="72">
-            <strong>Signature:</strong> r:HttpRequest -&gt; string<br />
-                                  </div>
+          <div class="tip" id="9">
+            <strong>Signature:</strong> cmd:string -&gt; args:string -&gt; unit<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Run&quot;)&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L471-471" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L84-84" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-              <p>CompiledName: <code>HttpRequest.readAsString.Static</code></p>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Active patterns</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Active pattern</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
+          <p>Run a single command on the current environment.</p>
 
-          <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
-            ( |ByteArray|_| )(r)
-          </code>
-          <div class="tip" id="73">
-            <strong>Signature:</strong> r:HttpRequest -&gt; byte [] option<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L468-468" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-              <p>CompiledName: <code>|ByteArray|_|</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
-            ( |String|_| )(r)
-          </code>
-          <div class="tip" id="74">
-            <strong>Signature:</strong> r:HttpRequest -&gt; string option<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Http.fs#L467-467" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-              <p>CompiledName: <code>|String|_|</code></p>
+              <p>CompiledName: <code>Run</code></p>
         </td>
       </tr>
     </tbody>

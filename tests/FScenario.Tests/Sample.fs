@@ -1,13 +1,16 @@
 module Tests
 
 open System
+open System.Collections.Concurrent
 open System.IO
 open System.Net
 open System.Net.Http
+open System.Reactive.Linq
+open System.Reactive.Subjects
 
 open Expecto
 open FScenario
-open System.Collections.Concurrent
+open System.Reactive
 
 [<Tests>]
 let directory_tests =
@@ -284,6 +287,17 @@ let poll_tests =
                untilLength 3
                immediate }
       Expect.equal actual [0; 0; 0] "should be equal to list of 3 zero's"
+    }
+
+    testCaseAsync "collects several emits from observable" <| async {
+        do! Poll.observable (Observable.Range (1, 10))
+            |> Poll.untilLength 10
+    }
+
+    testCaseAsync "collects several emits from custom consuer" <| async {
+        let o = Observable.Range (1, 10)
+        do! Poll.consumer (fun enqueue -> Observable.add enqueue o)
+            |> Poll.untilLength 10
     }
   ]
 

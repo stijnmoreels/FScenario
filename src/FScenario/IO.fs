@@ -3,8 +3,6 @@
 open System
 open System.IO
 open Microsoft.Extensions.Logging
-open FScenario
-open System.IO.Compression
 
 /// Adding quick access to hashing functionality.
 module Hash =

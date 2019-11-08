@@ -38,7 +38,6 @@ type PollAsync<'a> =
 /// Exposing functions to write reliable polling functions for a testable target.
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Poll =
-
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
     let targetLog f = PollAsync<_>.Create (fun l -> f l)
     
@@ -54,8 +53,7 @@ module Poll =
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
     let targets fs = target (fun () -> async { 
-        return! Seq.map (fun f -> f ()) fs
-                |> Async.Choice })
+        return! Seq.map (fun f -> f ()) fs |> Async.Choice })
 
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
@@ -64,6 +62,20 @@ module Poll =
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
     let target3 f1 f2 f3 = targets [ f1; f2; f3 ]
+
+    /// Creates a polling function that registers an enqueue function to collect a series of values of an external source.
+    let consumer registerEnqueue =
+      let xs = ConcurrentBag<_> ()
+      registerEnqueue xs.Add
+      targetSync (fun () -> xs.ToArray () :> seq<_>)
+    
+    /// Creates a polling function that collects a series of values of an observable sequence. 
+    let observable o =
+      consumer (fun enqueue -> Observable.add enqueue o)
+
+    /// Creates a polling function that collects a series of values of an event.
+    let event e =
+      consumer (fun enqueue -> Event.add enqueue e)
 
     /// <summary>
     /// Creates a polling function that polls at a specified file path.
@@ -368,6 +380,9 @@ module Poll =
 
     /// Returns a constant value when the polling function fails with a `TimeoutException`.
     let orElseValue x poll = orElseWith (fun () -> async.Return x) poll
+
+    /// Overrides the default logger used during the polling execution.
+    let logger l poll = { poll with Logger = l }
 
     let private errMsgKey = "ExceptionMessageKey"
 
@@ -679,6 +694,15 @@ module PollBuilder =
         /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
         [<CustomOperation("targetSyncLog")>] 
         member __.TargetSyncLog (state, f) = { state with CallTarget = fun l -> f l |> async.Return }
+        /// Creates a polling function that registers an enqueue function to collect a series of values of an external source.
+        [<CustomOperation("consumer")>]
+        member __.Consumer (registerEnqueue) = Poll.consumer registerEnqueue
+        /// Creates a polling function that collects a series of values of an observable sequence.
+        [<CustomOperation("observable")>]
+        member __.Observable (observable) = Poll.observable observable
+        /// Creates a polling function that collects a series of values of an event.
+        [<CustomOperation("event")>]
+        member __.Event (event) = Poll.event event
         /// Map and filter the target function to another type while providing a new alternative for the polling function.
         /// Note that values set during previously called `Poll.error..` functions will be ignored
         [<CustomOperation("mapFilterAlt")>]

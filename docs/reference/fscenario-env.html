@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>ILifetimeDisposable - FScenario</title>
+    <title>Env - FScenario</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Stijn Moreels"/>
@@ -36,38 +36,46 @@
 
 
 
-<h1>ILifetimeDisposable</h1>
+<h1>Env</h1>
 <p>
-
-    <span>Namespace: System</span><br />
-    </p>
+  <span>Namespace: FScenario</span><br />
+  </p>
 <div class="xmldoc">
+<p>Operations on the environment.</p>
+
 </div>
-  <h3>Instance members</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Instance member</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '312', 312)" onmouseover="showTip(event, '312', 312)">
-            x.Setup()
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            var name value
           </code>
-          <div class="tip" id="312">
-            <strong>Signature:</strong> unit -&gt; unit<br />
-              <strong>Modifiers:</strong> abstract<br />
-                                  </div>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> name:string -&gt; value:string -&gt; (type)<br />
+                                    <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Var&quot;)&gt;]<br />
+          </span>
+          </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/paket-files/stijnmoreels/System/Disposable.fs#L18-18" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L72-72" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Setup any application defined tasks.</p>
+          <p>Sets an environment variable on setup and removes it when the returned disposabled is disposed.</p>
 
 
+              <p>CompiledName: <code>Var</code></p>
         </td>
       </tr>
     </tbody>

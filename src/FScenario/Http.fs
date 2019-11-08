@@ -182,9 +182,11 @@ module Http =
         
         loggerServer.LogTrace(LogEvent.http, "Start HTTP server at {url}", url)
         Async.Start (host.RunAsync ct.Token |> Async.AwaitTask, ct.Token)
-        Disposable.create (fun () -> 
+        let d = Disposable.create (fun () -> 
             host.StopAsync () |> Async.AwaitTask |> Async.RunSynchronously
             ct.Cancel ())
+        ct.Token.Register (fun () -> d.Dispose ()) |> ignore
+        d
 
     let private serverRoutesWithCancellation url table =
         serverCustom url <| fun (app : IApplicationBuilder) ct ->
@@ -265,6 +267,7 @@ module Http =
                     sender.Reply messages
                     return! loop messages }
             loop []
+        inbox.Error |> Event.add (fun ex -> loggerServer.LogError (LogEvent.http, ex, "Error occured during collecting of requests: " + ex.Message))
 
         let s = serverRoutesWithCancellation url [ route, fun ctx ct -> async {
             let message = resultMapper ctx.Request
@@ -367,6 +370,7 @@ module Http =
         table
         |> List.map (fun (route, handlers) -> 
             let inbox = createAgent handlers
+            inbox.Error |> Event.add (fun ex -> loggerServer.LogError (LogEvent.http, ex, "Error occured during simulation of responses: " + ex.Message))
             (route : HttpRouter), fun ctx (ct : CancellationTokenSource) -> async { 
                 let! handler = inbox.PostAndAsyncReply GetHandler
                 do! handler ctx

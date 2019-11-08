@@ -548,7 +548,11 @@ type Poll =
         if message = null then nullArg "errorMessage"
         Poll.error (String.Format (message, args)) poll
     
-
+    /// Overrides the default logger used during the polling execution.
+    [<Extension>]
+    static member Logger (poll, logger) =
+        if isNull logger then nullArg "logger"
+        Poll.logger logger poll
 
     /// Maps the target function to another type by removing the filtering and alternative from the polling function. 
     /// Note that values set during previously called `Poll.until` and/or `Poll.orElse... and/or `Poll.error...` functions will be ignored
@@ -1197,4 +1201,14 @@ type Poll =
     static member UntilHttpOkEvery5sFor30s (url : string) =
         if url = null then nullArg "url"
         Poll.untilHttpOkEvery5sFor30s url |> Async.StartAsTask :> Task
+
+    /// Creates a polling function that registers an enqueue function to collect a series of values of an external source.
+    static member Consumer (registerEnqueue : Action<Action<'T>>) =
+      if isNull registerEnqueue then nullArg "registerEnqueue"
+      Poll.consumer (fun enqueue -> registerEnqueue.Invoke (Action<_> enqueue))
+
+    /// Creates a polling function that collects a series of values of an observable sequence.
+    static member Observable (observable : IObservable<'T>) =
+      if isNull observable then nullArg "observable"
+      Poll.observable observable
     
