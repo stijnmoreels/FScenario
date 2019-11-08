@@ -2,12 +2,10 @@ namespace FScenario
 
 open System
 open Microsoft.Extensions.Logging
-open Microsoft.Extensions.Logging.Internal
 open Microsoft.Extensions.DependencyInjection
 
 /// Simple logger implementation to provide quick access to the way messages are logged
 type Logger private (level : LogLevel, writeMessage : LogLevel -> EventId -> obj -> string option -> exn -> unit) =
-    let nullFormatted = FormattedLogValues(null, null).ToString()
     interface ILogger with
         member __.IsEnabled (l) = if level = LogLevel.None then false else l <= level
         member __.BeginScope (state) = Disposable.create id
@@ -16,7 +14,7 @@ type Logger private (level : LogLevel, writeMessage : LogLevel -> EventId -> obj
             let msg = 
                 Option.ofObj formatter
                 |> Option.map (fun f -> f.Invoke (state, ex))
-                |> Option.filter ((<>) nullFormatted)
+                // |> Option.filter ((<>) nullFormatted)
             writeMessage l id state msg ex
 
     /// <summary>
