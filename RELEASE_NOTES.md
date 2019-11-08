@@ -53,7 +53,7 @@ Initial release
   - `Poll.immediate` for running polling sequences without any interval between them
 - Add predicate descriptions to define custom and built-in error messages to show to quickly find out which of the predicates failed and which ran successfully (`[Ok]` and `[Fail]` prefix in message of `TimeoutException`)
 
-### 2.4.0
+### 2.6.0
 
 - Add polling consumers: by registering an enqueue function, values from an external source can be used to in a polling function
 - Add fixture class for small/quick fixture setup that requires a single value and some disposables
