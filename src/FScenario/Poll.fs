@@ -4,6 +4,7 @@ open System
 open System.Collections.Concurrent
 open System.IO
 open System.Net
+open System.Net.Http
 open System.Threading.Tasks
 
 open Microsoft.Extensions.Logging
@@ -15,13 +16,13 @@ open Polly
 open Polly.Timeout
 
 /// Type representing the required values to run a polling execution.
-type PollAsync<'a> =
-    { CallTarget : ILogger -> Async<'a>
-      Filters : (ILogger -> 'a -> bool * string option) list
+type PollAsync<'T> =
+    { CallTarget : (ILogger -> Async<'T>)
+      Filters : (ILogger -> 'T -> bool * string option) list
       GetInterval : int -> TimeSpan
       Timeout : TimeSpan
-      GetError : 'a -> string
-      Alternative : PollAsync<'a> option
+      GetError : 'T -> string
+      Alternative : PollAsync<'T> option
       Logger : ILogger } with
       /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
       static member internal Create f = 
@@ -45,10 +46,10 @@ module Poll =
     let target f = targetLog (fun _ -> f ())
 
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-    let targetSync f = target (f >> async.Return)
+    let targetSyncLog f = PollAsync<_>.Create (fun l -> async { return f l })
 
     /// Creates a polling function that runs the specified function for a period of time until either the predicate succeeds or the expression times out.
-    let targetSyncLog f = targetLog (f >> async.Return)
+    let targetSync f = targetSyncLog (fun _ -> f ())
 
     /// Creates a polling function that runs the specified functions in parallel returning the first asynchronous computation whose result is 'Some x' 
     /// for a period of time until either the predicate succeeds or the expression times out.
@@ -242,7 +243,7 @@ module Poll =
     /// Adds a time period representing the interval that gets calculated with an index, in which the polling should happen during the polling sequence.
     /// </summary>
     /// <param name="calculateInterval">The function that calculates the next polling interval.</param>
-    let everyCustom calculateInterval poll = { poll with GetInterval = calculateInterval }
+    let everyCustom calculateInterval poll = { poll with PollAsync.GetInterval = calculateInterval }
 
     /// <summary>
     /// Adds a time period representing the interval in which the polling should happen during the polling sequence.
@@ -345,7 +346,7 @@ module Poll =
     /// Adds a time period representing how long the polling should happen before the expression should result in a time-out.
     /// </summary>
     /// <param name="timeout">A time period representing how long the polling should happen before the expression should result in a time-out.</param>
-    let timeout timeout poll = { poll with Timeout = timeout }
+    let timeout timeout poll = { poll with PollAsync.Timeout = timeout }
 
     /// <summary>
     /// Adds a custom error message to show when the polling has been time out.
@@ -626,7 +627,7 @@ module Poll =
                 l.LogTrace (LogEvent.http, "Poll GET {url} -> {status}", url, r.StatusCode)
                 return r }) 
             (fun l r ->
-                let ok = r.StatusCode = OK
+                let ok = r.StatusCode = HttpStatusCode.OK
                 l.LogTrace(LogEvent.http, "Poll GET {url} -> {ok}", url, if ok then "= OK" else "<> OK, but " + string r.StatusCode)
                 ok, sprintf "HTTP response status '%A' is OK" r.StatusCode)
             (fun _ -> interval)
@@ -845,6 +846,6 @@ module PollBuilder =
         member __.ReturnFrom (a : PollAsync<'a>) = async {
             let! x = a.Apply Poll.customRec
             return x }
-    
-    
+
+
     let poll = new PollBuilder ()

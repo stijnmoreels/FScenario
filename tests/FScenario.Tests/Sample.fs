@@ -11,6 +11,9 @@ open System.Reactive.Subjects
 open Expecto
 open FScenario
 open System.Reactive
+open Microsoft.Extensions.Logging
+open System.Diagnostics
+open Polly
 
 [<Tests>]
 let directory_tests =
@@ -315,7 +318,7 @@ let http_tests =
     testCaseAsync "starts http server and POST/PUT -> Accepted + echo request" <| async {
       let endpoint = "http://localhost:8082"
       let expected = "this is a test!"
-      let routes = 
+      let routes =
         [ GET, Http.respondStatus OK 
           POST, Http.respondContentString expected ]
 
@@ -364,7 +367,7 @@ let http_tests =
         Http.respondStatus BadRequest 
         Http.respondStatus BadRequest
         Http.respondStatus OK ]
-      
+
       use _ = Http.simulate endpoint GET simulation
       do! Poll.untilHttpOkEvery1sFor5s endpoint
     }
@@ -407,4 +410,114 @@ let disposable_tests =
       Expect.equal 4 tearDownBag.Count "sync tear down should happen 4 times"
       do! Disposable.disposeAsync dis
       Expect.equal 8 tearDownBag.Count "async tear down should happen 4 times" }
+  ]
+
+type TearDownOptions =
+  | KeepProjectDirectory
+  | KeepProjectRunning
+  | KeepProjectInstalled
+
+type TemplateProject =
+  { TemplateDirectory : DirectoryInfo
+    FixtureDirectory : DirectoryInfo
+    ProjectDirectory : DirectoryInfo
+    Logger : ILogger
+    Host : IDisposable option
+    TearDownOptions : TearDownOptions list } with
+  member this.createProj () =
+    Log.info "Creates new project from template" this.Logger
+    Cmd.runArgs "dotnet" ("new -i " + this.TemplateDirectory.FullName)
+    Cmd.runArgs "dotnet" ("new myproject -n MyProject -o " + this.ProjectDirectory.FullName)
+  member this.run () =
+    Cmd.runArgs "dotnet" ("build -c Release" + this.ProjectDirectory.FullName)
+    let info = ProcessStartInfo ("dotnet", "run") in
+        info.UseShellExecute <- false;
+        info.CreateNoWindow <- true;
+        info.WorkingDirectory <- this.ProjectDirectory.FullName;
+    { this with Host = Some (App.startInfo info) }
+  interface IDisposable with
+    member this.Dispose () = 
+      this.Host |> Option.filter (fun _ -> not <| List.contains KeepProjectRunning this.TearDownOptions)
+                |> Option.iter Disposable.dispose
+
+let templateProject templateProj =
+  let projDir = Path.GetTempPath() </> sprintf "MyProject-%A" (Guid.NewGuid())
+  fixture 
+    { TemplateDirectory = templateProj
+      FixtureDirectory = DirectoryInfo "."
+      ProjectDirectory = DirectoryInfo projDir
+      Logger = Log.logger<TemplateProject> ()
+      Host = None
+      TearDownOptions = [] }
+    { setup (fun f -> retry<IOException> { target f.createProj })
+      setupu (fun f -> f.run ())
+      update (fun p -> { p with TearDownOptions = [ KeepProjectRunning ] })
+      teardownRetry Retry.handle<IOException> (fun { ProjectDirectory = d; TearDownOptions = op } -> 
+        if not <| List.contains KeepProjectDirectory op 
+        then d.Delete (recursive=true))
+      teardown (fun { TemplateDirectory = d; TearDownOptions = op } -> 
+        if not <| List.contains KeepProjectInstalled op
+        then Cmd.runArgs "dotnet" ("new -u " + d.FullName)) }
+
+[<FTests>]
+let fixture_tests =
+  testList "fixture tests" [
+    testCaseAsync "also dispose the value if it's a disposable" <| async {
+      let mutable isDisposed = false
+      let value = { new IDisposable with member __.Dispose () = isDisposed <- true }
+      let fix = Fixture.create value
+      do! fix.teardownAsync ()
+      Expect.isTrue isDisposed "value disposable should be disposed" }
+
+    testCase "only sync-setup/teardown are run in Setup/TearDown" <| fun () ->
+      let mutable spy_setup = false
+      let mutable spy_setupAsync = false
+      let mutable spy_teardown = false
+      let mutable spy_teardownAsync = false
+      
+      let fix = fixture_empty {
+        setup (fun () -> spy_setup <- true)
+        setupAsync (fun () -> async { spy_setupAsync <- true })
+        teardown (fun () -> spy_teardown <- true)
+        teardownAsync (fun () -> async { spy_teardownAsync <- true }) }
+      fix.setup ()
+      fix.teardown ()
+
+      Expect.isTrue spy_setup "should run sync setup"
+      Expect.isFalse spy_setupAsync "shouldn't run async setup"
+      Expect.isTrue spy_teardown "should run sync teardown"
+      Expect.isFalse spy_teardownAsync "shouldn't run async teardown"
+
+    testCaseAsync "both sync & async setup/dispose are run in Setup/TearDown" <| async {
+      let mutable spy_setup = false
+      let mutable spy_setupAsync = false
+      let mutable spy_teardown = false
+      let mutable spy_teardownAsync = false
+      
+      let fix = fixture_empty {
+        setup (fun () -> spy_setup <- true)
+        setupAsync (fun () -> async { spy_setupAsync <- true })
+        teardown (fun () -> spy_teardown <- true)
+        teardownAsync (fun () -> async { spy_teardownAsync <- true }) }
+      do! fix.setupAsync ()
+      do! fix.TearDownAsync ()
+      
+      Expect.isTrue spy_setup "should run sync setup"
+      Expect.isTrue spy_setupAsync "should run async setup"
+      Expect.isTrue spy_teardown "should run sync teardown"
+      Expect.isTrue spy_teardownAsync "should run async teardown" }
+
+    testCaseAsync "setup is run in order" <| async {
+      let order = System.Collections.Generic.List<int> ()
+      let fix = fixture_empty {
+        setup (fun () -> order.Add 1)
+        setup (fun () -> order.Add 2)
+        setup (fun () -> order.Add 3)
+        teardown (fun () -> order.Add 4)
+        teardown (fun () -> order.Add 5)
+        teardown (fun () -> order.Add 6) }
+      do! fix.setupAsync ()
+      do! fix.teardownAsync ()
+
+      Expect.sequenceEqual order [1..6] "should setup/teardown in the right order" }
   ]

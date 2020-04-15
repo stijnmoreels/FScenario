@@ -1,0 +1,26 @@
+type file
+id FScenario.Http
+version 2.6.0
+title FScenario.Http
+summary Reusable HTTP server integration test building blocks to write integration tests in a more safe and fun way
+description
+    Reusable HTTP server integration test building blocks to write integration tests in a more safe and fun way. 
+    The package consists of several functions to help write tests that clean up after themselves, 
+    making assertions more reliable by polling for required results, 
+    adds some standard building blocks for you to start creating your own disposable fixture, ...
+copyright Copyright 2019
+authors Stijn Moreels
+owners Stijn Moreels
+tags fsharp,integration-tests,integration,tests,disposable,polling,fixture,teardown
+projectUrl https://github.com/stijnmoreels/FScenario.Http
+iconUrl https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png
+licenseUrl https://github.com/stijnmoreels/FScenario.Http/blob/master/LICENSE.txt
+releaseNotes
+    - Add polling consumers: by registering an enqueue function, values from an external source can be used to in a polling function
+    - Add fixture class for small/quick fixture setup that requires a single value and some disposables
+    - Add temporary environment variable fixtures
+    - Add easy command line interaction by running a command with a set of args
+files
+    bin/Release/netstandard2.0/*.dll ==> lib/netstandard2.0
+    bin/Release/netstandard2.0/*.xml ==> lib/netstandard2.0
+dependencies Microsoft.AspNetCore.Server.Kestrel >= 2.2

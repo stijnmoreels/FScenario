@@ -1,6 +1,6 @@
 type file
 id FScenario
-version 2.5.0
+version 2.6.0
 title FScenario
 summary Reusable integration test building blocks to write integration tests in a more safe and fun way
 description
@@ -16,16 +16,14 @@ projectUrl https://github.com/stijnmoreels/FScenario
 iconUrl https://raw.githubusercontent.com/stijnmoreels/FScenario/master/docs/img/logo.png
 licenseUrl https://github.com/stijnmoreels/FScenario/blob/master/LICENSE.txt
 releaseNotes
-    - Add polling interval approaches:
-    - `Poll.exponential` for running polling sequences with an interval that gets increased exponentially
-    - `Poll.increment` for running polling sequences with an interval that gets increased manually
-    - `Poll.random` for running polling sequences with an random interval that gets configured with min/max
-    - `Poll.immediate` for running polling sequences without any interval between them
-    - Add predicate descriptions to define custom and built-in error messages to show to quickly find out which of the predicates failed and which ran successfully (`[Ok]` and `[Fail]` prefix in message of `TimeoutException`)
+    - Add polling consumers: by registering an enqueue function, values from an external source can be used to in a polling function
+    - Add fixture class for small/quick fixture setup that requires a single value and some disposables
+    - Add temporary environment variable fixtures
+    - Add easy command line interaction by running a command with a set of args
 files
     bin/Release/netstandard2.0/*.dll ==> lib/netstandard2.0
     bin/Release/netstandard2.0/*.xml ==> lib/netstandard2.0
 dependencies
-    FSharp.Core >= 4.5.2
-    Microsoft.AspNetCore.Server.Kestrel >= 2.2
+    FSharp.Core >= 4.7
+    Microsoft.Extensions.Logging >= 3.0
     Polly-Signed >= 5.9

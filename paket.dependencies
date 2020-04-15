@@ -1,10 +1,11 @@
-version 5.216.0
+version 5.226.0
 source https://www.nuget.org/api/v2
 
-nuget FSharp.Core = 4.5.2
+nuget FSharp.Core = 4.7.0
 nuget Expecto.TestResults
 nuget Polly-Signed
 nuget Microsoft.AspNetCore.Server.Kestrel
+nuget Microsoft.Bcl.AsyncInterfaces
 nuget Microsoft.Extensions.Logging.Console
 
 github stijnmoreels/System Time.fs

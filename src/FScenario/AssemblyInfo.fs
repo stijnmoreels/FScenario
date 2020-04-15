@@ -7,8 +7,8 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyDescriptionAttribute("Reusable integration test building blocks to write integration tests in a more safe and fun way")>]
 [<assembly: GuidAttribute("871111ca-f7e3-48c5-95b1-6eec4c289948")>]
 [<assembly: AssemblyProductAttribute("FScenario")>]
-[<assembly: AssemblyVersionAttribute("2.5.0")>]
-[<assembly: AssemblyFileVersionAttribute("2.5.0")>]
+[<assembly: AssemblyVersionAttribute("2.6.0")>]
+[<assembly: AssemblyFileVersionAttribute("2.6.0")>]
 do ()
 
 module internal AssemblyVersionInformation =
@@ -16,5 +16,5 @@ module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyDescription = "Reusable integration test building blocks to write integration tests in a more safe and fun way"
     let [<Literal>] Guid = "871111ca-f7e3-48c5-95b1-6eec4c289948"
     let [<Literal>] AssemblyProduct = "FScenario"
-    let [<Literal>] AssemblyVersion = "2.5.0"
-    let [<Literal>] AssemblyFileVersion = "2.5.0"
+    let [<Literal>] AssemblyVersion = "2.6.0"
+    let [<Literal>] AssemblyFileVersion = "2.6.0"

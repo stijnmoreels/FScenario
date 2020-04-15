@@ -82,10 +82,10 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '2', 2)" onmouseover="showTip(event, '2', 2)">
-            startArgs(args)
+            startArgs cmd args
           </code>
           <div class="tip" id="2">
-            <strong>Signature:</strong> args:(type) -&gt; (type)<br />
+            <strong>Signature:</strong> cmd:string -&gt; args:string -&gt; (type)<br />
                                     <span>
             <strong>Attributes:</strong><br />
 [&lt;CompiledName(&quot;Start&quot;)&gt;]<br />
@@ -110,8 +110,34 @@
             startArgsDelay args a
           </code>
           <div class="tip" id="3">
-            <strong>Signature:</strong> args:(type) -&gt; a:PollAsync&lt;&#39;?8574&gt; -&gt; (type)<br />
-                          <strong>Type parameters:</strong> '?8574                        <span>
+            <strong>Signature:</strong> args:string -&gt; a:PollAsync&lt;&#39;?8673&gt; -&gt; string -&gt; (type)<br />
+                          <strong>Type parameters:</strong> '?8673                        <span>
+            <strong>Attributes:</strong><br />
+[&lt;CompiledName(&quot;Start&quot;)&gt;]<br />
+          </span>
+          </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/App.fs#L65-65" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Starts a process resouce after a delay by specifying the name of a document or application file
+and associates the resouce with a  component.</p>
+
+
+              <p>CompiledName: <code>Start</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '4', 4)" onmouseover="showTip(event, '4', 4)">
+            startDelay file a
+          </code>
+          <div class="tip" id="4">
+            <strong>Signature:</strong> file:string -&gt; a:PollAsync&lt;&#39;?8671&gt; -&gt; (type)<br />
+                          <strong>Type parameters:</strong> '?8671                        <span>
             <strong>Attributes:</strong><br />
 [&lt;CompiledName(&quot;Start&quot;)&gt;]<br />
           </span>
@@ -132,12 +158,12 @@ and associates the resouce with a  component.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '4', 4)" onmouseover="showTip(event, '4', 4)">
-            startDelay file a
+          <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
+            startInfo(args)
           </code>
-          <div class="tip" id="4">
-            <strong>Signature:</strong> file:string -&gt; a:PollAsync&lt;&#39;?8572&gt; -&gt; (type)<br />
-                          <strong>Type parameters:</strong> '?8572                        <span>
+          <div class="tip" id="5">
+            <strong>Signature:</strong> args:(type) -&gt; (type)<br />
+                                    <span>
             <strong>Attributes:</strong><br />
 [&lt;CompiledName(&quot;Start&quot;)&gt;]<br />
           </span>
@@ -148,8 +174,7 @@ and associates the resouce with a  component.</p>
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Starts a process resouce after a delay by specifying the name of a document or application file
-and associates the resouce with a  component.</p>
+          <p>Starts a process resouce by specifying the name of a document or application file and associates the resouce with a  component.</p>
 
 
               <p>CompiledName: <code>Start</code></p>
@@ -158,10 +183,10 @@ and associates the resouce with a  component.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
+          <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
             stop(p)
           </code>
-          <div class="tip" id="5">
+          <div class="tip" id="6">
             <strong>Signature:</strong> p:(type) -&gt; unit<br />
                                     <span>
             <strong>Attributes:</strong><br />
@@ -183,15 +208,15 @@ and associates the resouce with a  component.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
+          <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
             using file f
           </code>
-          <div class="tip" id="6">
-            <strong>Signature:</strong> file:string -&gt; f:(unit -&gt; &#39;?8576) -&gt; &#39;?8576<br />
-                          <strong>Type parameters:</strong> '?8576                      </div>
+          <div class="tip" id="7">
+            <strong>Signature:</strong> file:string -&gt; f:(unit -&gt; &#39;?8675) -&gt; &#39;?8675<br />
+                          <strong>Type parameters:</strong> '?8675                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/App.fs#L64-64" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/App.fs#L75-75" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -204,15 +229,15 @@ and return a disposable resource that stops the process when the resource gets d
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
             Using file f
           </code>
-          <div class="tip" id="7">
+          <div class="tip" id="8">
             <strong>Signature:</strong> file:string -&gt; f:(type) -&gt; unit<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/App.fs#L72-72" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/App.fs#L83-83" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

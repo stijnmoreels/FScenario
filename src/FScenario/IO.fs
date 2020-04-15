@@ -527,8 +527,8 @@ module Dir =
             logger.LogTrace (LogEvent.io, sprintf "Set current directory '%s' -> '%s'" dir original)
             Environment.CurrentDirectory <- original)
 
-    let private reduceDisposables f srcs = 
-        Seq.map f srcs |> CompositeDisposable.Create :> IDisposable
+    let private reduceDisposables (f : 'a -> IDisposable) srcs = 
+        CompositeDisposable.Create (Seq.map f srcs) :> IDisposable
 
     /// <summary>
     /// Deletes the files in the specified directory and revert the cleaning after the returned disposable gets disposed.

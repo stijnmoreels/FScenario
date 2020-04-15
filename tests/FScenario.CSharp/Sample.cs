@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -10,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Divergic.Logging.Xunit;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using static System.TimeMetric;
 using static System.TimeSpans;
 
@@ -111,7 +111,7 @@ namespace FScenario.CSharp
                 return Task.Run(async () =>
                 {
                     await Task.Delay(2000);
-                    await Http.Post(url, new StringContent(content));
+                    await HttpClient.Post(url, new StringContent(content));
                 });
             }
 
@@ -180,16 +180,27 @@ namespace FScenario.CSharp
             var setupBag = new ConcurrentBag<int>();
             var tearDownBag = new ConcurrentBag<int>();
 
-            ILifetimeAsyncDisposable compose = Disposable.Compose(
-                Disposable.Create(() => tearDownBag.Add(0)),
-                Disposable.CreateAsync(() => { tearDownBag.Add(0); return Task.CompletedTask; }),
-                Disposable.Undoable(() => setupBag.Add(0), () => tearDownBag.Add(0)),
-                Disposable.UndoableAsync(() => { setupBag.Add(0); return Task.CompletedTask; }, () => { tearDownBag.Add(0); return Task.CompletedTask; }));
-
-            compose.Setup();
-            await compose.SetupAsync();
-            await compose.DisposeAsync();
-            compose.Dispose();
+            await using (CompositeDisposable compose =
+                Disposable.Compose(Disposable.Create(() => tearDownBag.Add(0)))
+                          .Add(Disposable.CreateAsync(() =>
+                          {
+                              tearDownBag.Add(0);
+                              return new ValueTask(Task.CompletedTask);
+                          }))
+                          .Add(Disposable.Undoable(() => setupBag.Add(0), () => tearDownBag.Add(0)))
+                          .Add(Disposable.UndoableAsync(() =>
+                          {
+                              setupBag.Add(0);
+                              return Task.CompletedTask;
+                          },
+                          () =>
+                          {
+                              tearDownBag.Add(0);
+                              return new ValueTask(Task.CompletedTask);
+                          })))
+            {
+                await compose.SetupAsync();
+            }
 
             Assert.Equal(2 * 2, setupBag.Count);
             Assert.Equal(2 * 4, tearDownBag.Count);
@@ -200,12 +211,14 @@ namespace FScenario.CSharp
         {
             var setupBag = new ConcurrentBag<int>();
 
-            ILifetimeAsyncDisposable composite = Disposable.Compose(
-                Disposable.Create(() => setupBag.Add(0)),
-                Disposable.CreateAsync(() => throw new InvalidOperationException("Test exception")),
-                Disposable.Undoable(() => { }, () => setupBag.Add(0)));
+            ILifetimeAsyncDisposable composite = 
+                Disposable.Compose(Disposable.Create(() => setupBag.Add(0)))
+                .Add(Disposable.CreateAsync(new Func<ValueTask>(() => throw new InvalidOperationException("Test exception"))))
+                .Add(Disposable.Undoable(() => { }, () => setupBag.Add(0)));
 
-            var aggregate = await Assert.ThrowsAsync<AggregateException>(() => composite.DisposeAsync());
+            var aggregate = 
+                await Assert.ThrowsAsync<AggregateException>(
+                    async () => await composite.DisposeAsync());
 
             Assert.Collection(
                 aggregate.InnerExceptions, 
@@ -230,6 +243,50 @@ namespace FScenario.CSharp
                 aggregate.InnerExceptions, 
                 ex => Assert.IsType<InvalidOperationException>(ex));
             Assert.Equal(2, setupBag.Count);
+        }
+    }
+
+    public class TemplateProject : IDisposable
+    {
+        private IDisposable _host;
+
+        public DirectoryInfo TemplateDirectory { get; }
+        public DirectoryInfo FixtureDirectory { get; }
+        public DirectoryInfo ProjectDirectory { get; } = new DirectoryInfo(Path.Combine(Path.GetTempPath(), $"MyProject-{Guid.NewGuid()}"));
+        public ILogger Logger { get; } = Log.Logger<TemplateProject>();
+
+        public static Fixture<TemplateProject> Create()
+        {
+            return Fixture.Create(new TemplateProject())
+                .AddSetup(p => p.CreateProject())
+                .AddSetup(p => p.Run())
+                .AddTearDown(p => p.ProjectDirectory.Delete(recursive: true))
+                .AddTearDown(p => Cmd.Run("dotnet", "new -u " + p.TemplateDirectory.FullName));
+        }
+
+        private void CreateProject()
+        {
+            Cmd.Run("dotnet", "new -i " + TemplateDirectory.FullName);
+            Cmd.Run("dotnet", "new myproject -n MyProject -o " + ProjectDirectory.FullName);
+        }
+
+        private void Run()
+        {
+            Cmd.Run("dotnet", "build -c Release " + ProjectDirectory.FullName);
+            _host = App.Start(new ProcessStartInfo("dotnet", "run")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = ProjectDirectory.FullName
+            });
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            _host?.Dispose();
         }
     }
 }

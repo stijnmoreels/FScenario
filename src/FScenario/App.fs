@@ -29,7 +29,18 @@ module App =
     /// Starts a process resouce by specifying the name of a document or application file and associates the resouce with a <see cref="Process"/> component.
     /// </summary>
     [<CompiledName("Start")>]
-    let startArgs (args : ProcessStartInfo) =
+    let startArgs cmd args =
+      if isNull cmd then nullArg "cmd"
+      if isNull args then nullArg "args"
+      logger |> Log.info (sprintf "Start application '%s'" cmd)
+      let p = Process.Start (cmd, args)
+      Disposable.create (fun () -> stop p)
+
+    /// <summary>
+    /// Starts a process resouce by specifying the name of a document or application file and associates the resouce with a <see cref="Process"/> component.
+    /// </summary>
+    [<CompiledName("Start")>]
+    let startInfo (args : ProcessStartInfo) =
         if args = null then nullArg "args"
         logger |> Log.info (sprintf "Start application '%s %s'" args.FileName args.Arguments)
         let p = Process.Start (args : ProcessStartInfo)

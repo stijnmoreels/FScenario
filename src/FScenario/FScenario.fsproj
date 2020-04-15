@@ -26,6 +26,7 @@
     <None Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Log.fs" />
+    <Compile Include="Retry.fs" />
     <Compile Include="Fixture.fs" />
     <Compile Include="IO.fs" />
     <Compile Include="Http.fs" />

@@ -61,19 +61,39 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
             add disposable fixture
           </code>
-          <div class="tip" id="42">
-            <strong>Signature:</strong> disposable:(type) -&gt; fixture:Fixture&lt;&#39;?9207&gt; -&gt; Fixture&lt;&#39;?9207&gt;<br />
-                          <strong>Type parameters:</strong> '?9207                      </div>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> disposable:(type) -&gt; fixture:Fixture&lt;&#39;?9222&gt; -&gt; Fixture&lt;&#39;?9222&gt;<br />
+                          <strong>Type parameters:</strong> '?9222                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L29-29" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L86-86" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Adds a disposable type to the array of disposable types that gets disposed when the fixture gets disposed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+            addAsync disposable fixture
+          </code>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> disposable:IAsyncDisposableFSharp -&gt; fixture:Fixture&lt;&#39;?9224&gt; -&gt; Fixture&lt;&#39;?9224&gt;<br />
+                          <strong>Type parameters:</strong> '?9224                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L88-88" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds an asynchronous disposable type to the array of disposable types that gets disposed when the fixture gets disposed.</p>
 
 
         </td>
@@ -86,35 +106,50 @@
           </code>
           <div class="tip" id="43">
             <strong>Signature:</strong> value:&#39;T -&gt; Fixture&lt;&#39;T&gt;<br />
-                          <strong>Type parameters:</strong> 'T                        <span>
-            <strong>Attributes:</strong><br />
-[&lt;CompiledName(&quot;Create&quot;)&gt;]<br />
-          </span>
-          </div>
+                          <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L20-20" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L72-72" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Creates a fixture representation from a value that can be used during the test execution.</p>
 
 
-              <p>CompiledName: <code>Create</code></p>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
-            get f fixture
+            empty
           </code>
           <div class="tip" id="44">
-            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?9198) -&gt; fixture:Fixture&lt;&#39;T&gt; -&gt; &#39;?9198<br />
-                          <strong>Type parameters:</strong> 'T, '?9198                      </div>
+            <strong>Signature:</strong> Fixture&lt;unit&gt;<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L22-22" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L70-70" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates an empty fixture without any value (can later be added).</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+            get f fixture
+          </code>
+          <div class="tip" id="45">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;?9212) -&gt; fixture:Fixture&lt;&#39;T&gt; -&gt; &#39;?9212<br />
+                          <strong>Type parameters:</strong> 'T, '?9212                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L74-74" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -126,15 +161,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
             ofComposite value composite
           </code>
-          <div class="tip" id="45">
+          <div class="tip" id="46">
             <strong>Signature:</strong> value:&#39;T -&gt; composite:CompositeDisposable -&gt; Fixture&lt;&#39;T&gt;<br />
                           <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L26-26" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L84-84" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -146,15 +181,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
             setup f fixture
           </code>
-          <div class="tip" id="46">
-            <strong>Signature:</strong> f:(unit -&gt; unit) -&gt; fixture:Fixture&lt;&#39;?9209&gt; -&gt; Fixture&lt;&#39;?9209&gt;<br />
-                          <strong>Type parameters:</strong> '?9209                      </div>
+          <div class="tip" id="47">
+            <strong>Signature:</strong> f:(&#39;?9226 -&gt; unit) -&gt; fixture:Fixture&lt;&#39;?9226&gt; -&gt; Fixture&lt;&#39;?9226&gt;<br />
+                          <strong>Type parameters:</strong> '?9226                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L31-31" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L90-90" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -166,15 +201,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
             setupAsync f fixture
           </code>
-          <div class="tip" id="47">
-            <strong>Signature:</strong> f:(unit -&gt; Async&lt;unit&gt;) -&gt; fixture:Fixture&lt;&#39;?9211&gt; -&gt; Fixture&lt;&#39;?9211&gt;<br />
-                          <strong>Type parameters:</strong> '?9211                      </div>
+          <div class="tip" id="48">
+            <strong>Signature:</strong> f:(&#39;?9234 -&gt; Async&lt;unit&gt;) -&gt; fixture:Fixture&lt;&#39;?9234&gt; -&gt; Fixture&lt;&#39;?9234&gt;<br />
+                          <strong>Type parameters:</strong> '?9234                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L33-33" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L100-100" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -186,15 +221,115 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
-            tearDown f fixture
+          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+            setupRetry setRetry f fixture
           </code>
-          <div class="tip" id="48">
-            <strong>Signature:</strong> f:(unit -&gt; unit) -&gt; fixture:Fixture&lt;&#39;?9213&gt; -&gt; Fixture&lt;&#39;?9213&gt;<br />
-                          <strong>Type parameters:</strong> '?9213                      </div>
+          <div class="tip" id="49">
+            <strong>Signature:</strong> setRetry:(Retry -&gt; Retry) -&gt; f:(&#39;?9228 -&gt; unit) -&gt; fixture:Fixture&lt;&#39;?9228&gt; -&gt; Fixture&lt;&#39;?9228&gt;<br />
+                          <strong>Type parameters:</strong> '?9228                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L35-35" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L92-92" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a setup function to the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+            setupu f fixture
+          </code>
+          <div class="tip" id="50">
+            <strong>Signature:</strong> f:(&#39;?9230 -&gt; &#39;?9230) -&gt; fixture:Fixture&lt;&#39;?9230&gt; -&gt; Fixture&lt;&#39;?9230&gt;<br />
+                          <strong>Type parameters:</strong> '?9230                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L95-95" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a setup function that changes the fixture's value to the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+            setupuAsync f fixture
+          </code>
+          <div class="tip" id="51">
+            <strong>Signature:</strong> f:(&#39;?9236 -&gt; Async&lt;&#39;?9236&gt;) -&gt; fixture:Fixture&lt;&#39;?9236&gt; -&gt; Fixture&lt;&#39;?9236&gt;<br />
+                          <strong>Type parameters:</strong> '?9236                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L103-103" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds an asynchronous setup function to the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+            setupuRetry setRetry f fixture
+          </code>
+          <div class="tip" id="52">
+            <strong>Signature:</strong> setRetry:(Retry -&gt; Retry) -&gt; f:(&#39;?9232 -&gt; &#39;?9232) -&gt; fixture:Fixture&lt;&#39;?9232&gt; -&gt; Fixture&lt;&#39;?9232&gt;<br />
+                          <strong>Type parameters:</strong> '?9232                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L98-98" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a setup function that changes the fixture's value to the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+            setValue v fixture
+          </code>
+          <div class="tip" id="53">
+            <strong>Signature:</strong> v:&#39;T -&gt; fixture:Fixture&lt;&#39;T&gt; -&gt; Fixture&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L78-78" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Sets the value in the fixture, copying the existing disposables into a new fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+            teardown f fixture
+          </code>
+          <div class="tip" id="54">
+            <strong>Signature:</strong> f:(&#39;?9238 -&gt; unit) -&gt; fixture:Fixture&lt;&#39;?9238&gt; -&gt; Fixture&lt;&#39;?9238&gt;<br />
+                          <strong>Type parameters:</strong> '?9238                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L109-109" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -206,15 +341,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
-            tearDownAsync f fixture
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+            teardownAsync f fixture
           </code>
-          <div class="tip" id="49">
-            <strong>Signature:</strong> f:(unit -&gt; Async&lt;unit&gt;) -&gt; fixture:Fixture&lt;&#39;?9215&gt; -&gt; Fixture&lt;&#39;?9215&gt;<br />
-                          <strong>Type parameters:</strong> '?9215                      </div>
+          <div class="tip" id="55">
+            <strong>Signature:</strong> f:(&#39;?9246 -&gt; Async&lt;unit&gt;) -&gt; fixture:Fixture&lt;&#39;?9246&gt; -&gt; Fixture&lt;&#39;?9246&gt;<br />
+                          <strong>Type parameters:</strong> '?9246                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L37-37" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L119-119" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -226,15 +361,95 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+            teardownRetry setRetry f fixture
+          </code>
+          <div class="tip" id="56">
+            <strong>Signature:</strong> setRetry:(Retry -&gt; Retry) -&gt; f:(&#39;?9242 -&gt; unit) -&gt; fixture:Fixture&lt;&#39;?9242&gt; -&gt; Fixture&lt;&#39;?9242&gt;<br />
+                          <strong>Type parameters:</strong> '?9242                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L113-113" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a function that runs when the <code>.Dispose</code> is called on the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
+            teardownu f fixture
+          </code>
+          <div class="tip" id="57">
+            <strong>Signature:</strong> f:(&#39;?9240 -&gt; &#39;?9240) -&gt; fixture:Fixture&lt;&#39;?9240&gt; -&gt; Fixture&lt;&#39;?9240&gt;<br />
+                          <strong>Type parameters:</strong> '?9240                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L111-111" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a function that changes the fixture's value and runs when the <code>.Dispose</code> is called on the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            teardownuRetry setRetry f fixture
+          </code>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> setRetry:(Retry -&gt; Retry) -&gt; f:(&#39;?9244 -&gt; &#39;?9244) -&gt; fixture:Fixture&lt;&#39;?9244&gt; -&gt; Fixture&lt;&#39;?9244&gt;<br />
+                          <strong>Type parameters:</strong> '?9244                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L116-116" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Adds a function that runs when the <code>.Dispose</code> is called on the fixture.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+            update f fixture
+          </code>
+          <div class="tip" id="59">
+            <strong>Signature:</strong> f:(&#39;T -&gt; &#39;T) -&gt; fixture:Fixture&lt;&#39;T&gt; -&gt; Fixture&lt;&#39;T&gt;<br />
+                          <strong>Type parameters:</strong> 'T                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L80-80" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Updates the fixture's value with a update function.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
             value(fixture)
           </code>
-          <div class="tip" id="50">
+          <div class="tip" id="60">
             <strong>Signature:</strong> fixture:Fixture&lt;&#39;T&gt; -&gt; &#39;T<br />
                           <strong>Type parameters:</strong> 'T                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L24-24" class="github-link">
+                      <a href="https://github.com/stijnmoreels/FScenario/tree/master/src/FScenario/Fixture.fs#L76-76" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

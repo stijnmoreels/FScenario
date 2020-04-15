@@ -1,19 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../src/FScenario/FScenario.fsproj" />
+    <ProjectReference Include="..\..\src\FScenario.Http\FScenario.Http.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="FSharp.Core" Version="4.5.2" />
+    <PackageReference Include="FSharp.Core" Version="4.7.0" />
     <PackageReference Include="xUnit" Version="2.*" />
     <PackageReference Include="xUnit.runner.visualstudio" Version="2.*" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Divergic.Logging.Xunit" Version="1.*" />
   </ItemGroup>
 
