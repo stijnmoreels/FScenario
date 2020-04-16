@@ -14,7 +14,6 @@
     <PackageReference Include="FSharp.Core" Version="4.7.0" />
     <PackageReference Include="xUnit" Version="2.*" />
     <PackageReference Include="xUnit.runner.visualstudio" Version="2.*" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Divergic.Logging.Xunit" Version="1.*" />
   </ItemGroup>
 
