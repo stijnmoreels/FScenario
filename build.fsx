@@ -180,7 +180,8 @@ Target.create "Docs" <| fun _ ->
     | None -> layoutRootsAll.["en"]
 
   Directory.ensure (docsOutput @@ "reference")
-  !! ("src/**/bin/Release/**/*.dll") 
+  !! ("src/FScenario/bin/Release/**/FScenario.dll")
+  ++ ("src/FScenario.Http/bin/Release/**/FScenario.Http.dll")
   |> FSFormatting.createDocsForDlls (fun args ->
       { args with
           OutputDirectory = docsOutput @@ "reference"
