@@ -25,5 +25,6 @@ files
     bin/Release/netstandard2.0/*.xml ==> lib/netstandard2.0
 dependencies
     FSharp.Core >= 4.7
-    Microsoft.Extensions.Logging >= 3.0
+    Microsoft.Bcl.AsyncInterfaces >= 1.1
+    Microsoft.Extensions.Logging >= 3.1.3
     Polly-Signed >= 5.9
