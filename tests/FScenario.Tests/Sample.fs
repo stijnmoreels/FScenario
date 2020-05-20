@@ -389,6 +389,31 @@ let http_tests =
   ]
 
 [<Tests>]
+let retry_tests =
+  testList "retry tests" [
+    testCase "target" <| fun () ->
+      let count = ref 0
+      Retry.target (fun () -> incr count) |> Retry.run 
+      Expect.equal !count 1 "count should be increased by 1"
+    testCase "timeout" <| fun () ->
+      Expect.throwsT<TimeoutException> 
+        (fun () -> retryAll { target id; timeout _1s }) "should throw timeout exception"
+    testCase "handle" <| fun () ->
+      let count = ref 0
+      retry<InvalidOperationException> {
+        target (fun () -> 
+          if !count <> 0 then incr count
+          else raise <| invalidOp "some exception") }
+      Expect.equal !count 1 "should handle specific exceptions"
+    testCase "every" <| fun () ->
+      let watch = Stopwatch.StartNew ()
+      Expect.throws (fun () -> retryAll {
+        target (fun () -> invalidOp "some exception")
+        every _1s; timeout _5s }) 
+        "throws expected exception"
+      Expect.isGreaterThan _5s watch.Elapsed "should run for over 5s" ]
+
+[<Tests>]
 let disposable_tests =
   testList "disposable tests" [
     testCaseAsync "composite disposable dispose all" <| async {

@@ -59,3 +59,8 @@ Initial release
 - Add fixture class for small/quick fixture setup that requires a single value and some disposables
 - Add temporary environment variable fixtures
 - Add easy command line interaction by running a command with a set of args
+
+### 2.7.0
+
+- Add sync retry composition which also included in fixture composition
+- Split HTTP functionality to separate package
